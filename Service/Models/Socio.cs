@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Service.Models
 {
@@ -26,6 +27,20 @@ namespace Service.Models
         public Localidad? Localidad { get; set; }
 
         public bool IsDeleted { get; set; } = false;
+
+        [NotMapped]
+        virtual public string Actividades
+        {
+            get
+            {
+                if (SocioActividades == null || SocioActividades.Count == 0)
+                    return string.Empty;
+                var textActividad = SocioActividades.Count > 1 ? "Actividades: " : "Actividad: ";
+                return textActividad + string.Join(", ", SocioActividades.Where(lg => lg.Actividad != null).Select(lg => lg.Actividad!.Nombre));
+            }
+        }
+        virtual public ICollection<SocioActividad> SocioActividades { get; set; } = new List<SocioActividad>();
+
         public override string ToString()
         {
             return Nombre;
