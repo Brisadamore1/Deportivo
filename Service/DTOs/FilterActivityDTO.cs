@@ -6,13 +6,11 @@ using System.Threading.Tasks;
 
 namespace Service.DTOs
 {
-    public class FilterActividadDTO
+    public class FilterActivityDTO
     {
         public string SearchText { get; set; } = "";
         public bool ForNombre { get; set; } = false;
         public bool ForProfesor { get; set; } = false;
-        public bool ForEditorial { get; set; } = false;
-        public bool ForGenero { get; set; } = false;
-        public bool ForSinopsis { get; set; } = false;
+        public bool ForNivel { get; set; } = false;
     }
 }

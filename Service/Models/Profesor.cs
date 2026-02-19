@@ -1,8 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Service.Interfaces;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Service.Models
 {
-    public class Profesor
+    public class Profesor : IEntityIdNombre
     {
         public int Id { get; set; }
         [Required]

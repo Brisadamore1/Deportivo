@@ -1,9 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Service.Interfaces;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Service.Models
 {
-    public class Socio
+    public class Socio : IEntityIdNombre
     {
         public int Id { get; set; }
         [Required]

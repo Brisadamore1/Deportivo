@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Service.DTOs
 {
-    public sealed class ActividadMetaDataDTO
+    public sealed class ActivityMetaDataDTO
     {
         public string? Descripcion { get; set; }
         public string? EdadRecomendada { get; set; }

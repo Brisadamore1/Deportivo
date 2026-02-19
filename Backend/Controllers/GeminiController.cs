@@ -176,11 +176,11 @@ Devuelve SOLO JSON válido.
             if (string.IsNullOrWhiteSpace(jsonPayload))
                 return StatusCode(502, "No se recibió JSON del modelo.");
 
-            ActividadMetaDataDTO? metadata;
+            ActivityMetaDataDTO? metadata;
 
             try
             {
-                metadata = JsonSerializer.Deserialize<ActividadMetaDataDTO>(
+                metadata = JsonSerializer.Deserialize<ActivityMetaDataDTO>(
                     jsonPayload,
                     new JsonSerializerOptions
                     {

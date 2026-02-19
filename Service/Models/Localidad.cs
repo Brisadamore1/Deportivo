@@ -1,8 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Service.Interfaces;
+using System.ComponentModel.DataAnnotations;
 
 namespace Service.Models
 {
-    public class Localidad
+    public class Localidad : IEntityIdNombre
     {
         public int Id { get; set; }
         [Required]
