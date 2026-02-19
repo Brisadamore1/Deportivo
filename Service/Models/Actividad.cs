@@ -14,6 +14,11 @@ namespace Service.Models
         [Required]
         [Column(TypeName = "text")]
         public string Descripcion { get; set; } = string.Empty;
+        public string? EdadRecomendada { get; set; }
+
+        [Column(TypeName = "text")]
+        public string? Beneficios { get; set; }
+
         public int ProfesorId { get; set; }
         public Profesor? Profesor { get; set; }
         public bool IsDeleted { get; set; } = false;

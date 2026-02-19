@@ -95,44 +95,57 @@ namespace Service.Services
 
         }
 
-        public async Task<Libro?> GetLibroFromPortada(string imageUrl)
+        public async Task<Actividad?> GetActividadFromImagen(string imageUrl)
         {
             SetAuthorizationHeader();
+
             if (string.IsNullOrEmpty(imageUrl))
             {
                 throw new ArgumentException("La url de la imagen no puede estar vacía.", nameof(imageUrl));
             }
+
             try
             {
                 var urlApi = _configuration["UrlApi"];
                 var endpointGemini = ApiEndpoints.GetEndpoint("Gemini");
-                // limpio la url
+
+                // Limpio la URL
                 imageUrl = Uri.EscapeDataString(imageUrl);
-                var response = await _httpClient.GetAsync($"{urlApi}{endpointGemini}/ocr-portada?imageUrl={imageUrl}");
+
+                var response = await _httpClient.GetAsync(
+                    $"{urlApi}{endpointGemini}/actividad-metadata?imageUrl={imageUrl}"
+                );
+
                 if (response.IsSuccessStatusCode)
                 {
                     var result = await response.Content.ReadAsStringAsync();
-                    var libro = JsonSerializer.Deserialize<Libro>(result,_options);
-                    if (libro != null)
+
+                    // Esperamos JSON con:
+                    // {
+                    //   "descripcion": "...",
+                    //   "edadRecomendada": "...",
+                    //   "beneficios": "..."
+                    // }
+
+                    var metadata = JsonSerializer.Deserialize<Actividad>(result, _options);
+
+                    if (metadata != null)
                     {
-                        return libro;
-                    }
-                    else
-                    {
-                        return null;
+                        return metadata;
                     }
 
+                    return null;
                 }
-                var errorContent = await response.Content.ReadAsStringAsync();
-                var error2=$"Error en la respuesta de la API: {response.StatusCode} - {response.ReasonPhrase}";
-                return null;
 
+                var errorContent = await response.Content.ReadAsStringAsync();
+                throw new Exception($"Error en actividad-metadata: {response.StatusCode} - {errorContent}");
             }
             catch (Exception ex)
             {
-                throw new Exception($"Error en la respuesta de la API: {ex.Message}");
+                throw new Exception($"Error al obtener metadata de actividad: {ex.Message}");
             }
         }
+
 
         public async Task<float[]> CrearEmbeddingAsync(string texto)
         {
