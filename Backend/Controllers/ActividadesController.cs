@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Service.DTOs;
 using Service.Models;
 
 namespace Backend.Controllers
@@ -20,9 +21,39 @@ namespace Backend.Controllers
 
         // GET: api/Actividades
         [HttpGet]
+        [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<Actividad>>> GetActividades([FromQuery] string filtro="")
         {
             return await _context.Actividades.AsNoTracking().Where(a=>a.Nombre.Contains(filtro)).ToListAsync();
+        }
+
+        // POST: api/Actividades/withfilter
+        [HttpPost("withfilter")]
+        [AllowAnonymous]
+        public async Task<ActionResult<IEnumerable<Actividad>>> GetActividadesWithFilter([FromBody] FilterActivityDTO? filter)
+        {
+            var query = _context.Actividades.AsNoTracking().AsQueryable();
+
+            if (filter == null || string.IsNullOrWhiteSpace(filter.SearchText))
+            {
+                return await query.ToListAsync();
+            }
+
+            var text = filter.SearchText.ToUpperInvariant();
+
+            // Si se filtra por profesor, necesitamos incluir la entidad Profesor
+            if (filter.ForProfesor)
+            {
+                query = query.Include(a => a.Profesor);
+            }
+
+            query = query.Where(a =>
+                (filter.ForNombre && a.Nombre.ToUpper().Contains(text)) ||
+                (filter.ForNivel && ((a.Nivel ?? string.Empty).ToUpper().Contains(text))) ||
+                (filter.ForProfesor && a.Profesor != null && a.Profesor.Nombre.ToUpper().Contains(text))
+            );
+
+            return await query.ToListAsync();
         }
 
         [HttpGet("deleteds")]
@@ -36,6 +67,7 @@ namespace Backend.Controllers
 
         // GET: api/Actividades/5
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public async Task<ActionResult<Actividad>> GetActividad(int id)
         {
             var actividad = await _context.Actividades.AsNoTracking().FirstOrDefaultAsync(a=>a.Id.Equals(id));

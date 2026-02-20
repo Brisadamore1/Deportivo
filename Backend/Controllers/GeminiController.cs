@@ -24,7 +24,7 @@ namespace Backend.Controllers
                       .Build();
 
                 var apiKey = configuration["ApiKeyGemini"];
-                var url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + apiKey;
+                var url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + apiKey;
 
                 var payload = new
                 {
@@ -46,8 +46,16 @@ namespace Backend.Controllers
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
                 var response = await client.PostAsync(url, content);
                 var result = await response.Content.ReadAsStringAsync();
-
+                if (!response.IsSuccessStatusCode)
+                {
+                    return StatusCode((int)response.StatusCode, result);
+                }
                 using var doc = JsonDocument.Parse(result);
+
+                if (!doc.RootElement.TryGetProperty("candidates", out var candidates))
+                {
+                    return StatusCode(500, result);
+                }
 
                 var texto = doc.RootElement
                    .GetProperty("candidates")[0]
@@ -200,6 +208,68 @@ Devuelve SOLO JSON válido.
             };
 
             return Ok(actividad);
+        }
+
+        /// <summary>
+        /// Nuevo endpoint: genera embedding de un texto (por ejemplo sinopsis).
+        /// </summary>
+        [HttpGet("embed")]
+        public async Task<float[]> CrearEmbeddingAsync(string texto, CancellationToken ct = default)
+        {
+            // Modelo y API key (appsettings.json → "ApiKeyGemini")
+            var configuration = new ConfigurationBuilder()
+                     .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                     .AddEnvironmentVariables()
+                     .Build();
+            var apiKey = configuration["ApiKeyGemini"];
+            if (string.IsNullOrWhiteSpace(apiKey))
+                throw new InvalidOperationException("Falta configurar ApiKeyGemini en appsettings.json.");
+
+            // Modelo de embeddings recomendado (podés cambiarlo si querés otro) 
+            const string embeddingModel = "models/gemini-embedding-001";
+
+            var url =
+                $"https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent?key={apiKey}";
+
+            var payload = new
+            {
+                model = embeddingModel,
+                content = new
+                {
+                    parts = new[]
+                    {
+                    new { text = texto }
+                }
+                },
+                // opcional, indica para qué usarás el embedding (mejor semántico): 
+                taskType = "SEMANTIC_SIMILARITY"
+            };
+
+            var json = JsonSerializer.Serialize(payload);
+            var client = new HttpClient();
+
+            using var msg = new HttpRequestMessage(HttpMethod.Post, url)
+            {
+                Content = new StringContent(json, Encoding.UTF8, "application/json")
+            };
+
+            using var resp = await client.SendAsync(msg, ct);
+            var respJson = await resp.Content.ReadAsStringAsync(ct);
+
+            if (!resp.IsSuccessStatusCode)
+                throw new Exception($"Error Gemini embeddings: {(int)resp.StatusCode} - {respJson}");
+
+            using var doc = JsonDocument.Parse(respJson);
+
+            // Estructura típica: { "embedding": { "values": [ ... ] } } 
+            var values = doc.RootElement
+                .GetProperty("embedding")
+                .GetProperty("values")
+                .EnumerateArray()
+                .Select(e => (float)e.GetDouble())
+                .ToArray();
+
+            return values;
         }
 
         // 🔹 DETECCIÓN MIME

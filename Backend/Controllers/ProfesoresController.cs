@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Service.DTOs;
 using Service.Models;
 
 namespace Backend.Controllers
@@ -23,6 +24,29 @@ namespace Backend.Controllers
         public async Task<ActionResult<IEnumerable<Profesor>>> GetProfesores([FromQuery] string filtro="")
         {
             return await _context.Profesores.AsNoTracking().Where(a=>a.Nombre.Contains(filtro)).ToListAsync();
+        }
+
+        // POST: api/Profesores/withfilter
+        [HttpPost("withfilter")]
+        [AllowAnonymous]
+        public async Task<ActionResult<IEnumerable<Profesor>>> GetProfesoresWithFilter([FromBody] FilterActivityDTO? filter)
+        {
+            var query = _context.Profesores.AsNoTracking().AsQueryable();
+
+            if (filter == null || string.IsNullOrWhiteSpace(filter.SearchText))
+            {
+                return await query.ToListAsync();
+            }
+
+            var text = filter.SearchText.ToUpperInvariant();
+
+            // Only 'ForNombre' is applicable for profesores; if set, filter by Nombre
+            if (filter.ForNombre)
+            {
+                query = query.Where(p => p.Nombre.ToUpper().Contains(text));
+            }
+
+            return await query.ToListAsync();
         }
 
         [HttpGet("deleteds")]
