@@ -10,6 +10,7 @@ namespace Service.Interfaces
 {
     public interface IActivityService: IGenericService<Actividad> 
     {
+        //Firma del método para obtener actividades con filtro
         public Task<List<Actividad>?> GetWithFilterAsync(FilterActivityDTO filter);
     }
 }

@@ -36,7 +36,6 @@ namespace Backend.Controllers
                     new EmailProvider()
                 },
             };
-
             firebaseAuthClient = new FirebaseAuthClient(_config);
         }
 

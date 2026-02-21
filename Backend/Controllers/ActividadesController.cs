@@ -24,7 +24,12 @@ namespace Backend.Controllers
         [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<Actividad>>> GetActividades([FromQuery] string filtro="")
         {
-            return await _context.Actividades.AsNoTracking().Where(a=>a.Nombre.Contains(filtro)).ToListAsync();
+            // Incluir siempre al profesor para que la app pueda mostrar su nombre
+            return await _context.Actividades
+                .AsNoTracking()
+                .Include(a => a.Profesor)
+                .Where(a => a.Nombre.Contains(filtro))
+                .ToListAsync();
         }
 
         // POST: api/Actividades/withfilter
@@ -34,6 +39,9 @@ namespace Backend.Controllers
         {
             var query = _context.Actividades.AsNoTracking().AsQueryable();
 
+            // Incluir siempre al profesor para que la app pueda mostrar su nombre
+            query = query.Include(a => a.Profesor);
+
             if (filter == null || string.IsNullOrWhiteSpace(filter.SearchText))
             {
                 return await query.ToListAsync();
@@ -41,11 +49,8 @@ namespace Backend.Controllers
 
             var text = filter.SearchText.ToUpperInvariant();
 
-            // Si se filtra por profesor, necesitamos incluir la entidad Profesor
-            if (filter.ForProfesor)
-            {
-                query = query.Include(a => a.Profesor);
-            }
+            // Nota: la entidad Profesor ya fue incluida arriba para asegurar que
+            // la propiedad Profesor esté poblada cuando se devuelvan las actividades.
 
             query = query.Where(a =>
                 (filter.ForNombre && a.Nombre.ToUpper().Contains(text)) ||

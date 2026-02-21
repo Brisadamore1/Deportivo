@@ -8,6 +8,7 @@ namespace Service.DTOs
 {
     public class FilterActivityDTO
     {
+        //Checks para filtrar por nombre, profesor o nivel.
         public string SearchText { get; set; } = "";
         public bool ForNombre { get; set; } = false;
         public bool ForProfesor { get; set; } = false;

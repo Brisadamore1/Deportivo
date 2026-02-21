@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿    using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Service.DTOs;
 using Service.Services;
@@ -9,7 +9,7 @@ namespace AppMovil.ViewModels
     {
         AuthService authService = new AuthService();
         [ObservableProperty]
-        [NotifyCanExecuteChangedFor(nameof(EnviarCommand))]
+        [NotifyCanExecuteChangedFor(nameof(EnviarCommand))] //Cuando cambia el valor de Mail, se notifica que el comando EnviarCommand debe reevaluar si puede ejecutarse o no.
         private string mail = string.Empty;
 
         [ObservableProperty]

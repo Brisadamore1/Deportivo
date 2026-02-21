@@ -76,11 +76,8 @@ namespace Service.Services
             {
                 throw new Exception("Error al loguearse->: " + ex.Message);
             }
-
-
-
-
         }
+
         public async Task<bool> ResetPassword(LoginDTO? login)
         {
             if (login == null)
@@ -107,6 +104,7 @@ namespace Service.Services
                 throw new Exception("Error al resetear el password->: " + ex.Message);
             }
         }
+
         public async Task<bool> DeleteUser(LoginDTO? login)
         {
             if (login == null)

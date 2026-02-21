@@ -93,7 +93,7 @@ namespace AppMovil.ViewModels
 
         private async void OnBuscar()
         {
-            if (IsBusy) return;
+            if (IsBusy) return; //Si se disparan varias búsquedas, solo la primera se ejecuta, las demás se ignoran hasta que termine la primera
 
             try
             {

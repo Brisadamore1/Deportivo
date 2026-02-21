@@ -51,6 +51,7 @@ namespace AppMovil.ViewModels
             }
         }
 
+        //Este metodo se ejecuta cuando el usuario hace clic en el botón "Olvidé mi contraseña". Navega a la página de restablecimiento de contraseña.
         private void OnForgotPassword()
         {
             //tomo referencia del shell actual
@@ -95,6 +96,7 @@ namespace AppMovil.ViewModels
                     ErrorMessage = "No se pudo obtener la información del usuario.";
                     return;
                 }
+                // Guardar el ID del usuario en las preferencias para futuras referencias. Se almacena el usuario.
                 Preferences.Set("UserLoginId", usuario.Id);
                 // PERMITE CUALQUIER USUARIO/CONTRASEÑA durante desarrollo
                 // Solo requiere que no estén vacíos
