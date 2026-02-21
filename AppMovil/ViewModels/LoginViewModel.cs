@@ -24,7 +24,7 @@ namespace AppMovil.ViewModels
 
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(LoginCommand))]
-        private bool isBusy;
+        private bool isBusy; //Indica si se está realizando una operación de inicio de sesión para evitar múltiples intentos simultáneos.
 
         [ObservableProperty]
         private string errorMessage = string.Empty;
@@ -35,8 +35,9 @@ namespace AppMovil.ViewModels
 
         public LoginViewModel()
         {
-            _authService = new AuthService();
-            _usuarioService= new UsuarioService();
+            //Se intancia en el constructor los objetos de los servicios.
+            _authService = new AuthService(); //esta clase es para manejar la autenticación, como el login y el registro de usuarios
+            _usuarioService = new UsuarioService();
             LoginCommand = new RelayCommand(OnLogin, CanLogin);
             ForgotPasswordCommand = new RelayCommand(OnForgotPassword);
             RegisterCommand = new RelayCommand(OnRegister);
@@ -57,8 +58,6 @@ namespace AppMovil.ViewModels
             {
                 Shell.Current.GoToAsync("//ResetPassword");
             }
-
-
         }
 
         private bool CanLogin()
@@ -101,7 +100,7 @@ namespace AppMovil.ViewModels
                 // Solo requiere que no estén vacíos
                 if (Application.Current?.MainPage is AppShell shell)
                 {
-                    shell.SetLoginState(true);
+                    shell.SetLoginState(true); // Esto es para actualizar el estado de inicio de sesión en el Shell
                 }
             }
             catch (Exception ex)
@@ -114,6 +113,7 @@ namespace AppMovil.ViewModels
             }
         }
 
+        //Método que se ejecuta cuando se cambia el valor de la propiedad ErrorMessage, para mostrar una alerta con el mensaje de error.
         partial void OnErrorMessageChanged(string value)
         {
             if (!string.IsNullOrEmpty(value))

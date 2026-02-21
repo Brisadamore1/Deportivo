@@ -29,11 +29,11 @@ namespace AppMovil.ViewModels
             if (Application.Current?.MainPage is AppShell shell)
             {
                 if (isLoggedIn)
-                    Shell.Current.FlyoutBehavior = FlyoutBehavior.Flyout;
+                    Shell.Current.FlyoutBehavior = FlyoutBehavior.Flyout; //Menu izquierdo habilitado cuando el usuario se ha logueado
                 else
-                    Shell.Current.FlyoutBehavior = FlyoutBehavior.Disabled;
+                    Shell.Current.FlyoutBehavior = FlyoutBehavior.Disabled; //Menu izquierdo deshabilitado cuando el usuario no se ha logueado
 
-                IsLoggedIn = isLoggedIn;
+                IsLoggedIn = isLoggedIn; // Actualiza la propiedad IsLoggedIn para reflejar el estado de inicio de sesión y activar/desactivar el menú lateral
                 if (isLoggedIn)
                     Shell.Current.GoToAsync("//MainPage");  // Cambio a MainPage (pantalla de inicio)
                 else
@@ -42,9 +42,10 @@ namespace AppMovil.ViewModels
                 
         }
 
+        //Método para saber que usuario se ha logueado
         public void SetUserLogin(Usuario usuario)
         {
-            Usuario = usuario;
+            Usuario = usuario; //Se escribe en la pantalla quién es el usuario logueado.
         }
 
         private void OnLogout()

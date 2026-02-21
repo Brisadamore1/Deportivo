@@ -18,6 +18,8 @@ namespace AppMovil
             ViewModel.SetLoginState(isLoggedIn);
 
         }
+
+        //Método para saber que usuario se ha logueado
         public void SetUserLogin(Usuario usuario)
         {
             ViewModel.SetUserLogin(usuario);

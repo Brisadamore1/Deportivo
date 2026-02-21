@@ -62,7 +62,7 @@ namespace Service.Services
                 {
                     var result = await response.Content.ReadAsStringAsync();
                      
-                    GenericService<object>.jwtToken = result;   
+                    GenericService<object>.jwtToken = result; //Cuando obtuvo el jwt le asigna el valor (seteea) en la propiedad estatica de la clase GenericService, para que pueda ser utilizado por los demas servicios que heredan de esa clase. 
                     return null;
                 }
                 else

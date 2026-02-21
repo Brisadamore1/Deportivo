@@ -15,6 +15,7 @@ namespace Service.Services
 {
     public class GenericService<T> : IGenericService<T> where T : class
     {
+        //Protected hace que puedan ser usados en las clases heredadas.
         protected readonly HttpClient _httpClient;
         protected readonly string _endpoint;
         protected readonly JsonSerializerOptions _options;
@@ -35,6 +36,7 @@ namespace Service.Services
             _endpoint = ApiEndpoints.GetEndpoint(typeof(T).Name);
         }
 
+        //Método para configurar autorizacion con JWt.
         protected void SetAuthorizationHeader()
         {
             // Si ya está configurado (por un DelegatingHandler), no hacer nada
@@ -55,18 +57,12 @@ namespace Service.Services
                 return;
             }
             // Si no se definió el token, se lanza una excepción
-            
-                throw new InvalidOperationException("El token JWT no está disponible para la autorización.");
-            
-
-
-
-
+            throw new InvalidOperationException("El token JWT no está disponible para la autorización.");
         }
 
         public async Task<T?> AddAsync(T? entity)
         {
-            SetAuthorizationHeader();
+            SetAuthorizationHeader(); //Carga el jwt
             var response = await _httpClient.PostAsJsonAsync(_endpoint, entity);
             var content = await response.Content.ReadAsStringAsync();
             if (!response.IsSuccessStatusCode)

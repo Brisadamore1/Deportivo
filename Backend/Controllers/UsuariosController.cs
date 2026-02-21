@@ -63,6 +63,7 @@ namespace Backend.Controllers
             if (string.IsNullOrEmpty(email))
                 return BadRequest("El parámetro email es obligatorio.");
 
+            //Se busca un usuario, donde email debe ser igual al email que llega, el recibido por query, que es el mismo que el del usuario logueado.
             var usuario = await _context.Usuarios.AsNoTracking().FirstOrDefaultAsync(u => u.Email.Equals(email));
 
             if (usuario == null)
