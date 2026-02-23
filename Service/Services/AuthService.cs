@@ -58,7 +58,8 @@ namespace Service.Services
                 var endpointAuth = ApiEndpoints.GetEndpoint("Login");
                 var client = new HttpClient();
                 var response = await client.PostAsJsonAsync($"{urlApi}{endpointAuth}/login/",login);
-                if(response.IsSuccessStatusCode)
+                //Si la respuesta es exitosa (200), leo el contenido de la respuesta, que es el token JWT, y lo asigno a la propiedad estatica jwtToken de la clase GenericService.
+                if (response.IsSuccessStatusCode)
                 {
                     var result = await response.Content.ReadAsStringAsync();
                      

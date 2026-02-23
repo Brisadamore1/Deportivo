@@ -57,14 +57,14 @@
                     <Button Text="🔍 Buscar" 
                         Command="{Binding BuscarCommand}"
                         BackgroundColor="LightSteelBlue"
-                        TextColor="DarkBlue"
+                        TextColor="LightGray"
                         CornerRadius="8"
                         FontSize="14"/>
                     <!-- Botón para mostrar/ocultar filtros -->
                     <Button Text="⚙️ Filtros de búsqueda" 
                             Command="{Binding ToggleFiltrosCommand}"
                             BackgroundColor="LightSteelBlue"
-                            TextColor="DarkBlue"
+                            TextColor="LightGray"
                             CornerRadius="8"
                             FontSize="14"/>
 
@@ -79,7 +79,7 @@
                             <Label Text="🔎 Buscar en:" 
                                    FontSize="16"
                                    FontAttributes="Bold"
-                                   TextColor="DarkBlue"/>
+                                   TextColor="LightGray"/>
 
                             <!-- Checkboxes de filtros -->
                             <Grid ColumnDefinitions="*,*" RowDefinitions="Auto, Auto, Auto">

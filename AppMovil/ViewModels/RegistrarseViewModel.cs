@@ -88,7 +88,7 @@ namespace AppMovil.ViewModels
 
         private async void Registrarse()
         {
-            if (IsBusy) return;
+            if (IsBusy) return; //Al hacer doble click rápido, se evita que se ejecute el proceso varias veces
             IsBusy = true;
             if (Password != VerifyPassword)
             {
@@ -112,7 +112,7 @@ namespace AppMovil.ViewModels
                     Email = Mail,
                     TipoRol = TipoRol,
                     Dni = Dni,
-                    Password = Password.GetHashSha256(),
+                    Password = Password.GetHashSha256(), //Contraseña hasheada para mayor seguridad
                     Domicilio = Domicilio,
                     Telefono = Telefono,
                 };

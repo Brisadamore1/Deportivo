@@ -69,6 +69,7 @@ namespace Service.Services
             {
                 throw new Exception($"Error al agregar el dato: {response.StatusCode} - {content}");
             }
+            //La deserializacion del json a un objeto de tipo T, usando las opciones configuradas para ignorar mayusculas/minusculas.
             return JsonSerializer.Deserialize<T>(content, _options);
         }
 

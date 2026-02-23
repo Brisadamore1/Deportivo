@@ -58,15 +58,15 @@ namespace AppMovil.ViewModels
                 Titulo = " Buscar Actividades",
                 Descripcion = "Encuentra actividades en el catálogo",
                 Ruta = "//BuscarActividadesPage",
-                Color = "#2196F3"
+                Color = "#FCCAFC"
             });
 
             AccesosRapidos.Add(new AccesoRapidoItem
             {
-                Titulo = "?? Mis Préstamos",
-                Descripcion = "Ver préstamos activos",
-                Ruta = "//PrestamosPage",
-                Color = "#FF9800"
+                Titulo = "Buscar Socios",
+                Descripcion = "Ver socios activos",
+                Ruta = "//BuscarSociosPage",
+                Color = "#FCCAFC"
             });
 
             AccesosRapidos.Add(new AccesoRapidoItem
@@ -74,7 +74,7 @@ namespace AppMovil.ViewModels
                 Titulo = "?? Devoluciones",
                 Descripcion = "Historial de devoluciones",
                 Ruta = "//DevolucionesPage",
-                Color = "#4CAF50"
+                Color = "#FCCAFC"
             });
         }
 

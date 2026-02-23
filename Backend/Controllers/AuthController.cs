@@ -45,6 +45,7 @@ namespace Backend.Controllers
             try
             {
                 var credentials = await firebaseAuthClient.SignInWithEmailAndPasswordAsync(login.Username, login.Password);
+                //Respuesta 400 si el email no ha sido verificado
                 if (credentials.User.Info.IsEmailVerified == false)
                 {
                     return BadRequest("Email no verificado. Verifica tu correo antes de iniciar sesión.");

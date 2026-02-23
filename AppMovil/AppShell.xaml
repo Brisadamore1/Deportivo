@@ -55,6 +55,13 @@
         Route="BuscarActividadesPage" />
     </FlyoutItem>
 
+    <FlyoutItem Title="📖 Buscar Socios" Icon="search.png">
+        <ShellContent
+        Title="Buscar Socios"
+        ContentTemplate="{DataTemplate pages:BuscarSociosPage}"
+        Route="BuscarSociosPage" />
+    </FlyoutItem>
+
 
     <!-- Footer del Flyout con opción de logout -->
     <Shell.FlyoutFooter>

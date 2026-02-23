@@ -77,7 +77,8 @@ namespace AppMovil.ViewModels
                 IsBusy = true;
                 ErrorMessage = string.Empty;
 
-                var response= await _authService.Login(new LoginDTO
+                //Acá se llama al servicio de autenticación para intentar iniciar sesión con el nombre de usuario y la contraseña proporcionados.
+                var response = await _authService.Login(new LoginDTO
                 {
                     Username = this.Username,
                     Password = this.Password
@@ -89,7 +90,8 @@ namespace AppMovil.ViewModels
 
                     return;
                 }
-               
+
+                //Se obtiene el usuario por su email (que es el username) para obtener su ID.
                 var usuario = await _usuarioService.GetByEmailAsync(username);
                 if(usuario==null)
                 {

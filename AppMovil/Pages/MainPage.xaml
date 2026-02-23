@@ -13,7 +13,7 @@
         <StackLayout Padding="20" Spacing="25">
             
             <!-- Header con logo y título -->
-            <Frame BackgroundColor="#2196F3" CornerRadius="15" Padding="20" HasShadow="True">
+            <Frame BackgroundColor="#FCCAFC" CornerRadius="15" Padding="20" HasShadow="True">
                 <StackLayout Orientation="Vertical" HorizontalOptions="Center">
                     <Label Text="📚" FontSize="60" HorizontalOptions="Center" TextColor="White"/>
                     <Label Text="{Binding BienvenidaMessage}" FontSize="16" TextColor="White" HorizontalOptions="Center"/>
