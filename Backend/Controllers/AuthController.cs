@@ -68,7 +68,7 @@ namespace Backend.Controllers
             }
             catch (FirebaseAuthException ex)
             {
-                throw new Exception(ex.Reason.ToString() );
+                throw new Exception(ex.Reason.ToString() ); //Lanza un error con el motivo del fallo en la creación del usuario 
             }
         }
 

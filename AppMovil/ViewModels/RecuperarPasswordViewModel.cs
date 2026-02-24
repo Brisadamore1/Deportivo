@@ -1,5 +1,6 @@
 ﻿    using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+    using System.Text.RegularExpressions;
 using Service.DTOs;
 using Service.Services;
 
@@ -13,13 +14,19 @@ namespace AppMovil.ViewModels
         private string mail = string.Empty;
 
         [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(EnviarCommand))]
         private bool isBusy = false;
 
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(HasError))]
         private string errorMessage = string.Empty;
 
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(HasSuccess))]
         private string successMessage = string.Empty;
+
+        public bool HasError => !string.IsNullOrWhiteSpace(ErrorMessage);
+        public bool HasSuccess => !string.IsNullOrWhiteSpace(SuccessMessage);
 
         public IRelayCommand EnviarCommand { get; }
         public IRelayCommand VolverCommand { get; }
@@ -32,7 +39,30 @@ namespace AppMovil.ViewModels
 
         private bool CanEnviar()
         {
-            return !string.IsNullOrWhiteSpace(Mail);
+            return !string.IsNullOrWhiteSpace(Mail) && IsValidEmail(Mail) && !IsBusy;
+        }
+
+        private bool IsValidEmail(string? email)
+        {
+            if (string.IsNullOrWhiteSpace(email)) return false;
+            // Simple, robust email regex
+            var pattern = "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$";
+            return Regex.IsMatch(email, pattern, RegexOptions.IgnoreCase);
+        }
+
+        public bool CanEnviarBindable => CanEnviar();
+
+        partial void OnMailChanged(string value)
+        {
+            OnPropertyChanged(nameof(CanEnviarBindable));
+            EnviarCommand.NotifyCanExecuteChanged();
+        }
+
+        partial void OnIsBusyChanged(bool value)
+        {
+            // Notify CanEnviarBindable when IsBusy changes
+            OnPropertyChanged(nameof(CanEnviarBindable));
+            EnviarCommand.NotifyCanExecuteChanged();
         }
 
         private async Task OnEnviar()
@@ -57,13 +87,25 @@ namespace AppMovil.ViewModels
                     Password = "" // Placeholder, el backend debe manejar esto adecuadamente
                 };
 
-                await authService.ResetPassword(loginReset);
+                var result = await authService.ResetPassword(loginReset);
 
-                await OnVolver();
+                if (result)
+                {
+                    SuccessMessage = "Se enviaron las instrucciones a tu correo.";
+                    // Notify computed property change
+                    OnPropertyChanged(nameof(HasSuccess));
+                    // Do not navigate away immediately so user can see the message
+                }
+                else
+                {
+                    ErrorMessage = "No se pudieron enviar las instrucciones. Intente nuevamente más tarde.";
+                    OnPropertyChanged(nameof(HasError));
+                }
             }
             catch (Exception ex)
             {
                 ErrorMessage = $"Error al enviar las instrucciones: {ex.Message}";
+                OnPropertyChanged(nameof(HasError));
             }
             finally
             {
