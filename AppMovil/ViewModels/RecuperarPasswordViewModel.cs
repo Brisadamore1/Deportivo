@@ -1,6 +1,6 @@
-﻿    using CommunityToolkit.Mvvm.ComponentModel;
+﻿ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-    using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 using Service.DTOs;
 using Service.Services;
 
@@ -39,7 +39,9 @@ namespace AppMovil.ViewModels
 
         private bool CanEnviar()
         {
-            return !string.IsNullOrWhiteSpace(Mail) && IsValidEmail(Mail) && !IsBusy;
+            return !IsBusy &&
+                   !string.IsNullOrWhiteSpace(Mail) && 
+                   IsValidEmail(Mail) ;
         }
 
         private bool IsValidEmail(string? email)
@@ -55,14 +57,14 @@ namespace AppMovil.ViewModels
         partial void OnMailChanged(string value)
         {
             OnPropertyChanged(nameof(CanEnviarBindable));
-            EnviarCommand.NotifyCanExecuteChanged();
+            EnviarCommand?.NotifyCanExecuteChanged();
         }
 
         partial void OnIsBusyChanged(bool value)
         {
             // Notify CanEnviarBindable when IsBusy changes
             OnPropertyChanged(nameof(CanEnviarBindable));
-            EnviarCommand.NotifyCanExecuteChanged();
+            EnviarCommand?.NotifyCanExecuteChanged();
         }
 
         private async Task OnEnviar()
@@ -115,7 +117,25 @@ namespace AppMovil.ViewModels
 
         private async Task OnVolver()
         {
+            // Reset form state and navigate back
+            ResetForm();
             await Shell.Current.GoToAsync("//LoginPage");
+        }
+
+        // Centralized reset logic similar to RegistrarseViewModel.ResetForm
+        private void ResetForm()
+        {
+            Mail = string.Empty;
+            ErrorMessage = string.Empty;
+            SuccessMessage = string.Empty;
+            IsBusy = false;
+
+            // Notify dependent computed properties
+            OnPropertyChanged(nameof(HasError));
+            OnPropertyChanged(nameof(HasSuccess));
+
+            // notify command can-execute may have changed
+            EnviarCommand?.NotifyCanExecuteChanged();
         }
 
 

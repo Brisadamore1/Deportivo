@@ -8,8 +8,8 @@ namespace AppMovil.ViewModels
     public class MainPageViewModel : INotifyPropertyChanged
     {
         private string _bienvenidaMessage = "Bienvenido a";
-        private string _tituloApp = "BIBLIO ISP";
-        private string _descripcion = "Sistema de Gestión Bibliotecaria\nInstituto Superior De Profesorado N20";
+        private string _tituloApp = "DEPORTIVO KAIRO";
+        private string _descripcion = "Sistema de Gestión Deportiva\nInstituto Superior De Profesorado N20";
         private DateTime _fechaActual = DateTime.Now;
 
         public string BienvenidaMessage
@@ -58,7 +58,7 @@ namespace AppMovil.ViewModels
                 Titulo = " Buscar Actividades",
                 Descripcion = "Encuentra actividades en el catálogo",
                 Ruta = "//BuscarActividadesPage",
-                Color = "#FCCAFC"
+                Color = "#FFFFFF"
             });
 
             AccesosRapidos.Add(new AccesoRapidoItem
@@ -66,7 +66,7 @@ namespace AppMovil.ViewModels
                 Titulo = "Buscar Socios",
                 Descripcion = "Ver socios activos",
                 Ruta = "//BuscarSociosPage",
-                Color = "#FCCAFC"
+                Color = "#FFFFFF"
             });
 
             AccesosRapidos.Add(new AccesoRapidoItem
@@ -74,7 +74,7 @@ namespace AppMovil.ViewModels
                 Titulo = "?? Devoluciones",
                 Descripcion = "Historial de devoluciones",
                 Ruta = "//DevolucionesPage",
-                Color = "#FCCAFC"
+                Color = "#FFFFFF"
             });
         }
 
@@ -103,6 +103,6 @@ namespace AppMovil.ViewModels
         public string Titulo { get; set; } = string.Empty;
         public string Descripcion { get; set; } = string.Empty;
         public string Ruta { get; set; } = string.Empty;
-        public string Color { get; set; } = "#2196F3";
+        public string Color { get; set; } = "#FFFFFF";
     }
 }

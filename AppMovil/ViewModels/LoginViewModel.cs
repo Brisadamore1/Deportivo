@@ -63,9 +63,10 @@ namespace AppMovil.ViewModels
 
         private bool CanLogin()
         {
-            return !IsBusy && 
-                   !string.IsNullOrWhiteSpace(Username) && 
-                   !string.IsNullOrWhiteSpace(Password);
+            return !IsBusy &&
+                   !string.IsNullOrWhiteSpace(Username) &&
+                   !string.IsNullOrWhiteSpace(Password) &&
+                   (Password?.Trim().Length >= 6);
         }
 
         private async void OnLogin()

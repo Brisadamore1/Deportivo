@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewModels="clr-namespace:AppMovil.ViewModels"
              x:Class="AppMovil.Pages.BuscarActividadesPage"
+             BackgroundColor="#184D57"
              Title="Buscar Actividades">
     <ContentPage.BindingContext>
         <viewModels:BuscarActividadesViewModel />
@@ -10,19 +11,19 @@
         <StackLayout Spacing="20">
 
             <!-- Encabezado -->
-            <Frame BackgroundColor="DodgerBlue" 
+            <Frame BackgroundColor="White" 
                    Padding="20" 
                    CornerRadius="15" 
                    HasShadow="True">
                 <StackLayout>
-                    <Label Text="🔍 Buscar Actividades" 
+                    <Label Text="Buscar Actividades" 
                            FontSize="26" 
                            FontAttributes="Bold"
-                           TextColor="White"
+                           TextColor="#333"
                            HorizontalOptions="Center"/>
                     <Label Text="Encuentra actividades en nuestro catálogo" 
                            FontSize="14"
-                           TextColor="LightBlue"
+                           TextColor="#333"
                            HorizontalOptions="Center"/>
                 </StackLayout>
             </Frame>
@@ -34,7 +35,7 @@
                    HasShadow="True"
                    BorderColor="LightGray">
                 <StackLayout Spacing="15">
-                    <Label Text="¿Qué actividad estás buscando?" 
+                    <Label Text="¿Qué actividades estás buscando?" 
                            FontSize="16"
                            FontAttributes="Bold"
                            TextColor="DarkSlateGray"/>
@@ -54,12 +55,12 @@
                                    FontSize="16"/>
                     </Frame>
                     <!-- Botón para mostrar/ocultar filtros -->
-                    <Button Text="🔍 Buscar" 
+                    <!--<Button Text="🔍 Buscar" 
                         Command="{Binding BuscarCommand}"
                         BackgroundColor="LightSteelBlue"
                         TextColor="LightGray"
                         CornerRadius="8"
-                        FontSize="14"/>
+                        FontSize="14"/>-->
                     <!-- Botón para mostrar/ocultar filtros -->
                     <Button Text="⚙️ Filtros de búsqueda" 
                             Command="{Binding ToggleFiltrosCommand}"
@@ -143,11 +144,11 @@
                         <Label Text="📚 Resultados de búsqueda" 
                                FontSize="18" 
                                FontAttributes="Bold"
-                               TextColor="DarkGreen"
+                               TextColor="#333"
                                HorizontalOptions="Center"/>
                         <Label Text="{Binding Actividades.Count, StringFormat='{0} actividades encontradas'}"
                                FontSize="14"
-                               TextColor="DarkGreen"
+                               TextColor="#333"
                                HorizontalOptions="Center"/>
                     </StackLayout>
                 </Frame>

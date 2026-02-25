@@ -3,109 +3,297 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewmodels="clr-namespace:AppMovil.ViewModels"
              x:Class="AppMovil.Pages.RegistrarsePage"
-             Title="CrearCuenta">
+             Title="Crear Cuenta"
+             BackgroundColor="White">
     <ContentPage.BindingContext>
         <viewmodels:RegistrarseViewModel />
     </ContentPage.BindingContext>
     <ScrollView>
-        <VerticalStackLayout Margin="20">
-            <Label 
-             FontSize="Title"
-             Text="Creando nueva cuenta en Deportivo Kairo"
-             VerticalOptions="Center" 
-             HorizontalOptions="Center" />
-            <!-- Botón volver -->
-            <Button Text="←"
-                 Command="{Binding VolverCommand}"
-                 BackgroundColor="Transparent"
-                 TextColor="White"
-                 FontSize="24"
-                 HorizontalOptions="Start"
-                 WidthRequest="50"
-                 HeightRequest="50"
-                 Margin="0,0,0,20"/>
+        <VerticalStackLayout Padding="16,4,16,8" Spacing="8" VerticalOptions="Start">
 
-            <Grid RowDefinitions="2*,2*,*,2*,2*,2*,2*,2*,Auto,Auto,Auto,Auto,Auto" ColumnDefinitions="Auto,*">
-                <Label Grid.Row="0" Grid.Column="0" 
-                    HorizontalTextAlignment="End"
-                    VerticalTextAlignment="Center"
-                    Margin="5,10">Apellido y Nombre:</Label>
-                <Entry Grid.Row="0" Grid.Column="1" 
-                    Text="{Binding Nombre}"
-                    Margin="10,20,10,20"/>
+            <!-- Logo (fill horizontally, AspectFit) with back button -->
+            <AbsoluteLayout HeightRequest="220">
+                <Image Source="logo.png"
+                       Aspect="AspectFit"
+                       HeightRequest="220"
+                       AbsoluteLayout.LayoutBounds="0.5,0.5,220,220"
+                       AbsoluteLayout.LayoutFlags="PositionProportional" />
 
-                <Label Grid.Row="1" Grid.Column="0" 
-                    HorizontalTextAlignment="End"
-                    VerticalTextAlignment="Center"
-                    Margin="10,20">Email:</Label>
-                <Entry Grid.Row="1" Grid.Column="1" 
-                    Text="{Binding Mail}"
-                    Margin="10,20,10,20"/>
+                <ImageButton Command="{Binding VolverCommand}"
+                             BackgroundColor="Transparent"
+                             WidthRequest="48"
+                             HeightRequest="48"
+                             CornerRadius="10"
+                             AbsoluteLayout.LayoutBounds="0,0.3,48,48"
+                             AbsoluteLayout.LayoutFlags="PositionProportional">
+                    <ImageButton.Source>
+                        <FontImageSource Glyph="&#x2190;" FontFamily="OpenSansRegular" Color="Black" Size="20" />
+                    </ImageButton.Source>
+                </ImageButton>
+            </AbsoluteLayout>
 
-                <ActivityIndicator IsRunning="{Binding IsBusy}"
-                                   Grid.Row="2" Grid.Column="0"/>
+            <!-- Card like LoginPage -->
+            <Border BackgroundColor="White"
+                    Stroke="#CFCFCF"
+                    StrokeThickness="1"
+                    Margin="0,-12,0,28">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="12" />
+                </Border.StrokeShape>
 
-                <Label Grid.Row="3" Grid.Column="0" 
-                    HorizontalTextAlignment="End"
-                    VerticalTextAlignment="Center"
-                    Margin="10,20">DNI:</Label>
-                <Entry Grid.Row="3" Grid.Column="1" 
-                    Text="{Binding Dni}"
-                    Margin="10,20,10,20"/>
+                <VerticalStackLayout Padding="24,20,24,20" Spacing="10">
 
-                <Label Grid.Row="4" Grid.Column="0" 
-                    HorizontalTextAlignment="End"
-                    VerticalTextAlignment="Center"
-                    Margin="10,20">Domicilio:</Label>
-                <Entry Grid.Row="4" Grid.Column="1" 
-                    Text="{Binding Domicilio}"
-                    Margin="10,20,10,20"/>
+                    <!-- Título -->
+                    <Label Text="Crear cuenta"
+                           FontAttributes="Bold"
+                           FontSize="26"
+                           HorizontalOptions="Center"
+                           TextColor="#111" />
 
-                <Label Grid.Row="5" Grid.Column="0" 
-                    HorizontalTextAlignment="End"
-                    VerticalTextAlignment="Center"
-                    Margin="10,20">Teléfono:</Label>
-                <Entry Grid.Row="5" Grid.Column="1" 
-                    Text="{Binding Telefono}"
-                    Margin="10,20,10,20"/>
+                    <Label Text="Completá tus datos para registrarte"
+                           FontSize="14"
+                           TextColor="#666"
+                           HorizontalOptions="Center"
+                           HorizontalTextAlignment="Center"
+                           Margin="0,0,0,6" />
 
-                <Label Grid.Row="6" Grid.Column="0" 
-                    HorizontalTextAlignment="End"
-                    VerticalTextAlignment="Center"
-                    Margin="10,20">Tipo usuario:</Label>
-                <Entry Grid.Row="6" Grid.Column="1" 
-                    Text="{Binding TipoRol}"
-                    IsReadOnly="True"
-                    Margin="10,20,10,20"/>
+                    <!-- Nombre -->
+                    <VerticalStackLayout Spacing="6" HorizontalOptions="Fill">
+                        <Label Text="Apellido y Nombre" FontSize="14" TextColor="#222" />
+                        <Border BackgroundColor="White"
+                                Stroke="#CFCFCF"
+                                StrokeThickness="2"
+                                HorizontalOptions="Fill"
+                                Padding="0"
+                                Margin="0">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="8" />
+                            </Border.StrokeShape>
+                            <Grid ColumnDefinitions="40, *" ColumnSpacing="0" HeightRequest="50" Margin="0">
+                                <Label Text="👤"
+                                       FontSize="14"
+                                       VerticalOptions="Center"
+                                       HorizontalOptions="Center"
+                                       Margin="12,0" />
+                                <Entry Grid.Column="1"
+                                       Text="{Binding Nombre}"
+                                       Placeholder="Ej: Juan Perez"
+                                       BackgroundColor="Transparent"
+                                       TextColor="Black"
+                                       PlaceholderColor="#999"
+                                       FontSize="15"
+                                       VerticalOptions="Center"
+                                       VerticalTextAlignment="Center" />
+                            </Grid>
+                        </Border>
+                    </VerticalStackLayout>
 
-                <Label Grid.Row="7" Grid.Column="0" 
-                    HorizontalTextAlignment="End"
-                    VerticalTextAlignment="Center"
-                    Margin="10,20">Contraseña:</Label>
-                <Entry Grid.Row="7" Grid.Column="1" 
-                    Text="{Binding Password}"
-                    Margin="10,20,100,20" IsPassword="True"/>
+                    <!-- DNI -->
+                    <VerticalStackLayout Spacing="6" HorizontalOptions="Fill">
+                        <Label Text="DNI" FontSize="14" TextColor="#222" />
+                        <Border BackgroundColor="White"
+                                Stroke="#CFCFCF"
+                                StrokeThickness="2"
+                                HorizontalOptions="Fill"
+                                Padding="0">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="8" />
+                            </Border.StrokeShape>
+                            <Grid ColumnDefinitions="40, *" ColumnSpacing="0" HeightRequest="50">
+                                <Label Text="🆔"
+                                       FontSize="14"
+                                       VerticalOptions="Center"
+                                       HorizontalOptions="Center"
+                                       Margin="12,0" />
+                                <Entry Grid.Column="1"
+                                       Text="{Binding Dni}"
+                                       Placeholder="Solo números"
+                                       BackgroundColor="Transparent"
+                                       TextColor="Black"
+                                       PlaceholderColor="#999"
+                                       FontSize="15"
+                                       VerticalOptions="Center"
+                                       VerticalTextAlignment="Center" />
+                            </Grid>
+                        </Border>
+                    </VerticalStackLayout>
 
-                <Label Grid.Row="8" Grid.Column="0" 
-                    HorizontalTextAlignment="End"
-                    VerticalTextAlignment="Center"
-                    Margin="10,20">Verificar Contraseña:</Label>
-                <Entry Grid.Row="8" Grid.Column="1" 
-                    Text="{Binding VerifyPassword}"
-                    Margin="10,20,100,20" IsPassword="True"/>
+                    <!-- Teléfono -->
+                    <VerticalStackLayout Spacing="6" HorizontalOptions="Fill">
+                        <Label Text="Teléfono" FontSize="14" TextColor="#222" />
+                        <Border BackgroundColor="White"
+                                Stroke="#CFCFCF"
+                                StrokeThickness="2"
+                                HorizontalOptions="Fill"
+                                Padding="0">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="8" />
+                            </Border.StrokeShape>
+                            <Grid ColumnDefinitions="40, *" ColumnSpacing="0" HeightRequest="50">
+                                <Label Text="📞"
+                                       FontSize="14"
+                                       VerticalOptions="Center"
+                                       HorizontalOptions="Center"
+                                       Margin="12,0" />
+                                <Entry Grid.Column="1"
+                                       Text="{Binding Telefono}"
+                                       Placeholder="Sin 0 ni 15"
+                                       BackgroundColor="Transparent"
+                                       TextColor="Black"
+                                       PlaceholderColor="#999"
+                                       FontSize="15"
+                                       VerticalOptions="Center"
+                                       VerticalTextAlignment="Center" />
+                            </Grid>
+                        </Border>
+                    </VerticalStackLayout>
 
-                <BoxView Grid.Row="9" HeightRequest="1" BackgroundColor="#E8E8E8"/>
+                    <!-- Rol (read-only) -->
+                    <VerticalStackLayout Spacing="6" HorizontalOptions="Fill">
+                        <Label Text="Rol" FontSize="14" TextColor="#222" />
+                        <Border BackgroundColor="White"
+                                Stroke="#CFCFCF"
+                                StrokeThickness="2"
+                                HorizontalOptions="Fill"
+                                Padding="0">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="8" />
+                            </Border.StrokeShape>
+                            <Grid ColumnDefinitions="40, *" ColumnSpacing="0" HeightRequest="50">
+                                <Label Text="🏷️"
+                                       FontSize="14"
+                                       VerticalOptions="Center"
+                                       HorizontalOptions="Center"
+                                       Margin="12,0" />
+                                <Entry Grid.Column="1"
+                                       Text="{Binding TipoRol}"
+                                       IsReadOnly="True"
+                                       BackgroundColor="Transparent"
+                                       TextColor="Black"
+                                       PlaceholderColor="#999"
+                                       FontSize="15"
+                                       VerticalOptions="Center"
+                                       VerticalTextAlignment="Center" />
+                            </Grid>
+                        </Border>
+                    </VerticalStackLayout>
 
-                <BoxView Grid.Row="10" HeightRequest="1" BackgroundColor="#BDC3C7"/>
+                    <!-- Email -->
+                    <VerticalStackLayout Spacing="6" HorizontalOptions="Fill">
+                        <Label Text="Correo electrónico" FontSize="14" TextColor="#222" />
+                        <Border BackgroundColor="White"
+                                Stroke="#CFCFCF"
+                                StrokeThickness="2"
+                                HorizontalOptions="Fill"
+                                Padding="0">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="8" />
+                            </Border.StrokeShape>
+                            <Grid ColumnDefinitions="40, *" ColumnSpacing="0" HeightRequest="50">
+                                <Label Text="📧"
+                                       FontSize="14"
+                                       VerticalOptions="Center"
+                                       HorizontalOptions="Center"
+                                       Margin="12,0" />
+                                <Entry Grid.Column="1"
+                                       Placeholder="tu@email.com"
+                                       Keyboard="Email"
+                                       Text="{Binding Mail}"
+                                       BackgroundColor="Transparent"
+                                       TextColor="Black"
+                                       PlaceholderColor="#999"
+                                       FontSize="15"
+                                       VerticalOptions="Center"
+                                       VerticalTextAlignment="Center" />
+                            </Grid>
+                        </Border>
+                    </VerticalStackLayout>
 
-                <Button Text="Registrarse"
-                     Command="{Binding RegistrarseCommand}"
-                     Grid.Row="11" Grid.Column="0"
-                     Grid.ColumnSpan="2"
-                     Margin="100,10"/>
-                <ActivityIndicator IsRunning="{Binding IsBusy}"
-                                   Grid.Row="12" Grid.ColumnSpan="2"/>
-            </Grid>
+                    <!-- Contraseña -->
+                    <VerticalStackLayout Spacing="6" HorizontalOptions="Fill">
+                        <Label Text="Contraseña" FontSize="14" TextColor="#222" />
+                        <Border BackgroundColor="White"
+                                Stroke="#CFCFCF"
+                                StrokeThickness="2"
+                                HorizontalOptions="Fill"
+                                Padding="0">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="8" />
+                            </Border.StrokeShape>
+                            <Grid ColumnDefinitions="40, *" ColumnSpacing="0" HeightRequest="50">
+                                <Label Text="🔒"
+                                       FontSize="14"
+                                       VerticalOptions="Center"
+                                       HorizontalOptions="Center"
+                                       Margin="12,0" />
+                                <Entry Grid.Column="1"
+                                       Placeholder="Mínimo 6 caracteres"
+                                       IsPassword="True"
+                                       Text="{Binding Password}"
+                                       BackgroundColor="Transparent"
+                                       TextColor="Black"
+                                       PlaceholderColor="#999"
+                                       FontSize="15"
+                                       VerticalOptions="Center"
+                                       VerticalTextAlignment="Center" />
+                            </Grid>
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!-- Verificar contraseña -->
+                    <VerticalStackLayout Spacing="6" HorizontalOptions="Fill">
+                        <Label Text="Verificar contraseña" FontSize="14" TextColor="#222" />
+                        <Border BackgroundColor="White"
+                                Stroke="#CFCFCF"
+                                StrokeThickness="2"
+                                HorizontalOptions="Fill"
+                                Padding="0">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="8" />
+                            </Border.StrokeShape>
+                            <Grid ColumnDefinitions="40, *" ColumnSpacing="0" HeightRequest="50">
+                                <Label Text="🔒"
+                                       FontSize="14"
+                                       VerticalOptions="Center"
+                                       HorizontalOptions="Center"
+                                       Margin="12,0" />
+                                <Entry Grid.Column="1"
+                                       Placeholder="Repite tu contraseña"
+                                       IsPassword="True"
+                                       Text="{Binding VerifyPassword}"
+                                       BackgroundColor="Transparent"
+                                       TextColor="Black"
+                                       PlaceholderColor="#999"
+                                       FontSize="15"
+                                       VerticalOptions="Center"
+                                       VerticalTextAlignment="Center" />
+                            </Grid>
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!-- Botón registrarse estilo similar a LoginPage -->
+                    <Button Text="REGISTRARSE"
+                            Command="{Binding RegistrarseCommand}"
+                            BackgroundColor="Black"
+                            TextColor="White"
+                            CornerRadius="8"
+                            HeightRequest="50"
+                            HorizontalOptions="Fill"
+                            FontAttributes="Bold"
+                            FontSize="16"
+                            Margin="0,6,0,0" />
+
+                    <!-- Indicador de carga -->
+                    <StackLayout IsVisible="{Binding IsBusy}"
+                             Orientation="Horizontal"
+                             HorizontalOptions="Center"
+                             Spacing="10">
+                        <ActivityIndicator IsRunning="{Binding IsBusy}"
+                               Color="#666" />
+                    </StackLayout>
+                </VerticalStackLayout>
+            </Border>
+
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

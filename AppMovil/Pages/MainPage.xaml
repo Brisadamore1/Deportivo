@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewModels="clr-namespace:AppMovil.ViewModels"
              x:Class="AppMovil.Pages.MainPage"
+             BackgroundColor="#184D57"
              Title="Inicio">
 
     <ContentPage.BindingContext>
@@ -13,17 +14,17 @@
         <StackLayout Padding="20" Spacing="25">
             
             <!-- Header con logo y título -->
-            <Frame BackgroundColor="#FCCAFC" CornerRadius="15" Padding="20" HasShadow="True">
+            <Frame BackgroundColor="White" CornerRadius="15" Padding="20" HasShadow="True">
                 <StackLayout Orientation="Vertical" HorizontalOptions="Center">
-                    <Label Text="📚" FontSize="60" HorizontalOptions="Center" TextColor="White"/>
-                    <Label Text="{Binding BienvenidaMessage}" FontSize="16" TextColor="White" HorizontalOptions="Center"/>
-                    <Label Text="{Binding TituloApp}" FontSize="28" FontAttributes="Bold" TextColor="White" HorizontalOptions="Center"/>
-                    <Label Text="{Binding Descripcion}" FontSize="14" TextColor="White" HorizontalOptions="Center" HorizontalTextAlignment="Center"/>
+                    <Label Text="📚" FontSize="60" HorizontalOptions="Center" TextColor="#333"/>
+                    <Label Text="{Binding BienvenidaMessage}" FontSize="16" TextColor="#333" HorizontalOptions="Center"/>
+                    <Label Text="{Binding TituloApp}" FontSize="28" FontAttributes="Bold" TextColor="#333" HorizontalOptions="Center"/>
+                    <Label Text="{Binding Descripcion}" FontSize="14" TextColor="#333" HorizontalOptions="Center" HorizontalTextAlignment="Center"/>
                 </StackLayout>
             </Frame>
 
             <!-- Fecha actual -->
-            <Frame BackgroundColor="#F5F5F5" CornerRadius="10" Padding="15">
+            <Frame BackgroundColor="White" CornerRadius="10" Padding="15">
                 <Label Text="{Binding FechaFormateada}" FontSize="16" TextColor="#333" HorizontalOptions="Center" FontAttributes="Italic"/>
             </Frame>
 
@@ -41,10 +42,10 @@
                             </Frame.GestureRecognizers>
                             <StackLayout Orientation="Horizontal" Padding="10">
                                 <StackLayout VerticalOptions="Center" HorizontalOptions="FillAndExpand">
-                                    <Label Text="{Binding Titulo}" FontSize="18" FontAttributes="Bold" TextColor="White"/>
-                                    <Label Text="{Binding Descripcion}" FontSize="14" TextColor="White" Opacity="0.8"/>
+                                    <Label Text="{Binding Titulo}" FontSize="18" FontAttributes="Bold" TextColor="#333"/>
+                                    <Label Text="{Binding Descripcion}" FontSize="14" TextColor="#333" Opacity="0.8"/>
                                 </StackLayout>
-                                <Label Text="▶" FontSize="20" TextColor="White" VerticalOptions="Center"/>
+                                <Label Text="▶" FontSize="20" TextColor="#333" VerticalOptions="Center"/>
                             </StackLayout>
                         </Frame>
                     </DataTemplate>
@@ -54,8 +55,7 @@
             <!-- Footer informativo -->
             <StackLayout Orientation="Vertical" Spacing="10" Margin="0,20,0,0">
                 <BoxView Color="#E0E0E0" HeightRequest="1"/>
-                <Label Text="Instituto Superior Politécnico" FontSize="14" TextColor="#666" HorizontalOptions="Center"/>
-                <Label Text="Sistema de Gestión Bibliotecaria" FontSize="12" TextColor="#999" HorizontalOptions="Center"/>
+                <Label Text="Sistema de Gestión Deportiva" FontSize="12" TextColor="#999" HorizontalOptions="Center"/>
             </StackLayout>
 
         </StackLayout>
