@@ -43,7 +43,7 @@ namespace Backend.DataContext
                     Nombre = "Yoga",
                     Imagen = "portada1.jpg",
                     Descripcion = "Clase de yoga para mejorar la flexibilidad y el bienestar general.",
-                    EdadRecomendada = "Adultos",
+                    EdadRecomendada = "Adulto",
                     Nivel = "Principiante",
                     ProfesorId = 1,
                     IsDeleted = false
@@ -54,7 +54,7 @@ namespace Backend.DataContext
                     Nombre = "Pilates",
                     Imagen = "portada2.jpg",
                     Descripcion = "Clase de pilates para fortalecer el core y mejorar la postura.",
-                    EdadRecomendada = "Adultos",
+                    EdadRecomendada = "Adulto",
                     Nivel = "Principiante",
                     ProfesorId = 2,
                     IsDeleted = false
@@ -65,7 +65,7 @@ namespace Backend.DataContext
                     Nombre = "Zumba",
                     Imagen = "portada3.jpg",
                     Descripcion = "Clase de zumba para quemar calorías y divertirse bailando.",
-                    EdadRecomendada = "Adultos",
+                    EdadRecomendada = "Adulto",
                     Nivel = "Principiante",
                     ProfesorId = 3,
                     IsDeleted = false
@@ -76,7 +76,7 @@ namespace Backend.DataContext
                     Nombre = "Spinning",
                     Imagen = "portada4.jpg",
                     Descripcion = "Clase de spinning para mejorar la resistencia cardiovascular.",
-                    EdadRecomendada = "Adultos",
+                    EdadRecomendada = "Adulto",
                     Nivel = "Principiante",
                     ProfesorId = 4,
                     IsDeleted = false
@@ -87,7 +87,7 @@ namespace Backend.DataContext
                     Nombre = "CrossFit",
                     Imagen = "portada5.jpg",
                     Descripcion = "Clase de CrossFit para un entrenamiento intenso y variado.",
-                    EdadRecomendada = "Adultos",
+                    EdadRecomendada = "Adulto",
                     Nivel = "Principiante",
                     ProfesorId = 5,
                     IsDeleted = false

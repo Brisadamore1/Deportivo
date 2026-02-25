@@ -18,10 +18,9 @@ namespace Service.Models
         [Required]
         public bool Activo { get; set; } = true;
 
-        [Required]
         [DataType(DataType.Date)]
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
-        public DateTime FechaNacimiento { get; set; }
+        public DateTime? FechaNacimiento { get; set; }
 
         [Required]
         public int LocalidadId { get; set; }

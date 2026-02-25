@@ -64,20 +64,20 @@
                     <!-- Botón para mostrar/ocultar filtros -->
                     <Button Text="⚙️ Filtros de búsqueda" 
                             Command="{Binding ToggleFiltrosCommand}"
-                            BackgroundColor="LightSteelBlue"
-                            TextColor="LightGray"
+                            BackgroundColor="Gray"
+                            TextColor="#333"
                             CornerRadius="8"
                             FontSize="14"/>
 
                     <!-- Panel de filtros -->
                     <Frame IsVisible="{Binding MostrarFiltros}"
-                           BackgroundColor="AliceBlue" 
+                           BackgroundColor="White" 
                            Padding="15" 
                            CornerRadius="10"
                            HasShadow="False"
                            BorderColor="LightBlue">
                         <StackLayout Spacing="10">
-                            <Label Text="🔎 Buscar en:" 
+                            <Label Text="Filtrar por:" 
                                    FontSize="16"
                                    FontAttributes="Bold"
                                    TextColor="LightGray"/>
@@ -87,21 +87,21 @@
 
                                 <StackLayout Grid.Column="0" Grid.Row="0" Orientation="Horizontal" Spacing="8">
                                     <CheckBox IsChecked="{Binding FiltrarPorNombre}" Color="DodgerBlue"/>
-                                    <Label Text="📖 Nombre" 
+                                    <Label Text="🏋🏻 Nombre" 
                                            VerticalOptions="Center"
                                            TextColor="DarkSlateGray"/>
                                 </StackLayout>
 
                                 <StackLayout Grid.Column="1" Grid.Row="0" Orientation="Horizontal" Spacing="8">
                                     <CheckBox IsChecked="{Binding FiltrarPorProfesor}" Color="DodgerBlue"/>
-                                    <Label Text="✍️ Profesor" 
+                                    <Label Text="🙋🏻 Profesor" 
                                            VerticalOptions="Center"
                                            TextColor="DarkSlateGray"/>
                                 </StackLayout>
 
                                 <StackLayout Grid.Column="0" Grid.Row="1" Orientation="Horizontal" Spacing="8">
                                     <CheckBox IsChecked="{Binding FiltrarPorNivel}" Color="DodgerBlue"/>
-                                    <Label Text="🏢 Nivel" 
+                                    <Label Text="⭐ Nivel" 
                                            VerticalOptions="Center"
                                            TextColor="DarkSlateGray"/>
                                 </StackLayout>
@@ -135,13 +135,13 @@
             <!-- Sección de resultados -->
             <StackLayout Spacing="15">
                 <!-- Encabezado de resultados -->
-                <Frame BackgroundColor="LightGreen" 
+                <Frame BackgroundColor="LightSteelBlue" 
                        Padding="12" 
                        CornerRadius="10" 
                        HasShadow="True"
-                       BorderColor="Green">
+                       BorderColor="#333">
                     <StackLayout>
-                        <Label Text="📚 Resultados de búsqueda" 
+                        <Label Text="🏋🏻 Resultados de búsqueda" 
                                FontSize="18" 
                                FontAttributes="Bold"
                                TextColor="#333"
@@ -166,20 +166,28 @@
                                 <Grid ColumnDefinitions="Auto, *, Auto" 
                                       RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto">
 
-                                    <!-- Ícono principal -->
-                                    <Label Grid.Column="0" Grid.Row="0" Grid.RowSpan="5"
-                                           Text="📚" 
-                                           FontSize="40"
+                                    <!-- Imagen principal con borde redondeado -->
+                                    <Frame Grid.Column="0" Grid.Row="0" Grid.RowSpan="5"
+                                           Padding="0"
+                                           CornerRadius="12"
+                                           HasShadow="False"
+                                           IsClippedToBounds="True"
+                                           BackgroundColor="#333"
+                                           Margin="0,0,15,0"
                                            VerticalOptions="Center"
-                                           HorizontalOptions="Center"
-                                           Margin="0,0,15,0"/>
+                                           HorizontalOptions="Center">
+                                        <Image Source="{Binding Imagen}"
+                                               WidthRequest="99"
+                                               HeightRequest="99"
+                                               Aspect="AspectFill" />
+                                    </Frame>
 
                                     <!-- Título de la actividad -->
                                     <Label Grid.Column="1" Grid.Row="0"
                                            Text="{Binding Nombre}" 
-                                           FontSize="18"
+                                           FontSize="20"
                                            FontAttributes="Bold"
-                                           TextColor="DarkSlateGray"
+                                           TextColor="#333"
                                            LineBreakMode="WordWrap"/>
 
                                     <!-- Profesional -->
@@ -187,40 +195,45 @@
                                                 Orientation="Horizontal" 
                                                 Spacing="5"
                                                 Margin="0,5,0,0">
-                                        <Label Text="🏢" FontSize="14"/>
-                                        <Label Text="{Binding Profesor.Nombre, StringFormat='Profesional: {0}'}" 
+                                        <Label Text="👤" FontSize="14"/>
+                                        <Label Text="{Binding Profesor.Nombre, StringFormat='A cargo de: {0}'}" 
                                                FontSize="14"
                                                TextColor="Gray"
                                                LineBreakMode="TailTruncation"/>
                                     </StackLayout>
-
-                                    <!-- Nivel -->
-                                    <Label Grid.Column="1" Grid.Row="2"
-                                        Text="{Binding Nivel}" 
-                                        FontSize="14"
-                                        FontAttributes="Italic"
-                                        TextColor="DarkSlateGray"
-                                        LineBreakMode="TailTruncation"/>      
-
+  
                                     <!-- Descripción -->
                                     <Label Grid.Column="1" Grid.Row="4"
                                            Text="{Binding Descripcion}" 
                                            FontSize="13"
-                                           TextColor="DarkGray"
+                                           TextColor="#333"
                                            LineBreakMode="WordWrap"
                                            MaxLines="2"
                                            Margin="0,8,0,0"/>
                                   
-                                    <!-- Botón de acción -->
-                                    <Button Grid.Column="2" Grid.Row="0" Grid.RowSpan="5"
-                                            Text="📖&#x0a;Ver"
-                                            BackgroundColor="LightBlue"
-                                            TextColor="DarkBlue"
-                                            CornerRadius="10"
-                                            FontSize="12"
-                                            WidthRequest="60"
-                                            HeightRequest="60"
-                                            VerticalOptions="Center"/>
+                                    <!-- Nivel y botón de acción (nivel arriba, botón abajo) -->
+                                    <StackLayout Grid.Column="2" Grid.Row="0" Grid.RowSpan="5"
+                                                Orientation="Vertical"
+                                                Spacing="8"
+                                                HorizontalOptions="End"
+                                                VerticalOptions="FillAndExpand">
+                                        <Label Text="{Binding Nivel}"
+                                               FontSize="14"
+                                               FontAttributes="Italic"
+                                               TextColor="DarkSlateGray"
+                                               HorizontalOptions="End"
+                                               VerticalOptions="Start"
+                                               Margin="0,0,15,4"/>
+
+                                        <Button Text="📖&#x0a;Ver"
+                                                BackgroundColor="LightBlue"
+                                                TextColor="DarkBlue"
+                                                CornerRadius="12"
+                                                FontSize="12"
+                                                WidthRequest="64"
+                                                HeightRequest="64"
+                                                VerticalOptions="End"/>
+                                    </StackLayout>
 
 
                                 </Grid>
