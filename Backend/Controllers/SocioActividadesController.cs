@@ -28,7 +28,10 @@ namespace Backend.Controllers
                 .Include(l=>l.Actividad)
                 .AsNoTracking()
                 .Where(l=>l.Socio.Nombre.ToUpper().Contains(filtro.ToUpper())||
-                       l.Actividad.Nombre.ToUpper().Contains(filtro.ToUpper())).ToListAsync();
+                       l.Actividad.Nombre.ToUpper().Contains(filtro.ToUpper()))
+                .OrderBy(l => l.Socio.Nombre)
+                .ThenBy(l => l.Actividad.Nombre)
+                .ToListAsync();
         }
 
         [HttpGet("deleteds")]
@@ -37,7 +40,10 @@ namespace Backend.Controllers
             return await _context.SocioActividades
                 .AsNoTracking()
                 .IgnoreQueryFilters()
-                .Where(l => l.IsDeleted).ToListAsync();
+                .Where(l => l.IsDeleted)
+                .OrderBy(l => l.Socio.Nombre)
+                .ThenBy(l => l.Actividad.Nombre)
+                .ToListAsync();
         }
 
         // GET: api/SocioActividades/5

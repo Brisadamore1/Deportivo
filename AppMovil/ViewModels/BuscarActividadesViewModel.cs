@@ -7,6 +7,9 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
+using System;
+using System.Linq;
+using Microsoft.Maui.Controls;
 
 namespace AppMovil.ViewModels
 {
@@ -47,7 +50,18 @@ namespace AppMovil.ViewModels
             BuscarCommand = new RelayCommand(OnBuscar);
             LimpiarCommand = new RelayCommand(OnLimpiar);
             ToggleFiltrosCommand = new RelayCommand(OnToggleFiltros);
+            VerActividadCommand = new RelayCommand<int?>(OnVerActividad);
             _ = InicializarAsync();
+        }
+
+        public IRelayCommand<int?> VerActividadCommand { get; }
+
+        private async void OnVerActividad(int? actividadId)
+        {
+            if (actividadId == null) return;
+            var actividad = Actividades.FirstOrDefault(a => a.Id == actividadId.Value);
+            var nombre = actividad?.Nombre ?? string.Empty;
+            await Shell.Current.GoToAsync($"//ClasesPage?actividadId={actividadId}&actividadNombre={Uri.EscapeDataString(nombre)}");
         }
 
         private async Task InicializarAsync()

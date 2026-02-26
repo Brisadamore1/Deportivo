@@ -13,12 +13,49 @@
         <viewModels:AppShellViewModel/>
     </Shell.BindingContext>
 
-    <!-- Header del Flyout personalizado -->
+    <!-- Recursos: estilo reutilizable para items del Flyout (simplifica plantilla) -->
+    <Shell.Resources>
+        <ResourceDictionary>
+            <Style x:Key="FlyoutItemFrameStyle" TargetType="Frame">
+                <Setter Property="HasShadow" Value="False" />
+                <Setter Property="Padding" Value="8,10" />
+                <Setter Property="Margin" Value="4,2" />
+                <Setter Property="BackgroundColor" Value="Transparent" />
+                <Setter Property="BorderColor" Value="Transparent" />
+                <Setter Property="CornerRadius" Value="12" />
+                <Setter Property="VisualStateManager.VisualStateGroups">
+                    <VisualStateGroupList>
+                        <VisualStateGroup Name="CommonStates">
+                            <VisualState Name="Normal">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" Value="Transparent" />
+                                    <Setter Property="CornerRadius" Value="8" />
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState Name="Selected">
+                                <VisualState.Setters>
+                                    <!-- Fondo gris claro y borde redondeado cuando el item del flyout está seleccionado -->
+                                    <Setter Property="BackgroundColor" Value="#E6E6E6" />
+                                    <Setter Property="BorderColor" Value="#D0D0D0" />
+                                    <Setter Property="CornerRadius" Value="22" />
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateGroupList>
+                </Setter>
+            </Style>
+        </ResourceDictionary>
+    </Shell.Resources>
+
+    <!-- Encabezado del Flyout con imagen de fondo (usa la imagen "logo.png" en Resources/Images) -->
     <Shell.FlyoutHeader>
-        <Grid BackgroundColor="#2196F3" HeightRequest="120">
-            <StackLayout VerticalOptions="Center" HorizontalOptions="Center">
-                <Label Text="📚" FontSize="40" HorizontalOptions="Center" TextColor="White"/>
-                <Label Text="Biblioteca Digital" FontSize="18" FontAttributes="Bold" TextColor="White" HorizontalOptions="Center"/>
+        <Grid HeightRequest="200">
+            <!-- Imagen de fondo -->
+            <Image Source="fondo.jpg" Aspect="AspectFill" Opacity="1" />
+
+            <!-- Contenido superpuesto -->
+            <StackLayout VerticalOptions="Center" HorizontalOptions="Center" BackgroundColor="Transparent">
+                <Label Text="Gestión Deportiva" FontSize="20" FontAttributes="Bold" TextColor="White" HorizontalOptions="Center"/>
             </StackLayout>
         </Grid>
     </Shell.FlyoutHeader>
@@ -40,6 +77,14 @@
          Route="RegistrarsePage"
          FlyoutItemIsVisible="False" />
 
+    <!-- Página para mostrar las clases de una actividad (no aparece en el flyout) -->
+    <ShellContent
+         Title="Clases"
+         ContentTemplate="{DataTemplate pages:ClasesPage}"
+         Route="ClasesPage"
+         FlyoutItemIsVisible="False" />
+    
+
     <!-- Menu Principal - Solo visible cuando está logueado -->
     <FlyoutItem Title="🏠 Inicio" Icon="home.png" >
         <ShellContent
@@ -48,14 +93,14 @@
          Route="MainPage" />
     </FlyoutItem>
 
-    <FlyoutItem Title="📖 Buscar Actividades" Icon="search.png">
+    <FlyoutItem Title="🏋🏻‍♀️ Buscar Actividades" Icon="search.png">
         <ShellContent
         Title="Buscar Actividades"
         ContentTemplate="{DataTemplate pages:BuscarActividadesPage}"
         Route="BuscarActividadesPage" />
     </FlyoutItem>
 
-    <FlyoutItem Title="📖 Buscar Socios" Icon="search.png">
+    <FlyoutItem Title="🫂 Buscar Socios" Icon="search.png">
         <ShellContent
         Title="Buscar Socios"
         ContentTemplate="{DataTemplate pages:BuscarSociosPage}"

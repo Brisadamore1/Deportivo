@@ -26,8 +26,10 @@ namespace Backend.Controllers
             return await _context.Socios
                 .Include(s => s.SocioActividades)
                     .ThenInclude(sa => sa.Actividad)
+                .Include(s => s.Localidad)
                 .AsNoTracking()
                 .Where(a => a.Nombre.Contains(filtro))
+                .OrderBy(a => a.Nombre)
                 .ToListAsync();
         }
 
@@ -37,9 +39,12 @@ namespace Backend.Controllers
             return await _context.Socios
                 .Include(s => s.SocioActividades)
                     .ThenInclude(sa => sa.Actividad)
+                .Include(s => s.Localidad)
                 .AsNoTracking()
                 .IgnoreQueryFilters()
-                .Where(a => a.IsDeleted).ToListAsync();
+                .Where(a => a.IsDeleted)
+                .OrderBy(a => a.Nombre)
+                .ToListAsync();
         }
 
         // GET: api/Socios/5
@@ -49,6 +54,7 @@ namespace Backend.Controllers
             var socio = await _context.Socios
                 .Include(s => s.SocioActividades)
                     .ThenInclude(sa => sa.Actividad)
+                .Include(s => s.Localidad)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(a=>a.Id.Equals(id));
 
@@ -108,30 +114,31 @@ namespace Backend.Controllers
         {
             var query = _context.Socios
                 .Include(s => s.SocioActividades)
-                    .ThenInclude(sa => sa.Actividad)
+                .ThenInclude(sa => sa.Actividad)
+                .Include(s => s.Localidad)
                 .AsNoTracking()
                 .AsQueryable();
 
-
-            if (filter == null || string.IsNullOrWhiteSpace(filter.SearchText))
+            // Si no se envió filtro devolvemos todo ordenado
+            if (filter == null)
             {
-                return await query.ToListAsync();
+                return await query.OrderBy(a => a.Nombre).ToListAsync();
             }
 
-            var text = filter.SearchText!.ToUpperInvariant();
+            var text = (filter.SearchText ?? string.Empty).ToUpperInvariant();
 
-            // Si el DTO indica que se debe filtrar por DNI, usar el texto como filtro de DNI,
-            // en caso contrario filtrar por nombre (case-insensitive).
-            if (filter.ForDni)
+            // Si no se filtró por estado, aplicar búsqueda por texto combinando opciones (OR)
+            if (!string.IsNullOrWhiteSpace(text))
             {
-                query = query.Where(a => a.Dni.Contains(filter.SearchText));
-            }
-            else
-            {
-                query = query.Where(a => a.Nombre.ToUpper().Contains(text));
+                query = query.Where(a =>
+                    (filter.ForDni && a.Dni != null && a.Dni.ToUpper().Contains(text)) ||
+                    (filter.ForNombre && a.Nombre.ToUpper().Contains(text)) ||
+                    (filter.ForLocalidad && a.Localidad != null && a.Localidad.Nombre.ToUpper().Contains(text)) ||
+                    (filter.ForActividad && a.SocioActividades.Any(sa => sa.Actividad != null && sa.Actividad.Nombre.ToUpper().Contains(text)))
+                );
             }
 
-            return await query.ToListAsync();
+            return await query.OrderBy(a => a.Nombre).ToListAsync();
         }
 
         // DELETE: api/Socios/5

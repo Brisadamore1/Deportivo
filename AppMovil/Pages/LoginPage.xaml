@@ -120,6 +120,15 @@
                             FontAttributes="Bold"
                             FontSize="16"
                             Margin="0,6,0,0" />
+                    
+                    <!-- Indicador de carga -->
+                    <StackLayout IsVisible="{Binding IsBusy}"
+                             Orientation="Horizontal"
+                             HorizontalOptions="Center"
+                             Spacing="10">
+                        <ActivityIndicator IsRunning="{Binding IsBusy}"
+                             Color="#666" />
+                    </StackLayout>
 
                     <!-- Enlace recuperar contraseña -->
                     <Label Text="¿Olvidaste tu contraseña?"
@@ -149,13 +158,6 @@
                             HorizontalOptions="Fill"
                             FontSize="16"
                             Margin="0,0,0,0" />
-
-                    <!-- Indicador de carga -->
-                    <ActivityIndicator IsRunning="{Binding IsBusy}"
-                                       IsVisible="{Binding IsBusy}"
-                                       HeightRequest="40"
-                                       HorizontalOptions="Center" />
-
                 </VerticalStackLayout>
             </Border>
 

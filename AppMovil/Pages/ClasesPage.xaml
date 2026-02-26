@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewModels="clr-namespace:AppMovil.ViewModels"
+             x:Class="AppMovil.Pages.ClasesPage"
+             BackgroundColor="#184D57"
+             Title="Clases">
+    <!-- BindingContext: instanciar el ViewModel directamente en XAML -->
+    <ContentPage.BindingContext>
+        <viewModels:ClasesViewModel />
+    </ContentPage.BindingContext>
+
+    <StackLayout Padding="20" Spacing="18">
+            <Frame BackgroundColor="White" Padding="20" CornerRadius="15" HasShadow="True">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="48" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="48" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Botón volver a la lista -->
+                <ImageButton Command="{Binding VolverCommand}"
+                              BackgroundColor="Transparent"
+                              WidthRequest="48"
+                              HeightRequest="48"
+                              CornerRadius="10"
+                              AbsoluteLayout.LayoutBounds="0,0.3,48,48"
+                              AbsoluteLayout.LayoutFlags="PositionProportional">
+                    <ImageButton.Source>
+                        <FontImageSource Glyph="&#x2190;" FontFamily="OpenSansRegular" Color="Black" Size="20" />
+                    </ImageButton.Source>
+                </ImageButton>
+
+                <!-- Título centrado con icono a la izquierda del título -->
+                <StackLayout Grid.Column="1" HorizontalOptions="Center" VerticalOptions="Center">
+                    <HorizontalStackLayout Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
+                        <Label Text="📑" FontSize="20" VerticalOptions="Center" />
+                        <Label Text="{Binding Titulo, StringFormat='Clases de {0}'}" FontSize="26" FontAttributes="Bold" TextColor="#333" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                    <Label Text="Listado de clases disponibles" FontSize="14" HorizontalOptions="Center" TextColor="#333"/>
+                </StackLayout>
+            </Grid>
+        </Frame>
+
+        <!-- Cargando: debajo del título -->
+        <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="#666" HorizontalOptions="Center" />
+        
+        <!-- loading moved above inside title -->
+            <!-- Lista de clases -->
+            <CollectionView ItemsSource="{Binding Clases, Mode=OneWay}">
+                <CollectionView.EmptyView>
+                    <StackLayout HorizontalOptions="Center" VerticalOptions="Center">
+                        <Label Text="No hay clases disponibles" TextColor="White">
+                            <Label.Triggers>
+                                <!-- Mostrar solo cuando ShowEmpty == true -->
+                                <DataTrigger TargetType="Label" Binding="{Binding ShowEmpty}" Value="False">
+                                    <Setter Property="IsVisible" Value="False" />
+                                </DataTrigger>
+                            </Label.Triggers>
+                        </Label>
+                    </StackLayout>
+                </CollectionView.EmptyView>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Frame BackgroundColor="White" Padding="12" CornerRadius="12" HasShadow="True">
+                            <Grid ColumnDefinitions="*" RowDefinitions="Auto">
+                                <VerticalStackLayout Spacing="6">
+                                    <!-- Día y estado (primera fila) y lista de horarios (segunda fila) -->
+                                    <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="6">
+                                        <!-- Día (izquierda, fila 0) -->
+                                        <HorizontalStackLayout Grid.Column="0" Grid.Row="0" Spacing="8" VerticalOptions="Center">
+                                            <Label Text="🗓️" FontSize="16" VerticalOptions="Center" />
+                                            <Label Text="{Binding [DiaSemanaEsp]}" FontSize="20" FontAttributes="Bold" TextColor="#333" VerticalOptions="Center" />
+                                        </HorizontalStackLayout>
+
+                                        <!-- Activo (derecha, fila 0) -->
+                                    <Label Grid.Column="1" Grid.Row="0" FontSize="16" FontAttributes="Bold" HorizontalOptions="End">
+                                        <Label.Triggers>
+                                            <!-- Use indexer binding because item is a Dictionary<string, object> -->
+                                            <DataTrigger TargetType="Label" Binding="{Binding [Activa]}" Value="True">
+                                                <Setter Property="Text" Value="Activo" />
+                                                <Setter Property="TextColor" Value="#2CA01C" />
+                                            </DataTrigger>
+                                            <DataTrigger TargetType="Label" Binding="{Binding [Activa]}" Value="False">
+                                                <Setter Property="Text" Value="Inactivo" />
+                                                <Setter Property="TextColor" Value="#F44336" />
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
+
+                                    <!-- Horario único por card: horario a la izquierda, cupo debajo de 'Activo' a la derecha -->
+                                        <HorizontalStackLayout Grid.Column="0" Grid.Row="1" Spacing="6" VerticalOptions="Center">
+                                            <Label Text="⏰" FontSize="15" VerticalOptions="Center" TextColor="#333" />
+                                            <Label Text="{Binding [HoraInicio], StringFormat='{}{0:hh\\:mm}'}" FontSize="15" TextColor="#333" VerticalOptions="Center" />
+                                            <Label Text=" - " FontSize="15" TextColor="Gray" VerticalOptions="Center" />
+                                            <Label Text="{Binding [HoraFin], StringFormat='{}{0:hh\\:mm}'}" FontSize="15" TextColor="#333" VerticalOptions="Center" />
+                                        </HorizontalStackLayout>
+
+                                        <!-- Cupo máximo: colocar en la columna derecha debajo de 'Activo' -->
+                                        <Label Grid.Column="1" Grid.Row="1"
+                                               Text="{Binding [CupoMaximo], StringFormat='{}Cupo máximo: {0}'}"
+                                               FontSize="15"
+                                               TextColor="#333"
+                                               HorizontalOptions="End"
+                                               VerticalOptions="Center" />
+                                    </Grid>
+
+                               
+                            </VerticalStackLayout>
+                            </Grid>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+</StackLayout>
+</ContentPage>

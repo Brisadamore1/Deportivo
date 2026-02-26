@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
@@ -9,7 +9,7 @@ namespace AppMovil.ViewModels
     {
         private string _bienvenidaMessage = "Bienvenido a";
         private string _tituloApp = "DEPORTIVO KAIRO";
-        private string _descripcion = "Sistema de Gesti�n Deportiva\nInstituto Superior De Profesorado N20";
+        private string _descripcion = "Sistema de Gestión Deportiva\nInstituto Superior De Profesorado N20";
         private DateTime _fechaActual = DateTime.Now;
 
         public string BienvenidaMessage
@@ -55,23 +55,23 @@ namespace AppMovil.ViewModels
         {
             AccesosRapidos.Add(new AccesoRapidoItem
             {
-                Titulo = " Buscar Actividades",
-                Descripcion = "Encuentra actividades en el cat�logo",
+                Titulo = "🏋🏻‍♀️ Buscar Actividades",
+                Descripcion = "Encuentra las actividades deportivas del club",
                 Ruta = "//BuscarActividadesPage",
                 Color = "#FFFFFF"
             });
 
             AccesosRapidos.Add(new AccesoRapidoItem
             {
-                Titulo = "Buscar Socios",
-                Descripcion = "Ver socios activos",
+                Titulo = "🫂 Buscar Socios",
+                Descripcion = "Encuentra socios y las actividades en las que participan",
                 Ruta = "//BuscarSociosPage",
                 Color = "#FFFFFF"
             });
 
             AccesosRapidos.Add(new AccesoRapidoItem
             {
-                Titulo = "?? Devoluciones",
+                Titulo = " Devoluciones",
                 Descripcion = "Historial de devoluciones",
                 Ruta = "//DevolucionesPage",
                 Color = "#FFFFFF"

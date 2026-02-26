@@ -29,6 +29,7 @@ namespace Backend.Controllers
                 .AsNoTracking()
                 .Include(a => a.Profesor)
                 .Where(a => a.Nombre.Contains(filtro))
+                .OrderBy(a => a.Nombre)
                 .ToListAsync();
         }
 
@@ -44,7 +45,7 @@ namespace Backend.Controllers
 
             if (filter == null || string.IsNullOrWhiteSpace(filter.SearchText))
             {
-                return await query.ToListAsync();
+                return await query.OrderBy(a => a.Nombre).ToListAsync();
             }
 
             var text = filter.SearchText.ToUpperInvariant();
@@ -58,7 +59,7 @@ namespace Backend.Controllers
                 (filter.ForProfesor && a.Profesor != null && a.Profesor.Nombre.ToUpper().Contains(text))
             );
 
-            return await query.ToListAsync();
+            return await query.OrderBy(a => a.Nombre).ToListAsync();
         }
 
         [HttpGet("deleteds")]
@@ -67,7 +68,9 @@ namespace Backend.Controllers
             return await _context.Actividades
                 .AsNoTracking()
                 .IgnoreQueryFilters()
-                .Where(a => a.IsDeleted).ToListAsync();
+                .Where(a => a.IsDeleted)
+                .OrderBy(a => a.Nombre)
+                .ToListAsync();
         }
 
         // GET: api/Actividades/5

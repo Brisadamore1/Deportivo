@@ -16,7 +16,7 @@
             <!-- Header con logo y título -->
             <Frame BackgroundColor="White" CornerRadius="15" Padding="20" HasShadow="True">
                 <StackLayout Orientation="Vertical" HorizontalOptions="Center">
-                    <Label Text="📚" FontSize="60" HorizontalOptions="Center" TextColor="#333"/>
+                    <Label Text="🏇🏻" FontSize="60" HorizontalOptions="Center" TextColor="#333"/>
                     <Label Text="{Binding BienvenidaMessage}" FontSize="16" TextColor="#333" HorizontalOptions="Center"/>
                     <Label Text="{Binding TituloApp}" FontSize="28" FontAttributes="Bold" TextColor="#333" HorizontalOptions="Center"/>
                     <Label Text="{Binding Descripcion}" FontSize="14" TextColor="#333" HorizontalOptions="Center" HorizontalTextAlignment="Center"/>
@@ -29,21 +29,21 @@
             </Frame>
 
             <!-- Título de accesos rápidos -->
-            <Label Text="Accesos Rápidos" FontSize="20" FontAttributes="Bold" TextColor="#333" HorizontalOptions="Center"/>
+            <Label Text="Accesos Rápidos" FontSize="21" FontAttributes="Bold" TextColor="White" HorizontalOptions="Center"/>
 
             <!-- Lista de accesos rápidos -->
             <CollectionView ItemsSource="{Binding AccesosRapidos}" SelectionMode="None">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <Frame BackgroundColor="{Binding Color}" CornerRadius="10" Margin="0,5" HasShadow="True">
+                        <Frame BackgroundColor="{Binding Color}" CornerRadius="10" Margin="0.8" HasShadow="True">
                             <Frame.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:MainPageViewModel}}, Path=NavegaCommand}" 
                                                       CommandParameter="{Binding Ruta}"/>
                             </Frame.GestureRecognizers>
-                            <StackLayout Orientation="Horizontal" Padding="10">
+                            <StackLayout Orientation="Horizontal" Padding="16">
                                 <StackLayout VerticalOptions="Center" HorizontalOptions="FillAndExpand">
-                                    <Label Text="{Binding Titulo}" FontSize="18" FontAttributes="Bold" TextColor="#333"/>
-                                    <Label Text="{Binding Descripcion}" FontSize="14" TextColor="#333" Opacity="0.8"/>
+                                    <Label Text="{Binding Titulo}" FontSize="23" FontAttributes="Bold" TextColor="#333"/>
+                                    <Label Text="{Binding Descripcion}" FontSize="15" TextColor="#333" Opacity="0.8"/>
                                 </StackLayout>
                                 <Label Text="▶" FontSize="20" TextColor="#333" VerticalOptions="Center"/>
                             </StackLayout>
