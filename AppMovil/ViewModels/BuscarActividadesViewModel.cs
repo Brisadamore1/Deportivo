@@ -44,6 +44,7 @@ namespace AppMovil.ViewModels
         public IRelayCommand BuscarCommand { get; }
         public IRelayCommand LimpiarCommand { get; }
         public IRelayCommand ToggleFiltrosCommand { get; }
+        public IRelayCommand VolverCommand { get; }
 
         public BuscarActividadesViewModel()
         {
@@ -51,6 +52,7 @@ namespace AppMovil.ViewModels
             LimpiarCommand = new RelayCommand(OnLimpiar);
             ToggleFiltrosCommand = new RelayCommand(OnToggleFiltros);
             VerActividadCommand = new RelayCommand<int?>(OnVerActividad);
+            VolverCommand = new AsyncRelayCommand(OnVolver);
             _ = InicializarAsync();
         }
 
@@ -134,6 +136,10 @@ namespace AppMovil.ViewModels
             }
         }
 
+        private async Task OnVolver()
+        {
+            await Shell.Current.GoToAsync("//MainPage");
+        }
         private void OnLimpiar()
         {
             SearchText = string.Empty;
