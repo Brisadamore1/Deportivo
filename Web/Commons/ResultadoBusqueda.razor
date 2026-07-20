@@ -1,0 +1,14 @@
+﻿<div class="card shadow rounded-4 mb-3" style="background-color: LightGreen; border-color: Green;">
+    <div class="card-body text-center">
+        <div class="fw-bold" style="color: DarkGreen;">📚 Resultados de búsqueda</div>
+        <div class="text-success">@($"{Cantidad} {TextoResultado}")</div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int Cantidad { get; set; } = 0;
+    [Parameter]
+    public string TextoResultado { get; set; } = "texto no definido";
+
+}

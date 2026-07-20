@@ -1,0 +1,83 @@
+﻿@page "/miembros/buscar-socios"
+@inject ISocioService _socioService
+@rendermode InteractiveServer
+
+@if(Socios==null)
+{
+    <div class="d-flex align-items-center justify-content-center" style="height: 100vh;">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+        </div>
+    </div>
+}
+else
+{
+@* --- Encabezado --- *@
+<div class="container py-4">
+        <EncabezadoPage Titulo="🔍 Buscar Socios" Descripcion="Encuentra socios" />
+
+    @* --- Sección de búsqueda --- *@
+    <SeccionBusqueda Socios="Socios" OnBuscar="Buscar" />
+
+    @* --- Sección de resultados --- *@
+    <div class="row">
+        <div class="col-12">
+                <ResultadoBusqueda Cantidad="Socios.Count" TextoResultado="@(Socios.Count == 1 ? "socio encontrado" : "socios encontrados")" />
+            @if (Socios.Count == 0 && !IsBusy)
+            {
+                <div class="card shadow rounded-4 mb-3" style="background-color: LightYellow; border-color: Orange;">
+                    <div class="card-body text-center">
+                        <div class="fw-bold" style="color: DarkOrange;">🤔 Sin resultados</div>
+                        <div class="text-muted">Intenta con otros términos de búsqueda o ajusta los filtros</div>
+                        <div class="text-muted small mt-2">💡 Tip: Usa palabras clave simples y verifica que los filtros apropiados estén seleccionados</div>
+                    </div>
+                </div>
+            }
+            @foreach (var socio in Socios)
+            {
+                    <CardSocio socio="socio" />
+            }
+        </div>
+    </div>
+</div>
+}
+@code {
+    // Resultados
+    List<Socio>? Socios { get; set; } = new();
+    bool IsBusy { get; set; } = false;
+
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if(firstRender)
+        {
+            // Cargar datos iniciales si es necesario
+            IsBusy = true;
+            StateHasChanged();
+            await Buscar(new FilterSocioDTO(){ForNombre=true});
+        }
+    }
+
+    async Task Buscar(FilterSocioDTO filterDTO)
+    {
+        IsBusy = true;
+        StateHasChanged();
+
+        try
+        {
+            Socios = await _socioService.GetWithFilterAsync(filterDTO)
+                     ?? new List<Socio>();
+        }
+        catch (Exception ex)
+        {
+            Socios = new List<Socio>();
+
+            // Por ahora permite ver el error exacto en la página.
+            Console.WriteLine($"Error al buscar socios: {ex.Message}");
+        }
+        finally
+        {
+            IsBusy = false;
+            StateHasChanged();
+        }
+    }
+}

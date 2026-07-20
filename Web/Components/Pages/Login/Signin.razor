@@ -1,0 +1,250 @@
+﻿@page "/signin"
+@using Service.Enums
+@inject SweetAlertService sweetAlert
+@inject FirebaseAuthService firebaseAuthService
+@inject NavigationManager navigationManager
+@inject IUsuarioService _usuarioService
+@rendermode InteractiveServer
+
+<div class="auth-wrapper">
+    <div class="card register-card shadow-lg border-0 rounded-4">
+        <div class="card-header bg-gradient-primary text-white border-0 rounded-top-4 py-3">
+            <div class="d-flex align-items-center">
+                <span class="me-2 fs-4">📝</span>
+                <div>
+                    <h5 class="mb-0 fw-semibold">Crear cuenta</h5>
+                    <small class="opacity-75">Regístrate para continuar</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body p-4 p-md-5">
+            <EditForm Model="usuario">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold" for="Nombre">Nombre <span class="text-danger">*</span></label>
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-text bg-light-subtle">
+                            <i class="bi bi-person"></i>
+                        </span>
+                        <InputText id="Nombre" class="form-control" @bind-Value="usuario.Nombre" placeholder="Nombre y apellido" />
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold" for="email">Email <span class="text-danger">*</span></label>
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-text bg-light-subtle">
+                            <i class="bi bi-envelope"></i>
+                        </span>
+                        <InputText id="email" class="form-control" @bind-Value="usuario.Email" placeholder="usuario@gmail.com" type="email" autocomplete="email" />
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold" for="dni">DNI <span class="text-danger">*</span></label>
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-text bg-light-subtle">
+                            <i class="bi bi-card-text"></i>
+                        </span>
+                        <InputText id="dni" class="form-control" @bind-Value="usuario.Dni" placeholder="12345678" />
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold" for="domicilio">Domicilio</label>
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-text bg-light-subtle">
+                            <i class="bi bi-house"></i>
+                        </span>
+                        <InputText id="domicilio" class="form-control" @bind-Value="usuario.Domicilio" placeholder="Calle 123, Ciudad" />
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold" for="telefono">Teléfono</label>
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-text bg-light-subtle">
+                            <i class="bi bi-telephone"></i>
+                        </span>
+                        <InputText id="telefono" class="form-control" @bind-Value="usuario.Telefono" placeholder="+54 11 1234-5678" />
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold" for="tipoRol">Tipo de Rol <span class="text-danger">*</span></label>
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-text bg-light-subtle">
+                            <i class="bi bi-person-badge"></i>
+                        </span>
+                        <InputSelect id="tipoRol" class="form-select" @bind-Value="usuario.TipoRol">
+                            @foreach (var value in Enum.GetValues<TipoRolEnum>())
+                            {
+                                if (value != TipoRolEnum.Administrativo) // 👈 Oculta ese rol
+                                {
+                                    <option value="@value">@value</option>
+                                }
+                            }
+                        </InputSelect>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold" for="password">Contraseña <span class="text-danger">*</span></label>
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-text bg-light-subtle">
+                            <i class="bi bi-lock"></i>
+                        </span>
+                        <InputText id="password" class="form-control" @bind-Value="usuario.Password" placeholder="••••••••" type="@(_showPassword ? "text" : "password")" autocomplete="new-password" />
+                        <button type="button" class="btn btn-outline-secondary" @onclick="() => _showPassword = !_showPassword">
+                            <i class="bi @( _showPassword ? "bi-eye-slash" : "bi-eye")"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-semibold" for="passwordverify">Verificar contraseña <span class="text-danger">*</span></label>
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-text bg-light-subtle">
+                            <i class="bi bi-shield-lock"></i>
+                        </span>
+                        <InputText id="passwordverify" class="form-control" @bind-Value="passwordverify" placeholder="Repite tu contraseña" type="@(_showPasswordVerify ? "text" : "password")" autocomplete="new-password" />
+                        <button type="button" class="btn btn-outline-secondary" @onclick="() => _showPasswordVerify = !_showPasswordVerify">
+                            <i class="bi @( _showPasswordVerify ? "bi-eye-slash" : "bi-eye")"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="button" class="btn btn-gradient w-100 mb-2" @onclick="Register" disabled="@_isSubmitting">
+                    @if (_isSubmitting)
+                    {
+                        <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                    }
+                    <i class="bi bi-person-check me-1"></i> Enviar
+                </button>
+
+                <div class="text-center mt-2">
+                    <small class="text-muted">
+                        ¿Ya tienes cuenta?
+                        <a class="text-decoration-none" href="/login">Inicia sesión</a>
+                    </small>
+                </div>
+            </EditForm>
+        </div>
+
+        <div class="card-footer text-body-secondary text-center small">
+            Club Deportivo
+        </div>
+    </div>
+</div>
+
+@code {
+    Usuario usuario = new() { TipoRol = TipoRolEnum.Profesor };
+    string passwordverify = string.Empty;
+
+    bool _showPassword = false;
+    bool _showPasswordVerify = false;
+    bool _isSubmitting = false;
+
+    private async Task<bool> DataControl()
+    {
+        if (string.IsNullOrWhiteSpace(usuario.Nombre) ||
+            string.IsNullOrWhiteSpace(usuario.Email) ||
+            string.IsNullOrWhiteSpace(usuario.Dni) ||
+            string.IsNullOrWhiteSpace(usuario.Password) ||
+            string.IsNullOrWhiteSpace(passwordverify))
+        {
+            await sweetAlert.FireAsync(
+                "Error",
+                "Por favor, completa todos los campos obligatorios.",
+                SweetAlertIcon.Error);
+
+            return false;
+        }
+
+        if (usuario.Password != passwordverify)
+        {
+            await sweetAlert.FireAsync(
+                "Error",
+                "Las contraseñas no coinciden.",
+                SweetAlertIcon.Error);
+
+            return false;
+        }
+
+        if (usuario.Password.Length < 6)
+        {
+            await sweetAlert.FireAsync(
+                "Error",
+                "La contraseña debe tener al menos 6 caracteres.",
+                SweetAlertIcon.Error);
+
+            return false;
+        }
+
+        return true;
+    }
+
+    private async Task Register()
+    {
+        if (!await DataControl())
+            return;
+
+        _isSubmitting = true;
+        StateHasChanged();
+
+        try
+        {
+            usuario.TipoRol = TipoRolEnum.Profesor;
+
+            var loginResponse = await firebaseAuthService
+                .createUserWithEmailAndPassword(
+                    usuario.Email,
+                    usuario.Password,
+                    usuario.Nombre);
+
+            if (string.IsNullOrEmpty(loginResponse?.UserUid))
+            {
+                await sweetAlert.FireAsync(
+                    "Error",
+                    loginResponse?.Error ?? "No se pudo crear el usuario en Firebase.",
+                    SweetAlertIcon.Error);
+
+                return;
+            }
+
+            usuario.Password = usuario.Password.GetHashSha256();
+
+            var usuarioNuevo = await _usuarioService.AddAsync(usuario);
+
+            if (usuarioNuevo is null)
+            {
+                await sweetAlert.FireAsync(
+                    "Error",
+                    "No se pudo registrar el usuario en el sistema.",
+                    SweetAlertIcon.Error);
+
+                return;
+            }
+
+            await sweetAlert.FireAsync(
+                "Éxito",
+                "Usuario registrado correctamente. Revisa tu correo para verificar la cuenta.",
+                SweetAlertIcon.Success);
+
+            await firebaseAuthService.SignOut();
+
+            usuario = new Usuario { TipoRol = TipoRolEnum.Profesor };
+            passwordverify = string.Empty;
+
+            navigationManager.NavigateTo("/login");
+        }
+        catch (Exception ex)
+        {
+            await sweetAlert.FireAsync("Error", ex.Message, SweetAlertIcon.Error);
+        }
+        finally
+        {
+            _isSubmitting = false;
+            StateHasChanged();
+        }
+    }
+}

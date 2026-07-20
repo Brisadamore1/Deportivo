@@ -96,7 +96,7 @@ namespace AppMovil.ViewModels
                     SuccessMessage = "Se enviaron las instrucciones a tu correo.";
                     // Notify computed property change
                     OnPropertyChanged(nameof(HasSuccess));
-                    // Do not navigate away immediately so user can see the message
+                    await Shell.Current.GoToAsync("//LoginPage");
                 }
                 else
                 {
@@ -112,6 +112,7 @@ namespace AppMovil.ViewModels
             finally
             {
                 IsBusy = false;
+
             }
         }
 

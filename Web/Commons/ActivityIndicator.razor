@@ -1,0 +1,13 @@
+﻿@if (IsBusy)
+{
+    <div class="d-flex align-items-center justify-content-center my-4">
+        <div class="spinner-border text-primary" role="status"></div>
+        <span class="ms-2 text-primary">@Mensaje</span>
+    </div>
+}
+@code {
+    [Parameter]
+    public string? Mensaje { get; set; } = "Cargando...";
+    [Parameter]
+    public bool IsBusy { get; set; } = false;
+}

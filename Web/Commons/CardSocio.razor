@@ -1,0 +1,64 @@
+﻿@using Service.Models
+<div class="card shadow rounded-4 mb-3 border border-info">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-auto d-flex align-items-center">
+                <span style="font-size: 2.5rem;">👤</span>
+            </div>
+
+            <div class="col">
+                <div class="fw-bold fs-5" style="color: #274472;">
+                    @socio.Nombre
+                </div>
+
+                <div class="mb-1 text-secondary">
+                    <span>🪪</span> DNI: @socio.Dni
+                </div>
+
+                <div class="mb-1 text-secondary">
+                    <span>📍</span> Localidad: @socio.Localidad?.Nombre
+                </div>
+
+                <div class="mb-1 text-secondary">
+                    <span>🏠</span> Domicilio: @socio.Domicilio
+                </div>
+
+                <div class="mb-1 text-secondary">
+                    <span>📞</span> Teléfono: @socio.Telefono
+                </div>
+
+                <div class="mb-1 text-secondary">
+                    <span>🎂</span> Fecha de nacimiento:
+                    @(socio.FechaNacimiento?.ToString("dd/MM/yyyy"))
+                </div>
+
+                <div class="mb-1 text-muted">
+                    ⚽ @socio.Actividades
+                </div>
+
+                <div class="mb-1">
+                    @if (socio.Activo)
+                    {
+                        <span class="badge bg-success">Activo</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary">Inactivo</span>
+                    }
+                </div>
+            </div>
+
+            <div class="col-auto d-flex align-items-center">
+                <button class="btn btn-info text-dark fw-bold"
+                        style="width:60px; height:60px; white-space:pre-line;">
+                    👤&#10;Ver
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public Socio socio { get; set; } = new Socio();
+}

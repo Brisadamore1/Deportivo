@@ -49,12 +49,14 @@ namespace AppMovil.ViewModels
         public IRelayCommand BuscarCommand { get; }
         public IRelayCommand LimpiarCommand { get; }
         public IRelayCommand ToggleFiltrosCommand { get; }
+        public IRelayCommand VolverCommand { get; }
 
         public BuscarSociosViewModel()
         {
             BuscarCommand = new RelayCommand(OnBuscar);
             LimpiarCommand = new RelayCommand(OnLimpiar);
             ToggleFiltrosCommand = new RelayCommand(OnToggleFiltros);
+            VolverCommand = new AsyncRelayCommand(OnVolver);
             _ = InicializarAsync();
 
             // no state filter handling
@@ -135,6 +137,10 @@ namespace AppMovil.ViewModels
             {
                 IsBusy = false;
             }
+        }
+        private async Task OnVolver()
+        {
+            await Shell.Current.GoToAsync("//MainPage");
         }
 
         private void OnLimpiar()

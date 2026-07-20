@@ -1,0 +1,110 @@
+﻿@using Service.Enums 
+@inject FirebaseAuthService _firebaseAuthService
+@inject NavigationManager _navigationManager
+@inject IUsuarioService _usuarioService
+@inject IMemoryCache _cacheMemory
+@rendermode InteractiveServer
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">Web</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item" style="padding-top:0em !important">
+                    <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                        <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Inicio
+                    </NavLink>
+                </li>
+                @if (_isLogued)
+                {
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="/miembros/buscar-socios">
+                            <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Buscar socios
+                        </NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <span class="nav-link">Hola, @_usuarioLogueado?.Nombre</span>
+                    </li>
+                }
+                <li class="nav-item">
+                    <NavLink class="nav-link" href="login">
+                        <span class="bi bi-login" aria-hidden="true"></span> @textBtnLogin
+                    </NavLink>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+@code {
+    FirebaseUser? _userLogued;
+    bool _isLogued = false;
+    Usuario? _usuarioLogueado;
+    private string textBtnLogin => _isLogued ? "Cerrar sesión" : "Iniciar sesión";
+
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            //_firebaseAuthService.OnChangeLogin += async () => await InvokeAsync(LoginChangedAsync);
+            _firebaseAuthService.OnChangeLogin += LoginChanged;
+            if (await _firebaseAuthService.IsUserAuthenticated())
+            {
+                _userLogued = _firebaseAuthService.CurrentUser;
+                _isLogued = true;
+                if (_usuarioLogueado == null) await CargarUsuarioAsync();
+            }
+            else
+            {
+                _isLogued = false;
+                _userLogued = null;
+                _navigationManager.NavigateTo("/login");
+
+            }
+        }
+    }
+
+    private async Task CargarUsuarioAsync()
+    {
+        try
+        {
+            if (!string.IsNullOrWhiteSpace(_userLogued?.Email))
+            {
+                _usuarioLogueado = await _usuarioService.GetByEmailAsync(_userLogued.Email);
+                if (_usuarioLogueado != null)
+                {
+                    _cacheMemory.Set("usuarioLogueado", _usuarioLogueado);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine(ex);
+        }
+    }
+
+    //se utiliza el loginChanged para actualizar el estado de la aplicación cuando el usuario inicia o cierra sesión.
+    private async void LoginChanged()
+    {
+        if (_firebaseAuthService.CurrentUser != null)
+        {
+            _userLogued = _firebaseAuthService.CurrentUser;
+            _isLogued = true;
+            if (_usuarioLogueado == null) await CargarUsuarioAsync();
+
+        }
+        else
+        {
+            _isLogued = false;
+            _userLogued = null;
+            _navigationManager.NavigateTo("/login");
+        }
+        StateHasChanged();
+    }
+
+
+}
+

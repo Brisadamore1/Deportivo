@@ -11,23 +11,41 @@
     </ContentPage.BindingContext>
     <ScrollView Padding="20">
         <StackLayout Spacing="20">
-
-            <!-- Encabezado -->
             <Frame BackgroundColor="White" 
                    Padding="20" 
                    CornerRadius="15" 
                    HasShadow="True">
-                <StackLayout>
-                    <Label Text="Buscar Actividades" 
-                           FontSize="26" 
-                           FontAttributes="Bold"
-                           TextColor="#333"
-                           HorizontalOptions="Center"/>
-                    <Label Text="Encuentra las actividades deportivas del club" 
-                           FontSize="14"
-                           TextColor="#333"
-                           HorizontalOptions="Center"/>
-                </StackLayout>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="48" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="48" />
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Botón volver a la lista (izquierda) -->
+                    <ImageButton Grid.Column="0" Command="{Binding VolverCommand}"
+                                  BackgroundColor="Transparent"
+                                  WidthRequest="48"
+                                  HeightRequest="48"
+                                  CornerRadius="10">
+                        <ImageButton.Source>
+                            <FontImageSource Glyph="&#x2190;" FontFamily="OpenSansRegular" Color="Black" Size="20" />
+                        </ImageButton.Source>
+                    </ImageButton>
+
+                    <!-- Título centrado con subtítulo -->
+                    <StackLayout Grid.Column="1" HorizontalOptions="Center" VerticalOptions="Center">
+                        <Label Text="Buscar Actividades" 
+                               FontSize="26" 
+                               FontAttributes="Bold"
+                               TextColor="#333"
+                               HorizontalOptions="Center"/>
+                        <Label Text="Encuentra las actividades deportivas del club" 
+                               FontSize="14"
+                               TextColor="#333"
+                               HorizontalOptions="Center"/>
+                    </StackLayout>
+                </Grid>
             </Frame>
 
             <!-- Sección de búsqueda -->

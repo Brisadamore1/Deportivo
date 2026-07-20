@@ -1,0 +1,131 @@
+﻿@using Service.DTOs
+@using Service.Models
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow rounded-4 border border-light">
+            <div class="card-body">
+                <div class="mb-3 fw-bold" style="color: #274472;">
+                    ¿Qué socio estás buscando?
+                </div>
+
+                <div class="mb-3">
+                    <input class="form-control form-control-lg rounded-3 border-primary"
+                           placeholder="Buscar por nombre, DNI, localidad o actividad..."
+                           @bind="SearchText" />
+                </div>
+
+                <div class="d-flex gap-2 mb-3">
+                    <button class="btn btn-primary" @onclick="HandleBuscar">
+                        🔍 Buscar
+                    </button>
+
+                    <button class="btn btn-outline-primary" @onclick="ToggleFiltros">
+                        ⚙️ Filtros de búsqueda
+                    </button>
+                </div>
+
+                @if (MostrarFiltros)
+                {
+                    <div class="card p-3 mb-3"
+                         style="background-color: AliceBlue; border-color: LightBlue;">
+
+                        <div class="fw-bold mb-2" style="color: #274472;">
+                            🔎 Buscar en:
+                        </div>
+
+                        <div class="row mb-2">
+                            <div class="col-6 d-flex align-items-center mb-2">
+                                <input type="checkbox"
+                                       class="form-check-input me-2"
+                                       @bind="FiltrarPorNombre" />
+                                <label class="form-check-label">👤 Nombre</label>
+                            </div>
+
+                            <div class="col-6 d-flex align-items-center mb-2">
+                                <input type="checkbox"
+                                       class="form-check-input me-2"
+                                       @bind="FiltrarPorDni" />
+                                <label class="form-check-label">🪪 DNI</label>
+                            </div>
+
+                            <div class="col-6 d-flex align-items-center mb-2">
+                                <input type="checkbox"
+                                       class="form-check-input me-2"
+                                       @bind="FiltrarPorLocalidad" />
+                                <label class="form-check-label">📍 Localidad</label>
+                            </div>
+
+                            <div class="col-6 d-flex align-items-center mb-2">
+                                <input type="checkbox"
+                                       class="form-check-input me-2"
+                                       @bind="FiltrarPorActividad" />
+                                <label class="form-check-label">⚽ Actividad</label>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-warning text-white mt-2"
+                                @onclick="LimpiarBusqueda">
+                            🗑️ Limpiar búsqueda
+                        </button>
+                    </div>
+                }
+
+                @if (IsBusy)
+                {
+                    <div class="d-flex align-items-center justify-content-center gap-2 mt-2">
+                        <div class="spinner-border text-primary" role="status"></div>
+                        <span class="text-primary">Buscando socios...</span>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public List<Socio>? Socios { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<FilterSocioDTO> OnBuscar { get; set; }
+
+    // Estado de búsqueda y filtros
+    string SearchText { get; set; } = "";
+    bool MostrarFiltros { get; set; } = false;
+
+    bool FiltrarPorNombre { get; set; } = true;
+    bool FiltrarPorDni { get; set; } = false;
+    bool FiltrarPorLocalidad { get; set; } = false;
+    bool FiltrarPorActividad { get; set; } = false;
+
+    bool IsBusy { get; set; } = false;
+
+    void ToggleFiltros() => MostrarFiltros = !MostrarFiltros;
+
+    async Task LimpiarBusqueda()
+    {
+        SearchText = "";
+        FiltrarPorNombre = true;
+        FiltrarPorDni = false;
+        FiltrarPorLocalidad = false;
+        FiltrarPorActividad = false;
+
+        await HandleBuscar();
+    }
+
+    private async Task HandleBuscar()
+    {
+        FilterSocioDTO filterDTO = new()
+        {
+            SearchText = SearchText,
+            ForNombre = FiltrarPorNombre,
+            ForDni = FiltrarPorDni,
+            ForLocalidad = FiltrarPorLocalidad,
+            ForActividad = FiltrarPorActividad
+        };
+
+        IsBusy = true;
+        await OnBuscar.InvokeAsync(filterDTO);
+        IsBusy = false;
+    }
+}

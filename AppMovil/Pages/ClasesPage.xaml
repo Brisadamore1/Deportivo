@@ -5,7 +5,6 @@
              x:Class="AppMovil.Pages.ClasesPage"
              BackgroundColor="#184D57"
              Title="Clases">
-    <!-- BindingContext: instanciar el ViewModel directamente en XAML -->
     <ContentPage.BindingContext>
         <viewModels:ClasesViewModel />
     </ContentPage.BindingContext>
