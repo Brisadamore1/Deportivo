@@ -1,0 +1,124 @@
+﻿@using Service.Interfaces
+@using Service.Models
+@inject IGenericService<Localidad> _localidadService
+
+<div class="modal fade" id="NuevoEditarModal" tabindex="-1"
+     aria-labelledby="tituloModalSocio" aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="tituloModalSocio">
+                    Nuevo / editar socio
+                </h1>
+
+                <button type="button" class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Cerrar">
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="nombreInput" class="form-label">Nombre y apellido</label>
+                        <InputText id="nombreInput" class="form-control"
+                                   @bind-Value="Socio.Nombre" />
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="dniInput" class="form-label">DNI</label>
+                        <InputText id="dniInput" class="form-control"
+                                   @bind-Value="Socio.Dni" />
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="telefonoInput" class="form-label">Teléfono</label>
+                        <InputText id="telefonoInput" class="form-control"
+                                   @bind-Value="Socio.Telefono" />
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="fechaNacimientoInput" class="form-label">
+                            Fecha de nacimiento
+                        </label>
+
+                        <InputDate id="fechaNacimientoInput" class="form-control"
+                                   @bind-Value="Socio.FechaNacimiento" />
+                    </div>
+
+                    <div class="col-12 mb-3">
+                        <label for="domicilioInput" class="form-label">Domicilio</label>
+                        <InputText id="domicilioInput" class="form-control"
+                                   @bind-Value="Socio.Domicilio" />
+                    </div>
+
+                    <div class="col-md-8 mb-3">
+                        <label for="localidadInput" class="form-label">Localidad</label>
+
+                        <InputSelect id="localidadInput" class="form-select"
+                                     @bind-Value="Socio.LocalidadId">
+
+                            <option value="0">Seleccione una localidad</option>
+
+                            @foreach (var localidad in localidades)
+                            {
+                                <option value="@localidad.Id">
+                                    @localidad.Nombre
+                                </option>
+                            }
+                        </InputSelect>
+                    </div>
+
+                    <div class="col-md-4 mb-3 d-flex align-items-end">
+                        <div class="form-check">
+                            <InputCheckbox class="form-check-input"
+                                           @bind-Value="Socio.Activo" />
+
+                            <label class="form-check-label">
+                                Socio activo
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+                    Cancelar
+                </button>
+
+                <button type="button" class="btn btn-primary"
+                        data-bs-dismiss="modal"
+                        @onclick="HandleGuardar">
+                    Guardar cambios
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public Socio Socio { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<Socio> OnGuardar { get; set; }
+
+    private List<Localidad> localidades = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        localidades = await _localidadService.GetAllAsync()
+                      ?? new List<Localidad>();
+    }
+
+    private async Task HandleGuardar()
+    {
+        if (OnGuardar.HasDelegate)
+        {
+            await OnGuardar.InvokeAsync(Socio);
+        }
+    }
+}

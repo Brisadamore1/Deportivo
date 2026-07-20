@@ -1,0 +1,212 @@
+﻿@page "/admin/actividades"
+@inject IActivityService _actividadService
+@inject SweetAlertService _sweetAlert
+@rendermode InteractiveServer
+
+<EncabezadoPage Titulo="Administración de Actividades"
+                Descripcion="Gestiona las actividades deportivas del club" />
+
+<div class="container py-4">
+    <SeccionBtnNuevoMostrarEliminados
+        @bind-MostrarEliminados="MostrarEliminados"
+        OnAfterMostrarEliminados="GetActividades"
+        OnNuevo="Nuevo" />
+
+    @if (isLoading)
+    {
+        <ActivityIndicator Mensaje="Cargando actividades..." />
+    }
+    else if (actividades != null && actividades.Count > 0)
+    {
+        <TablaActividadConFiltro
+            ListEntity="actividades"
+            OnEliminar="Eliminar"
+            OnModificar="Modificar"
+            OnRestaurar="Restaurar"
+            MostrarEliminados="MostrarEliminados" />
+    }
+    else if (MostrarEliminados)
+    {
+        <div class="alert alert-info" role="alert">
+            No hay actividades eliminadas.
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info" role="alert">
+            No hay actividades registradas.
+        </div>
+    }
+
+    <NuevoEditarActividad
+        Actividad="@actividadCurrent"
+        OnGuardar="Guardar" />
+</div>
+
+@code {
+    List<Actividad>? actividades = new();
+    Actividad actividadCurrent = new();
+
+    bool isLoading = true;
+
+    public bool MostrarEliminados { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetActividades();
+    }
+
+    private async Task GetActividades()
+    {
+        isLoading = true;
+
+        try
+        {
+            actividades = MostrarEliminados
+                ? await _actividadService.GetAllDeletedsAsync()
+                : await _actividadService.GetAllAsync();
+        }
+        catch
+        {
+            await _sweetAlert.FireAsync(
+                "Error",
+                "No se pudieron cargar las actividades.",
+                SweetAlertIcon.Error);
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void Modificar(Actividad actividad)
+    {
+        actividadCurrent = actividad;
+    }
+
+    private void Nuevo()
+    {
+        actividadCurrent = new Actividad();
+    }
+
+    private async Task Eliminar(Actividad actividad)
+    {
+        var respuesta = await _sweetAlert.FireAsync(new SweetAlertOptions
+        {
+            Title = "Eliminando actividad",
+            Text = $"¿Está seguro que desea eliminar la actividad {actividad.Nombre}?",
+            Icon = SweetAlertIcon.Warning,
+            ShowCancelButton = true,
+            ConfirmButtonText = "Sí, eliminar",
+            CancelButtonText = "Cancelar"
+        });
+
+        if (!respuesta.IsConfirmed)
+            return;
+
+        try
+        {
+            isLoading = true;
+
+            await _actividadService.DeleteAsync(actividad.Id);
+            await GetActividades();
+
+            await _sweetAlert.FireAsync(
+                "Eliminada",
+                "La actividad fue eliminada exitosamente.",
+                SweetAlertIcon.Success);
+        }
+        catch
+        {
+            await _sweetAlert.FireAsync(
+                "Error",
+                "Hubo un error al eliminar la actividad.",
+                SweetAlertIcon.Error);
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task Guardar(Actividad actividadToSave)
+    {
+        try
+        {
+            isLoading = true;
+
+            if (actividadToSave.Id == 0)
+            {
+                await _actividadService.AddAsync(actividadToSave);
+
+                await _sweetAlert.FireAsync(
+                    "Creada",
+                    "La actividad fue creada exitosamente.",
+                    SweetAlertIcon.Success);
+            }
+            else
+            {
+                await _actividadService.UpdateAsync(actividadToSave);
+
+                await _sweetAlert.FireAsync(
+                    "Actualizada",
+                    "La actividad fue actualizada exitosamente.",
+                    SweetAlertIcon.Success);
+            }
+
+            await GetActividades();
+            actividadCurrent = new Actividad();
+        }
+        catch
+        {
+            await _sweetAlert.FireAsync(
+                "Error",
+                "Hubo un error al guardar la actividad.",
+                SweetAlertIcon.Error);
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task Restaurar(Actividad actividad)
+    {
+        var respuesta = await _sweetAlert.FireAsync(new SweetAlertOptions
+        {
+            Title = "Restaurando actividad",
+            Text = $"¿Está seguro que desea restaurar la actividad {actividad.Nombre}?",
+            Icon = SweetAlertIcon.Question,
+            ShowCancelButton = true,
+            ConfirmButtonText = "Sí, restaurar",
+            CancelButtonText = "Cancelar"
+        });
+
+        if (!respuesta.IsConfirmed)
+            return;
+
+        try
+        {
+            isLoading = true;
+
+            await _actividadService.RestoreAsync(actividad.Id);
+            await GetActividades();
+
+            await _sweetAlert.FireAsync(
+                "Restaurada",
+                "La actividad fue restaurada exitosamente.",
+                SweetAlertIcon.Success);
+        }
+        catch
+        {
+            await _sweetAlert.FireAsync(
+                "Error",
+                "Hubo un error al restaurar la actividad.",
+                SweetAlertIcon.Error);
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}

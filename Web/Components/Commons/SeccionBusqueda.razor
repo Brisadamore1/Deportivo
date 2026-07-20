@@ -1,38 +1,22 @@
-﻿@using Service.DTOs
-@using Service.Models
+﻿
 <div class="row mb-4">
     <div class="col-12">
         <div class="card shadow rounded-4 border border-light">
             <div class="card-body">
-                <div class="mb-3 fw-bold" style="color: #274472;">
-                    ¿Qué socio estás buscando?
-                </div>
-
+                <div class="mb-3 fw-bold" style="color: #274472;">¿Qué socio estás buscando?</div>
                 <div class="mb-3">
                     <input class="form-control form-control-lg rounded-3 border-primary"
                            placeholder="Buscar por nombre, DNI, localidad o actividad..."
                            @bind="SearchText" />
                 </div>
-
                 <div class="d-flex gap-2 mb-3">
-                    <button class="btn btn-primary" @onclick="HandleBuscar">
-                        🔍 Buscar
-                    </button>
-
-                    <button class="btn btn-outline-primary" @onclick="ToggleFiltros">
-                        ⚙️ Filtros de búsqueda
-                    </button>
+                    <button class="btn btn-primary" @onclick="HandleBuscar">🔍 Buscar</button>
+                    <button class="btn btn-outline-primary" @onclick="ToggleFiltros">⚙️ Filtros de búsqueda</button>
                 </div>
-
                 @if (MostrarFiltros)
                 {
-                    <div class="card p-3 mb-3"
-                         style="background-color: AliceBlue; border-color: LightBlue;">
-
-                        <div class="fw-bold mb-2" style="color: #274472;">
-                            🔎 Buscar en:
-                        </div>
-
+                    <div class="card p-3 mb-3" style="background-color: AliceBlue; border-color: LightBlue;">
+                        <div class="fw-bold mb-2" style="color: #274472;">🔎 Buscar en:</div>
                         <div class="row mb-2">
                             <div class="col-6 d-flex align-items-center mb-2">
                                 <input type="checkbox"
@@ -40,21 +24,18 @@
                                        @bind="FiltrarPorNombre" />
                                 <label class="form-check-label">👤 Nombre</label>
                             </div>
-
                             <div class="col-6 d-flex align-items-center mb-2">
                                 <input type="checkbox"
                                        class="form-check-input me-2"
                                        @bind="FiltrarPorDni" />
                                 <label class="form-check-label">🪪 DNI</label>
                             </div>
-
                             <div class="col-6 d-flex align-items-center mb-2">
                                 <input type="checkbox"
                                        class="form-check-input me-2"
                                        @bind="FiltrarPorLocalidad" />
                                 <label class="form-check-label">📍 Localidad</label>
                             </div>
-
                             <div class="col-6 d-flex align-items-center mb-2">
                                 <input type="checkbox"
                                        class="form-check-input me-2"
@@ -62,11 +43,7 @@
                                 <label class="form-check-label">⚽ Actividad</label>
                             </div>
                         </div>
-
-                        <button class="btn btn-warning text-white mt-2"
-                                @onclick="LimpiarBusqueda">
-                            🗑️ Limpiar búsqueda
-                        </button>
+                        <button class="btn btn-warning text-white mt-2" @onclick="LimpiarBusqueda">🗑️ Limpiar búsqueda</button>
                     </div>
                 }
 
@@ -113,6 +90,7 @@
         await HandleBuscar();
     }
 
+    //handle es manejar y se usa para indicar que se va a manejar un evento, en este caso la búsqueda de socios.
     private async Task HandleBuscar()
     {
         FilterSocioDTO filterDTO = new()

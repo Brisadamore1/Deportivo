@@ -1,0 +1,163 @@
+﻿@using Service.Models
+
+@if (sociosFiltrados is null)
+{
+    <p>Cargando...</p>
+}
+else
+{
+    <div class="form-group mb-3">
+        <div class="row align-items-center g-2">
+            <div class="col-auto">
+                <label for="filterText" class="col-form-label mb-0">
+                    Buscar
+                </label>
+            </div>
+
+            <div class="col">
+                <input id="filterText"
+                       class="form-control"
+                       value="@filterText"
+                       @oninput="FilterList"
+                       placeholder="Filtrar por nombre, DNI o localidad" />
+            </div>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Nombre</th>
+                    <th>DNI</th>
+                    <th>Localidad</th>
+                    <th>Teléfono</th>
+                    <th>Estado</th>
+                    <th colspan="2">Acciones</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var socio in sociosFiltrados)
+                {
+                    <tr @key="socio.Id">
+                        <td>@socio.Id</td>
+                        <td>@socio.Nombre</td>
+                        <td>@socio.Dni</td>
+                        <td>@(socio.Localidad?.Nombre ?? "-")</td>
+                        <td>@socio.Telefono</td>
+
+                        <td>
+                            @if (socio.Activo)
+                            {
+                                <span class="badge bg-success">Activo</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Inactivo</span>
+                            }
+                        </td>
+
+                        @if (MostrarEliminados)
+                        {
+                            <td colspan="2">
+                                <button type="button"
+                                        title="Restaurar"
+                                        class="btn btn-success"
+                                        @onclick="() => HandleRestaurar(socio)">
+                                    Restaurar
+                                </button>
+                            </td>
+                        }
+                        else
+                        {
+                            <td>
+                                <button type="button"
+                                        title="Modificar"
+                                        class="btn btn-info"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#NuevoEditarModal"
+                                        @onclick="() => HandleModificar(socio)">
+                                    Modificar
+                                </button>
+                            </td>
+
+                            <td>
+                                <button type="button"
+                                        title="Eliminar"
+                                        class="btn btn-danger"
+                                        @onclick="() => HandleEliminar(socio)">
+                                    Eliminar
+                                </button>
+                            </td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public List<Socio> ListEntity { get; set; } = new();
+
+    [Parameter]
+    public bool MostrarEliminados { get; set; }
+
+    [Parameter]
+    public EventCallback<Socio> OnModificar { get; set; }
+
+    [Parameter]
+    public EventCallback<Socio> OnEliminar { get; set; }
+
+    [Parameter]
+    public EventCallback<Socio> OnRestaurar { get; set; }
+
+    private List<Socio> sociosFiltrados = new();
+    private string filterText = string.Empty;
+
+    protected override void OnParametersSet()
+    {
+        AplicarFiltro();
+    }
+
+    private async Task HandleModificar(Socio socio)
+    {
+        await OnModificar.InvokeAsync(socio);
+    }
+
+    private async Task HandleEliminar(Socio socio)
+    {
+        await OnEliminar.InvokeAsync(socio);
+    }
+
+    private async Task HandleRestaurar(Socio socio)
+    {
+        await OnRestaurar.InvokeAsync(socio);
+    }
+
+    private void FilterList(ChangeEventArgs e)
+    {
+        filterText = e.Value?.ToString() ?? string.Empty;
+        AplicarFiltro();
+    }
+
+    private void AplicarFiltro()
+    {
+        if (string.IsNullOrWhiteSpace(filterText))
+        {
+            sociosFiltrados = ListEntity.ToList();
+            return;
+        }
+
+        sociosFiltrados = ListEntity
+            .Where(s =>
+                s.Nombre.Contains(filterText, StringComparison.OrdinalIgnoreCase) ||
+                s.Dni.Contains(filterText, StringComparison.OrdinalIgnoreCase) ||
+                (s.Localidad?.Nombre?.Contains(filterText,
+                    StringComparison.OrdinalIgnoreCase) ?? false))
+            .ToList();
+    }
+}

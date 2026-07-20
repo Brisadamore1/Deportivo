@@ -1,0 +1,216 @@
+﻿@page "/admin/socios"
+@using Service.Interfaces
+@using Service.Models
+@inject NavigationManager _navigationManager
+@inject ISocioService _socioService
+@inject SweetAlertService _sweetAlert
+@rendermode InteractiveServer
+
+<EncabezadoPage Titulo="Administración de Socios"
+                Descripcion="Gestiona los socios del club deportivo" />
+
+<div class="container py-4">
+    <SeccionBtnNuevoMostrarEliminados
+        @bind-MostrarEliminados="MostrarEliminados"
+        OnAfterMostrarEliminados="GetSocios"
+        OnNuevo="Nuevo" />
+
+    @if (isLoading)
+    {
+        <ActivityIndicator Mensaje="Cargando socios..." />
+    }
+    else if (socios != null && socios.Count > 0)
+    {
+        <TablaSociosConFiltro
+            ListEntity="socios"
+            OnEliminar="Eliminar"
+            OnModificar="Modificar"
+            OnRestaurar="Restaurar"
+            MostrarEliminados="MostrarEliminados" />
+
+        @* Este componente debe tener campos propios de Socio. *@
+        <NuevoEditarSocio
+            Socio="@socioCurrent"
+            OnGuardar="Guardar" />
+    }
+    else if (MostrarEliminados)
+    {
+        <div class="alert alert-info" role="alert">
+            No hay socios eliminados.
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info" role="alert">
+            No hay socios registrados.
+        </div>
+    }
+</div>
+
+@code {
+    List<Socio>? socios = new();
+    Socio socioCurrent = new();
+
+    bool isLoading = true;
+
+    public bool MostrarEliminados { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetSocios();
+    }
+
+    private async Task GetSocios()
+    {
+        isLoading = true;
+
+        try
+        {
+            socios = MostrarEliminados
+                ? await _socioService.GetAllDeletedsAsync()
+                : await _socioService.GetAllAsync();
+        }
+        catch
+        {
+            await _sweetAlert.FireAsync(
+                "Error",
+                "No se pudieron cargar los socios.",
+                SweetAlertIcon.Error);
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void Modificar(Socio socio)
+    {
+        socioCurrent = socio;
+    }
+
+    private void Nuevo()
+    {
+        socioCurrent = new Socio();
+    }
+
+    private async Task Eliminar(Socio socio)
+    {
+        var respuesta = await _sweetAlert.FireAsync(new SweetAlertOptions
+        {
+            Title = "Eliminando socio",
+            Text = $"¿Está seguro que desea eliminar al socio {socio.Nombre}?",
+            Icon = SweetAlertIcon.Warning,
+            ShowCancelButton = true,
+            ConfirmButtonText = "Sí, eliminar",
+            CancelButtonText = "Cancelar"
+        });
+
+        if (!respuesta.IsConfirmed)
+            return;
+
+        try
+        {
+            isLoading = true;
+
+            await _socioService.DeleteAsync(socio.Id);
+            await GetSocios();
+
+            await _sweetAlert.FireAsync(
+                "Eliminado",
+                "El socio ha sido eliminado exitosamente.",
+                SweetAlertIcon.Success);
+        }
+        catch
+        {
+            await _sweetAlert.FireAsync(
+                "Error",
+                "Hubo un error al eliminar el socio.",
+                SweetAlertIcon.Error);
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task Guardar(Socio socioToSave)
+    {
+        try
+        {
+            isLoading = true;
+
+            if (socioToSave.Id == 0)
+            {
+                await _socioService.AddAsync(socioToSave);
+
+                await _sweetAlert.FireAsync(
+                    "Creado",
+                    "El socio ha sido creado exitosamente.",
+                    SweetAlertIcon.Success);
+            }
+            else
+            {
+                await _socioService.UpdateAsync(socioToSave);
+
+                await _sweetAlert.FireAsync(
+                    "Actualizado",
+                    "El socio ha sido actualizado exitosamente.",
+                    SweetAlertIcon.Success);
+            }
+
+            await GetSocios();
+            socioCurrent = new Socio();
+        }
+        catch
+        {
+            await _sweetAlert.FireAsync(
+                "Error",
+                "Hubo un error al guardar el socio.",
+                SweetAlertIcon.Error);
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task Restaurar(Socio socio)
+    {
+        var respuesta = await _sweetAlert.FireAsync(new SweetAlertOptions
+        {
+            Title = "Restaurando socio",
+            Text = $"¿Está seguro que desea restaurar al socio {socio.Nombre}?",
+            Icon = SweetAlertIcon.Question,
+            ShowCancelButton = true,
+            ConfirmButtonText = "Sí, restaurar",
+            CancelButtonText = "Cancelar"
+        });
+
+        if (!respuesta.IsConfirmed)
+            return;
+
+        try
+        {
+            isLoading = true;
+
+            await _socioService.RestoreAsync(socio.Id);
+            await GetSocios();
+
+            await _sweetAlert.FireAsync(
+                "Restaurado",
+                "El socio ha sido restaurado exitosamente.",
+                SweetAlertIcon.Success);
+        }
+        catch
+        {
+            await _sweetAlert.FireAsync(
+                "Error",
+                "Hubo un error al restaurar el socio.",
+                SweetAlertIcon.Error);
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}

@@ -29,6 +29,24 @@
                         <span class="nav-link">Hola, @_usuarioLogueado?.Nombre</span>
                     </li>
                 }
+                }
+                @if (_usuarioLogueado != null && (_usuarioLogueado.TipoRol == TipoRolEnum.Administrativo))
+                {
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Admin
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="adminDropdown">
+                            <li><NavLink class="dropdown-item" href="/admin/socios">Socios</NavLink></li>
+                            <li><NavLink class="dropdown-item" href="/admin/actividades">Actividades</NavLink></li>
+                            <!--inserto una linea de separación
+                            <li><hr class="dropdown-divider" /></li>
+                            <li><NavLink class="dropdown-item" href="/admin/libros">Libros</NavLink></li> -->
+
+
+                        </ul>
+                    </li>
+                }
                 <li class="nav-item">
                     <NavLink class="nav-link" href="login">
                         <span class="bi bi-login" aria-hidden="true"></span> @textBtnLogin

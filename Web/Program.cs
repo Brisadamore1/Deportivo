@@ -1,4 +1,4 @@
-    using CurrieTechnologies.Razor.SweetAlert2;
+using CurrieTechnologies.Razor.SweetAlert2;
 using Service.Interfaces;
 using Service.Services;
 using Web.Components;
@@ -23,6 +23,7 @@ builder.Services.AddScoped<FirebaseAuthService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IGeminiService, GeminiService>();
 
+//inyeccion de dependencia de los servicios genericos 
 builder.Services.AddScoped(typeof(IGenericService<>),
     typeof(GenericService<>));
 //actividadService

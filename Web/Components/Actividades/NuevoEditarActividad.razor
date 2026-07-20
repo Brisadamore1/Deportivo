@@ -1,0 +1,124 @@
+﻿@inject IGenericService<Profesor> _profesorService
+
+<div class="modal fade" id="NuevoEditarModal" tabindex="-1"
+     aria-labelledby="tituloModalActividad" aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="tituloModalActividad">
+                    Nuevo / editar actividad
+                </h1>
+
+                <button type="button" class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Cerrar">
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="nombreInput" class="form-label">Nombre</label>
+                        <InputText id="nombreInput" class="form-control"
+                                   @bind-Value="Actividad.Nombre" />
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="imagenInput" class="form-label">URL de imagen</label>
+                        <InputText id="imagenInput" class="form-control"
+                                   @bind-Value="Actividad.Imagen"
+                                   placeholder="https://..." />
+                    </div>
+
+                    <div class="col-12 mb-3">
+                        <label for="descripcionInput" class="form-label">Descripción</label>
+                        <InputTextArea id="descripcionInput" class="form-control"
+                                       rows="3"
+                                       @bind-Value="Actividad.Descripcion" />
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="edadInput" class="form-label">Edad recomendada</label>
+                        <InputText id="edadInput" class="form-control"
+                                   @bind-Value="Actividad.EdadRecomendada"
+                                   placeholder="Ej.: Desde 6 años" />
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="nivelInput" class="form-label">Nivel</label>
+
+                        <InputSelect id="nivelInput" class="form-select"
+                                     @bind-Value="Actividad.Nivel">
+                            <option value="">Seleccione un nivel</option>
+                            <option value="Principiante">Principiante</option>
+                            <option value="Intermedio">Intermedio</option>
+                            <option value="Avanzado">Avanzado</option>
+                        </InputSelect>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="profesorInput" class="form-label">Profesor</label>
+
+                        <InputSelect id="profesorInput" class="form-select"
+                                     @bind-Value="Actividad.ProfesorId">
+                            <option value="0">Seleccione un profesor</option>
+
+                            @foreach (var profesor in profesores)
+                            {
+                                <option value="@profesor.Id">
+                                    @profesor.Nombre
+                                </option>
+                            }
+                        </InputSelect>
+                    </div>
+
+                    <div class="col-12 mb-3">
+                        <label for="beneficiosInput" class="form-label">Beneficios</label>
+                        <InputTextArea id="beneficiosInput" class="form-control"
+                                       rows="3"
+                                       @bind-Value="Actividad.Beneficios"
+                                       placeholder="Beneficios de realizar esta actividad" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+                    Cancelar
+                </button>
+
+                <button type="button" class="btn btn-primary"
+                        data-bs-dismiss="modal"
+                        @onclick="HandleGuardar">
+                    Guardar cambios
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public Actividad Actividad { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<Actividad> OnGuardar { get; set; }
+
+    private List<Profesor> profesores = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        profesores = await _profesorService.GetAllAsync()
+                     ?? new List<Profesor>();
+    }
+
+    private async Task HandleGuardar()
+    {
+        if (OnGuardar.HasDelegate)
+        {
+            await OnGuardar.InvokeAsync(Actividad);
+        }
+    }
+}

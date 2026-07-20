@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Service.Interfaces
-{
-    public interface IEntityIdNombre
+    namespace Service.Interfaces
     {
-        int Id { get; set; }
-        string Nombre { get; set; }
+        public interface IEntityIdNombre
+        {
+            int Id { get; set; }
+            string Nombre { get; set; }
 
+        }
     }
-}

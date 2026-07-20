@@ -1,0 +1,150 @@
+﻿@if (actividadesFiltradas is null)
+{
+    <p>Cargando...</p>
+}
+else
+{
+    <div class="form-group mb-3">
+        <div class="row align-items-center g-2">
+            <div class="col-auto">
+                <label for="filterText" class="col-form-label mb-0">
+                    Buscar
+                </label>
+            </div>
+
+            <div class="col">
+                <input id="filterText"
+                       class="form-control"
+                       value="@filterText"
+                       @oninput="FilterList"
+                       placeholder="Filtrar por nombre, nivel o profesor" />
+            </div>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Nombre</th>
+                    <th>Profesor</th>
+                    <th>Edad recomendada</th>
+                    <th>Nivel</th>
+                    <th colspan="2">Acciones</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var actividad in actividadesFiltradas)
+                {
+                    <tr @key="actividad.Id">
+                        <td>@actividad.Id</td>
+                        <td>@actividad.Nombre</td>
+                        <td>@(actividad.Profesor?.Nombre ?? "-")</td>
+                        <td>@(actividad.EdadRecomendada ?? "-")</td>
+                        <td>@(actividad.Nivel ?? "-")</td>
+
+                        @if (MostrarEliminados)
+                        {
+                            <td colspan="2">
+                                <button type="button"
+                                        title="Restaurar"
+                                        class="btn btn-success"
+                                        @onclick="() => HandleRestaurar(actividad)">
+                                    Restaurar
+                                </button>
+                            </td>
+                        }
+                        else
+                        {
+                            <td>
+                                <button type="button"
+                                        title="Modificar"
+                                        class="btn btn-info"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#NuevoEditarModal"
+                                        @onclick="() => HandleModificar(actividad)">
+                                    Modificar
+                                </button>
+                            </td>
+
+                            <td>
+                                <button type="button"
+                                        title="Eliminar"
+                                        class="btn btn-danger"
+                                        @onclick="() => HandleEliminar(actividad)">
+                                    Eliminar
+                                </button>
+                            </td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public List<Actividad> ListEntity { get; set; } = new();
+
+    [Parameter]
+    public bool MostrarEliminados { get; set; }
+
+    [Parameter]
+    public EventCallback<Actividad> OnModificar { get; set; }
+
+    [Parameter]
+    public EventCallback<Actividad> OnEliminar { get; set; }
+
+    [Parameter]
+    public EventCallback<Actividad> OnRestaurar { get; set; }
+
+    private List<Actividad> actividadesFiltradas = new();
+    private string filterText = string.Empty;
+
+    protected override void OnParametersSet()
+    {
+        AplicarFiltro();
+    }
+
+    private async Task HandleModificar(Actividad actividad)
+    {
+        await OnModificar.InvokeAsync(actividad);
+    }
+
+    private async Task HandleEliminar(Actividad actividad)
+    {
+        await OnEliminar.InvokeAsync(actividad);
+    }
+
+    private async Task HandleRestaurar(Actividad actividad)
+    {
+        await OnRestaurar.InvokeAsync(actividad);
+    }
+
+    private void FilterList(ChangeEventArgs e)
+    {
+        filterText = e.Value?.ToString() ?? string.Empty;
+        AplicarFiltro();
+    }
+
+    private void AplicarFiltro()
+    {
+        if (string.IsNullOrWhiteSpace(filterText))
+        {
+            actividadesFiltradas = ListEntity.ToList();
+            return;
+        }
+
+        actividadesFiltradas = ListEntity
+            .Where(a =>
+                a.Nombre.Contains(filterText, StringComparison.OrdinalIgnoreCase) ||
+                (a.Nivel?.Contains(filterText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (a.EdadRecomendada?.Contains(filterText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (a.Profesor?.Nombre?.Contains(filterText,
+                    StringComparison.OrdinalIgnoreCase) ?? false))
+            .ToList();
+    }
+}
