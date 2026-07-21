@@ -1,4 +1,6 @@
-﻿@if (sociosFiltrados is null)
+﻿@using Service.Models
+
+@if (profesoresFiltrados is null)
 {
     <p>Cargando...</p>
 }
@@ -17,7 +19,7 @@ else
                        class="form-control"
                        value="@filterText"
                        @oninput="FilterList"
-                       placeholder="Filtrar por nombre, DNI o localidad" />
+                       placeholder="Filtrar por apellido y nombre del profesor" />
             </div>
         </div>
     </div>
@@ -28,36 +30,19 @@ else
                 <tr>
                     <th>Id</th>
                     <th>Nombre</th>
-                    <th>DNI</th>
-                    <th>Localidad</th>
-                    <th>Actividades</th>
                     <th>Estado</th>
                     <th colspan="2">Acciones</th>
                 </tr>
             </thead>
 
             <tbody>
-                @foreach (var socio in sociosFiltrados)
+                @foreach (var profesor in profesoresFiltrados)
                 {
-                    <tr @key="socio.Id">
-                        <td>@socio.Id</td>
-                        <td>@socio.Nombre</td>
-                        <td>@socio.Dni</td>
-                        <td>@(socio.Localidad?.Nombre ?? "-")</td>
-
-                        <!-- BOTÓN ACTIVIDADES -->
+                    <tr @key="profesor.Id">
+                        <td>@profesor.Id</td>
+                        <td>@profesor.Nombre</td>
                         <td>
-                            <button type="button"
-                                    class="btn btn-light border rounded-pill btn-sm d-inline-flex align-items-center gap-1 shadow-sm"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#EditarActividadSocio"
-                                    @onclick="() => SeleccionarSocio(socio)">
-                                <i class="bi bi-list-check"></i> Actividades
-                            </button>
-                        </td>
-
-                        <td>
-                            @if (socio.Activo)
+                            @if (profesor.Activo)
                             {
                                 <span class="badge bg-success">Activo</span>
                             }
@@ -73,7 +58,7 @@ else
                                 <button type="button"
                                         title="Restaurar"
                                         class="btn btn-success"
-                                        @onclick="() => HandleRestaurar(socio)">
+                                        @onclick="() => HandleRestaurar(profesor)">
                                     Restaurar
                                 </button>
                             </td>
@@ -81,13 +66,12 @@ else
                         else
                         {
                             <td>
-                                <!-- BOTÓN MODIFICAR (Reutiliza #NuevoEditarSocio) -->
                                 <button type="button"
                                         title="Modificar"
                                         class="btn btn-info"
                                         data-bs-toggle="modal"
-                                        data-bs-target="#NuevoEditarSocio"
-                                        @onclick="() => HandleModificarDatosSocio(socio)">
+                                        data-bs-target="#NuevoEditarModal"
+                                        @onclick="() => HandleModificar(profesor)">
                                     Modificar
                                 </button>
                             </td>
@@ -96,7 +80,7 @@ else
                                 <button type="button"
                                         title="Eliminar"
                                         class="btn btn-danger"
-                                        @onclick="() => HandleEliminar(socio)">
+                                        @onclick="() => HandleEliminar(profesor)">
                                     Eliminar
                                 </button>
                             </td>
@@ -108,64 +92,43 @@ else
     </div>
 }
 
-<!-- Componente para el modal de Actividades -->
-<EditarActividadSocio Socio="socioSeleccionado" OnGuardar="HandleGuardarActividades" />
-
 @code {
     [Parameter]
-    public List<Socio> ListEntity { get; set; } = new();
+    public List<Profesor> ListEntity { get; set; } = new();
 
     [Parameter]
     public bool MostrarEliminados { get; set; }
 
     [Parameter]
-    public EventCallback<Socio> OnModificar { get; set; }
+    public EventCallback<Profesor> OnModificar { get; set; }
 
     [Parameter]
-    public EventCallback<Socio> OnGuardar { get; set; }
+    public EventCallback<Profesor> OnEliminar { get; set; }
 
     [Parameter]
-    public EventCallback<Socio> OnEliminar { get; set; }
+    public EventCallback<Profesor> OnRestaurar { get; set; }
 
-    [Parameter]
-    public EventCallback<Socio> OnRestaurar { get; set; }
-
-    private List<Socio> sociosFiltrados = new();
+    private List<Profesor> profesoresFiltrados = new();
     private string filterText = string.Empty;
-    private Socio socioSeleccionado = new();
 
     protected override void OnParametersSet()
     {
         AplicarFiltro();
     }
 
-    private void SeleccionarSocio(Socio socio)
+    private async Task HandleModificar(Profesor profesor)
     {
-        socioSeleccionado = socio;
+        await OnModificar.InvokeAsync(profesor);
     }
 
-    private void HandleModificarDatosSocio(Socio socio)
+    private async Task HandleEliminar(Profesor profesor)
     {
-        // Se ejecuta sincrónicamente antes de que el modal se renderice por completo
-        if (OnModificar.HasDelegate)
-        {
-            OnModificar.InvokeAsync(socio);
-        }
+        await OnEliminar.InvokeAsync(profesor);
     }
 
-    private async Task HandleGuardarActividades(Socio socioModificado)
+    private async Task HandleRestaurar(Profesor profesor)
     {
-        await OnGuardar.InvokeAsync(socioModificado);
-    }
-
-    private async Task HandleEliminar(Socio socio)
-    {
-        await OnEliminar.InvokeAsync(socio);
-    }
-
-    private async Task HandleRestaurar(Socio socio)
-    {
-        await OnRestaurar.InvokeAsync(socio);
+        await OnRestaurar.InvokeAsync(profesor);
     }
 
     private void FilterList(ChangeEventArgs e)
@@ -178,15 +141,14 @@ else
     {
         if (string.IsNullOrWhiteSpace(filterText))
         {
-            sociosFiltrados = ListEntity.ToList();
+            profesoresFiltrados = ListEntity.ToList();
             return;
         }
 
-        sociosFiltrados = ListEntity
-            .Where(s =>
-                s.Nombre.Contains(filterText, StringComparison.OrdinalIgnoreCase) ||
-                s.Dni.Contains(filterText, StringComparison.OrdinalIgnoreCase) ||
-                (s.Localidad?.Nombre?.Contains(filterText, StringComparison.OrdinalIgnoreCase) ?? false))
+        profesoresFiltrados = ListEntity
+            .Where(l => l.Nombre.Contains(
+                filterText,
+                StringComparison.OrdinalIgnoreCase))
             .ToList();
     }
 }

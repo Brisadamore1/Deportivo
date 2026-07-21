@@ -1,0 +1,71 @@
+﻿<div class="modal fade" id="NuevoEditarModal" tabindex="-1"
+     aria-labelledby="tituloModalProfesor" aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="tituloModalProfesor">
+                    Nuevo / editar profesor
+                </h1>
+
+                <button type="button" class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Cerrar">
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-12 mb-3">
+                        <label for="nombreInput" class="form-label">
+                            Nombre del profesor
+                        </label>
+
+                        <InputText id="nombreInput" class="form-control"
+                                   @bind-Value="Profesor.Nombre"
+                                   placeholder="Ej.: Pérez Juan" />
+                    </div>
+                    <div class="col-md-4 mb-3 d-flex align-items-end">
+                        <div class="form-check">
+                            <InputCheckbox class="form-check-input"
+                                           @bind-Value="Profesor.Activo" />
+                            <label class="form-check-label">
+                                Profesor activo
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+                    Cancelar
+                </button>
+
+                <button type="button" class="btn btn-primary"
+                        data-bs-dismiss="modal"
+                        @onclick="HandleGuardar">
+                    Guardar cambios
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public Profesor Profesor { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<Profesor> OnGuardar { get; set; }
+
+    private async Task HandleGuardar()
+    {
+        if (OnGuardar.HasDelegate)
+        {
+            await OnGuardar.InvokeAsync(Profesor);
+        }
+    }
+}

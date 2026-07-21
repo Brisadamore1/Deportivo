@@ -34,9 +34,14 @@ namespace Service.Models
             get
             {
                 if (SocioActividades == null || SocioActividades.Count == 0)
-                    return string.Empty;
-                var textActividad = SocioActividades.Count > 1 ? "Actividades: " : "Actividad: ";
-                return textActividad + string.Join(", ", SocioActividades.Where(lg => lg.Actividad != null).Select(lg => lg.Actividad!.Nombre));
+                    return "Sin asignar";
+                //var textActividad = SocioActividades.Count > 1 ? "Actividades: " : "Actividad: ";
+                //return textActividad + string.Join(", ", SocioActividades.Where(lg => lg.Actividad != null).Select(lg => lg.Actividad!.Nombre));
+
+                // Retorna directamente la lista separada por comas, sin prefijo
+                return string.Join(", ", SocioActividades
+                    .Where(lg => lg.Actividad != null)
+                    .Select(lg => lg.Actividad!.Nombre));
             }
         }
         virtual public ICollection<SocioActividad> SocioActividades { get; set; } = new List<SocioActividad>();

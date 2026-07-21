@@ -1,0 +1,146 @@
+﻿@using Service.Interfaces
+@using Service.Models
+@inject IGenericService<Actividad> _actividadService
+@inject IJSRuntime JSRuntime
+
+<div class="modal fade" id="EditarActividadSocio" tabindex="-1"
+     aria-labelledby="tituloActividadSocio" aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="tituloActividadSocio">
+                    Actividades de @(Socio?.Nombre ?? "Socio")
+                </h1>
+
+                <button type="button" class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Cerrar">
+                </button>
+            </div>
+
+            <div class="modal-body">
+                @if (cargando)
+                {
+                    <div class="d-flex align-items-center justify-content-center py-3 gap-2 text-muted">
+                        <div class="spinner-border spinner-border-sm" role="status"></div>
+                        <span>Cargando actividades...</span>
+                    </div>
+                }
+                else if (actividadesDisponibles == null || !actividadesDisponibles.Any())
+                {
+                    <p class="text-danger mb-0">No hay actividades registradas en el sistema.</p>
+                }
+                else
+                {
+                    <p class="form-label text-muted mb-3">
+                        Seleccioná o quitá las actividades asignadas:
+                    </p>
+
+                    <div class="list-group max-height-250">
+                        @foreach (var actividad in actividadesDisponibles)
+                        {
+                            bool estaMarcada = IsActividadSeleccionada(actividad.Id);
+
+                            <label class="list-group-item d-flex justify-content-between align-items-center cursor-pointer">
+                                <div>
+                                    <input class="form-check-input me-2"
+                                           type="checkbox"
+                                           checked="@estaMarcada"
+                                           @onchange="@(e => ToggleActividad(actividad.Id, e.Value))" />
+                                    <span>@actividad.Nombre</span>
+                                </div>
+
+                                @if (estaMarcada)
+                                {
+                                    <span class="badge bg-primary rounded-pill">Asignada</span>
+                                }
+                            </label>
+                        }
+                    </div>
+                }
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+                    Cancelar
+                </button>
+
+                <button type="button" class="btn btn-primary"
+                        data-bs-dismiss="modal"
+                        @onclick="HandleGuardar">
+                    Guardar cambios
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public Socio Socio { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<Socio> OnGuardar { get; set; }
+
+    private List<Actividad> actividadesDisponibles = new();
+    private bool cargando = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        actividadesDisponibles = await _actividadService.GetAllAsync() ?? new List<Actividad>();
+        cargando = false;
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (Socio != null)
+        {
+            Socio.SocioActividades ??= new List<SocioActividad>();
+        }
+    }
+
+    private bool IsActividadSeleccionada(int actividadId)
+    {
+        return Socio?.SocioActividades != null &&
+               Socio.SocioActividades.Any(sa => sa.ActividadId == actividadId);
+    }
+
+    private void ToggleActividad(int actividadId, object? checkedValue)
+    {
+        if (Socio == null) return;
+
+        bool isChecked = checkedValue is bool b && b;
+
+        Socio.SocioActividades ??= new List<SocioActividad>();
+
+        if (isChecked)
+        {
+            if (!Socio.SocioActividades.Any(sa => sa.ActividadId == actividadId))
+            {
+                Socio.SocioActividades.Add(new SocioActividad
+                {
+                    SocioId = Socio.Id,
+                    ActividadId = actividadId
+                });
+            }
+        }
+        else
+        {
+            var item = Socio.SocioActividades.FirstOrDefault(sa => sa.ActividadId == actividadId);
+            if (item != null)
+            {
+                Socio.SocioActividades.Remove(item);
+            }
+        }
+    }
+
+    private async Task HandleGuardar()
+    {
+        if (OnGuardar.HasDelegate)
+        {
+            await OnGuardar.InvokeAsync(Socio);
+        }
+    }
+}

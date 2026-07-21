@@ -76,7 +76,34 @@ namespace Backend.Controllers
                 return BadRequest();
             }
 
-            _context.Entry(socio).State = EntityState.Modified;
+            // 1. Buscamos el socio en la BD con sus actividades cargadas
+            var socioDb = await _context.Socios
+                .Include(s => s.SocioActividades)
+                .FirstOrDefaultAsync(s => s.Id == id);
+
+            if (socioDb == null)
+            {
+                return NotFound();
+            }
+
+            // 2. Actualizamos los valores simples del socio (Nombre, DNI, Domicilio, etc.)
+            _context.Entry(socioDb).CurrentValues.SetValues(socio);
+
+            // 3. Sincronizamos la colección de actividades
+            socioDb.SocioActividades.Clear(); // Eliminamos las relaciones previas
+
+            if (socio.SocioActividades != null && socio.SocioActividades.Any())
+            {
+                foreach (var sa in socio.SocioActividades)
+                {
+                    // Agregamos las nuevas relaciones recibidas del frontend
+                    socioDb.SocioActividades.Add(new SocioActividad
+                    {
+                        SocioId = id,
+                        ActividadId = sa.ActividadId
+                    });
+                }
+            }
 
             try
             {

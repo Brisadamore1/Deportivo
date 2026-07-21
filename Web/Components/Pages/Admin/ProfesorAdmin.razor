@@ -1,52 +1,57 @@
-﻿@page "/admin/actividades"
-@inject NavigationManager _navigationManager
-@inject IActivityService _actividadService
+﻿@page "/admin/profesores"
+@inject IGenericService<Profesor> _profesorService
 @inject SweetAlertService _sweetAlert
 @rendermode InteractiveServer
 
-<EncabezadoPage Titulo="Administración de Actividades" Descripcion="Gestiona las actividades deportivas del club" />
+<EncabezadoPage Titulo="Administración de Profesores"
+                Descripcion="Gestiona los profesores" />
+
 <div class="container py-4">
-    <SeccionBtnNuevoMostrarEliminados @bind-MostrarEliminados="MostrarEliminados" OnAfterMostrarEliminados="GetActividades" OnNuevo="Nuevo" />
+    <SeccionBtnNuevoMostrarEliminados
+        @bind-MostrarEliminados="MostrarEliminados"
+        OnAfterMostrarEliminados="GetProfesores"
+        OnNuevo="Nuevo" />
 
     @if (isLoading)
     {
-        <ActivityIndicator Mensaje="Cargando actividades..." IsBusy="isLoading" />
+        <ActivityIndicator Mensaje="Cargando profesores..." IsBusy="isLoading" />
     }
     else
     {
-        @if (actividades != null && actividades.Count > 0)
+        @if (profesores != null && profesores.Count > 0)
         {
-            <TablaActividadConFiltro ListEntity="actividades"
-                                     OnEliminar="Eliminar"
-                                     OnModificar="Modificar"
-                                     OnRestaurar="Restaurar"
-            MostrarEliminados="MostrarEliminados" />
+            <TablaProfesorConFiltro 
+                ListEntity="profesores"
+                OnEliminar="Eliminar"
+                OnModificar="Modificar"
+                OnRestaurar="Restaurar"
+                MostrarEliminados="MostrarEliminados" />
         }
-        else 
+        else
         {
             @if (MostrarEliminados)
             {
                 <div class="alert alert-info" role="alert">
-                    No hay actividades eliminadas.
+                    No hay profesores eliminados.
                 </div>
             }
             else
             {
                 <div class="alert alert-info" role="alert">
-                    No hay actividades registradas.
+                    No hay profesores registrados.
                 </div>
             }
         }
-        
     }
 
-    <NuevoEditarActividad Actividad="@actividadCurrent"
+    <NuevoEditarProfesor
+        Profesor="@profesorCurrent"
         OnGuardar="Guardar" />
 </div>
 
 @code {
-    List<Actividad>? actividades = new();
-    Actividad actividadCurrent = new();
+    List<Profesor>? profesores = new();
+    Profesor profesorCurrent = new();
 
     bool isLoading = true;
 
@@ -54,24 +59,24 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await GetActividades();
+        await GetProfesores();
     }
 
-    private async Task GetActividades()
+    private async Task GetProfesores()
     {
         isLoading = true;
 
         try
         {
-            actividades = MostrarEliminados
-                ? await _actividadService.GetAllDeletedsAsync()
-                : await _actividadService.GetAllAsync();
+            profesores = MostrarEliminados
+                ? await _profesorService.GetAllDeletedsAsync()
+                : await _profesorService.GetAllAsync();
         }
         catch
         {
             await _sweetAlert.FireAsync(
                 "Error",
-                "No se pudieron cargar las actividades.",
+                "No se pudieron cargar los profesores.",
                 SweetAlertIcon.Error);
         }
         finally
@@ -80,22 +85,22 @@
         }
     }
 
-    private void Modificar(Actividad actividad)
+    private void Modificar(Profesor profesor)
     {
-        actividadCurrent = actividad;
+        profesorCurrent = profesor;
     }
 
     private void Nuevo()
     {
-        actividadCurrent = new Actividad();
+        profesorCurrent = new Profesor();
     }
 
-    private async Task Eliminar(Actividad actividad)
+    private async Task Eliminar(Profesor profesor)
     {
         var respuesta = await _sweetAlert.FireAsync(new SweetAlertOptions
         {
-            Title = "Eliminando actividad",
-            Text = $"¿Está seguro que desea eliminar la actividad {actividad.Nombre}?",
+            Title = "Eliminando profesor",
+            Text = $"¿Está seguro que desea eliminar al profesor {profesor.Nombre}?",
             Icon = SweetAlertIcon.Warning,
             ShowCancelButton = true,
             ConfirmButtonText = "Sí, eliminar",
@@ -109,19 +114,19 @@
         {
             isLoading = true;
 
-            await _actividadService.DeleteAsync(actividad.Id);
-            await GetActividades();
+            await _profesorService.DeleteAsync(profesor.Id);
+            await GetProfesores();
 
             await _sweetAlert.FireAsync(
                 "Eliminada",
-                "La actividad fue eliminada exitosamente.",
+                "El profesor fue eliminada exitosamente.",
                 SweetAlertIcon.Success);
         }
         catch
         {
             await _sweetAlert.FireAsync(
                 "Error",
-                "Hubo un error al eliminar la actividad.",
+                "Hubo un error al eliminar al profesor.",
                 SweetAlertIcon.Error);
         }
         finally
@@ -130,39 +135,39 @@
         }
     }
 
-    private async Task Guardar(Actividad actividadToSave)
+    private async Task Guardar(Profesor profesorToSave)
     {
         try
         {
             isLoading = true;
 
-            if (actividadToSave.Id == 0)
+            if (profesorToSave.Id == 0)
             {
-                await _actividadService.AddAsync(actividadToSave);
+                await _profesorService.AddAsync(profesorToSave);
 
                 await _sweetAlert.FireAsync(
                     "Creada",
-                    "La actividad fue creada exitosamente.",
+                    "El profesor fue creado exitosamente.",
                     SweetAlertIcon.Success);
             }
             else
             {
-                await _actividadService.UpdateAsync(actividadToSave);
+                await _profesorService.UpdateAsync(profesorToSave);
 
                 await _sweetAlert.FireAsync(
                     "Actualizada",
-                    "La actividad fue actualizada exitosamente.",
+                    "El profesor fue actualizado exitosamente.",
                     SweetAlertIcon.Success);
             }
 
-            await GetActividades();
-            actividadCurrent = new Actividad();
+            await GetProfesores();
+            profesorCurrent = new Profesor();
         }
         catch
         {
             await _sweetAlert.FireAsync(
                 "Error",
-                "Hubo un error al guardar la actividad.",
+                "Hubo un error al guardar al profesor.",
                 SweetAlertIcon.Error);
         }
         finally
@@ -171,12 +176,12 @@
         }
     }
 
-    private async Task Restaurar(Actividad actividad)
+    private async Task Restaurar(Profesor profesor)
     {
         var respuesta = await _sweetAlert.FireAsync(new SweetAlertOptions
         {
-            Title = "Restaurando actividad",
-            Text = $"¿Está seguro que desea restaurar la actividad {actividad.Nombre}?",
+            Title = "Restaurando profesor",
+            Text = $"¿Está seguro que desea restaurar al profesor {profesor.Nombre}?",
             Icon = SweetAlertIcon.Question,
             ShowCancelButton = true,
             ConfirmButtonText = "Sí, restaurar",
@@ -190,19 +195,19 @@
         {
             isLoading = true;
 
-            await _actividadService.RestoreAsync(actividad.Id);
-            await GetActividades();
+            await _profesorService.RestoreAsync(profesor.Id);
+            await GetProfesores();
 
             await _sweetAlert.FireAsync(
                 "Restaurada",
-                "La actividad fue restaurada exitosamente.",
+                "El profesor fue restaurado exitosamente.",
                 SweetAlertIcon.Success);
         }
         catch
         {
             await _sweetAlert.FireAsync(
                 "Error",
-                "Hubo un error al restaurar la actividad.",
+                "Hubo un error al restaurar al profesor.",
                 SweetAlertIcon.Error);
         }
         finally

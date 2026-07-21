@@ -1,6 +1,4 @@
 ﻿@page "/admin/socios"
-@using Service.Interfaces
-@using Service.Models
 @inject NavigationManager _navigationManager
 @inject ISocioService _socioService
 @inject SweetAlertService _sweetAlert
@@ -10,41 +8,44 @@
                 Descripcion="Gestiona los socios del club deportivo" />
 
 <div class="container py-4">
-    <SeccionBtnNuevoMostrarEliminados
-        @bind-MostrarEliminados="MostrarEliminados"
-        OnAfterMostrarEliminados="GetSocios"
-        OnNuevo="Nuevo" />
+    <SeccionBtnNuevoMostrarEliminados @bind-MostrarEliminados="MostrarEliminados"
+                                      OnAfterMostrarEliminados="GetSocios"
+                                      OnNuevo="Nuevo" />
 
     @if (isLoading)
     {
-        <ActivityIndicator Mensaje="Cargando socios..." />
-    }
-    else if (socios != null && socios.Count > 0)
-    {
-        <TablaSociosConFiltro
-            ListEntity="socios"
-            OnEliminar="Eliminar"
-            OnModificar="Modificar"
-            OnRestaurar="Restaurar"
-            MostrarEliminados="MostrarEliminados" />
-
-        @* Este componente debe tener campos propios de Socio. *@
-        <NuevoEditarSocio
-            Socio="@socioCurrent"
-            OnGuardar="Guardar" />
-    }
-    else if (MostrarEliminados)
-    {
-        <div class="alert alert-info" role="alert">
-            No hay socios eliminados.
-        </div>
+        <ActivityIndicator Mensaje="Cargando socios..." IsBusy="isLoading" />
     }
     else
     {
-        <div class="alert alert-info" role="alert">
-            No hay socios registrados.
-        </div>
+        @if (socios != null && socios.Count > 0)
+        {
+            <TablaSociosConFiltro ListEntity="socios"
+                                  OnEliminar="Eliminar"
+                                  OnModificar="Modificar"
+                                  OnGuardar="Guardar"
+                                  OnRestaurar="Restaurar"
+                                  MostrarEliminados="MostrarEliminados" />
+        }
+        else
+        {
+            @if (MostrarEliminados)
+            {
+                <div class="alert alert-info" role="alert">
+                    No hay socios eliminados.
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info" role="alert">
+                    No hay socios registrados.
+                </div>
+            }
+        }
     }
+
+    <NuevoEditarSocio Socio="@socioCurrent"
+                      OnGuardar="Guardar" />
 </div>
 
 @code {
@@ -86,6 +87,7 @@
     private void Modificar(Socio socio)
     {
         socioCurrent = socio;
+        StateHasChanged();
     }
 
     private void Nuevo()
