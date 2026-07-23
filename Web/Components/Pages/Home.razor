@@ -1,7 +1,166 @@
 ﻿@page "/"
+@using Service.Enums
+@inject FirebaseAuthService firebaseAuthService
+@inject IUsuarioService _usuarioService
+@rendermode InteractiveServer
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Club Deportivo</PageTitle>
 
-<h1>Hello, world!</h1>
+<div class="home-page">
+    <section class="hero-section">
+        <div class="hero-content">
+            <h1>Bienvenido al Club Deportivo</h1>
 
-Welcome to your new app.
+            <p>
+                Una plataforma para organizar socios, profesores, actividades, clases
+                y asistencias de forma clara y sencilla.
+            </p>
+
+            @if (estaLogueado)
+            {
+                <div class="hero-actions">
+
+                    <a class="btn btn-light rounded-pill px-4" href="/miembros/buscar-socios">
+                        Buscar socios
+                    </a>
+                </div>
+            }
+        </div>
+    </section>
+
+    @if (esAdministrativo)
+    {
+        <section class="mt-5">
+            <div class="text-center mb-4">
+                <h2 class="fw-bold">Todo el club en un solo lugar</h2>
+                <p class="text-muted">
+                    Accedé rápidamente a las funciones principales del sistema.
+                </p>
+            </div>
+
+            <div class="row g-4">
+                <!-- FILA 1 -->
+                <!-- 1. Actividades -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="info-card card-actividades h-100">
+                        <div class="info-icon">🏃</div>
+                        <h4>Actividades</h4>
+                        <p>Organizá las disciplinas deportivas y sus características.</p>
+                        <a href="/admin/actividades">Administrar actividades →</a>
+                    </div>
+                </div>
+
+                <!-- 2. Clases -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="info-card card-clases h-100">
+                        <div class="info-icon">📅</div>
+                        <h4>Clases</h4>
+                        <p>Definí días, horarios, cupos y actividad de cada clase.</p>
+                        <a href="/admin/clases">Gestionar clases →</a>
+                    </div>
+                </div>
+
+                <!-- 3. Asistencias -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="info-card card-asistencias h-100">
+                        <div class="info-icon">✅</div>
+                        <h4>Asistencias</h4>
+                        <p>Registrá la presencia de los socios en cada clase.</p>
+                        <a href="/admin/asistencias">Registrar asistencia →</a>
+                    </div>
+                </div>
+
+                <!-- FILA 2 -->
+                <!-- 4. Socios -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="info-card card-socios h-100">
+                        <div class="info-icon">👥</div>
+                        <h4>Socios</h4>
+                        <p>Registrá, modificá y consultá la información de cada socio.</p>
+                        <a href="/admin/socios">Administrar socios →</a>
+                    </div>
+                </div>
+
+                <!-- 5. Profesores -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="info-card card-profesores h-100">
+                        <div class="info-icon">🏋️‍♂️</div>
+                        <h4>Profesores</h4>
+                        <p>Gestioná la nómina de profesores y sus asignaciones.</p>
+                        <a href="/admin/profesores">Administrar profesores →</a>
+                    </div>
+                </div>
+
+                <!-- 6. Localidades -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="info-card card-localidades h-100">
+                        <div class="info-icon">📍</div>
+                        <h4>Localidades</h4>
+                        <p>Administrá las ciudades y zonas registradas en el sistema.</p>
+                        <a href="/admin/localidades">Gestionar localidades →</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    }
+
+    <section class="club-message mt-5">
+        <div>
+            <h3>Una gestión más ordenada</h3>
+            <p class="mb-0">
+                El sistema permite llevar un seguimiento de las actividades,
+                horarios, socios inscriptos y asistencias del club.
+            </p>
+        </div>
+        <span>💙</span>
+    </section>
+</div>
+
+@code {
+    private bool esAdministrativo = false;
+    private bool estaLogueado = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+            return;
+
+        try
+        {
+            var usuarioFirebase = await firebaseAuthService.GetUserFirebase();
+
+            if (usuarioFirebase?.Email is not null)
+            {
+                estaLogueado = true;
+
+                // Obtiene y deja disponible el token para consultar la API.
+                await firebaseAuthService.GetUserToken();
+
+                var usuarios = await _usuarioService.GetAllAsync();
+
+                var usuario = usuarios?.FirstOrDefault(u =>
+                    u.Email.Equals(
+                        usuarioFirebase.Email,
+                        StringComparison.OrdinalIgnoreCase));
+
+                esAdministrativo =
+                    usuario?.TipoRol == TipoRolEnum.Administrativo;
+            }
+            else
+            {
+                estaLogueado = false;
+            }
+        }
+        catch (Exception ex)
+        {
+            // Evita que una falla de Firebase o de la API cierre Blazor.
+            Console.WriteLine($"Error al obtener el rol del usuario: {ex.Message}");
+
+            // Ante un error mantenemos la seguridad
+            esAdministrativo = false;
+            estaLogueado = false;
+        }
+
+        StateHasChanged();
+    }
+}

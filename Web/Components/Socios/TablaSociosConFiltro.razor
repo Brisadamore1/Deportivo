@@ -1,110 +1,112 @@
 ﻿@if (sociosFiltrados is null)
 {
-    <p>Cargando...</p>
+    <div class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+        </div>
+        <p class="text-muted mt-2">Cargando datos...</p>
+    </div>
 }
 else
 {
-    <div class="form-group mb-3">
-        <div class="row align-items-center g-2">
-            <div class="col-auto">
-                <label for="filterText" class="col-form-label mb-0">
-                    Buscar
-                </label>
-            </div>
-
-            <div class="col">
-                <input id="filterText"
-                       class="form-control"
-                       value="@filterText"
-                       @oninput="FilterList"
-                       placeholder="Filtrar por nombre, DNI o localidad" />
-            </div>
+    <!-- BUSCADOR -->
+    <div class="search-box-container mb-4">
+        <div class="input-group search-input-group">
+            <span class="input-group-text bg-transparent border-end-0 pe-0">
+                <i class="bi bi-search text-muted"></i>
+            </span>
+            <input id="filterText"
+                   type="text"
+                   class="form-control border-start-0 ps-2"
+                   value="@filterText"
+                   @oninput="FilterList"
+                   placeholder="Filtrar por nombre, DNI o localidad..." />
         </div>
     </div>
 
-    <div class="table-responsive">
-        <table class="table table-hover align-middle">
-            <thead>
-                <tr>
-                    <th>Id</th>
-                    <th>Nombre</th>
-                    <th>DNI</th>
-                    <th>Localidad</th>
-                    <th>Actividades</th>
-                    <th>Estado</th>
-                    <th colspan="2">Acciones</th>
-                </tr>
-            </thead>
-
-            <tbody>
-                @foreach (var socio in sociosFiltrados)
-                {
-                    <tr @key="socio.Id">
-                        <td>@socio.Id</td>
-                        <td>@socio.Nombre</td>
-                        <td>@socio.Dni</td>
-                        <td>@(socio.Localidad?.Nombre ?? "-")</td>
-
-                        <!-- BOTÓN ACTIVIDADES -->
-                        <td>
-                            <button type="button"
-                                    class="btn btn-light border rounded-pill btn-sm d-inline-flex align-items-center gap-1 shadow-sm"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#EditarActividadSocio"
-                                    @onclick="() => SeleccionarSocio(socio)">
-                                <i class="bi bi-list-check"></i> Actividades
-                            </button>
-                        </td>
-
-                        <td>
-                            @if (socio.Activo)
-                            {
-                                <span class="badge bg-success">Activo</span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-secondary">Inactivo</span>
-                            }
-                        </td>
-
-                        @if (MostrarEliminados)
-                        {
-                            <td colspan="2">
-                                <button type="button"
-                                        title="Restaurar"
-                                        class="btn btn-success"
-                                        @onclick="() => HandleRestaurar(socio)">
-                                    Restaurar
-                                </button>
-                            </td>
-                        }
-                        else
-                        {
-                            <td>
-                                <!-- BOTÓN MODIFICAR (Reutiliza #NuevoEditarSocio) -->
-                                <button type="button"
-                                        title="Modificar"
-                                        class="btn btn-info"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#NuevoEditarSocio"
-                                        @onclick="() => HandleModificarDatosSocio(socio)">
-                                    Modificar
-                                </button>
-                            </td>
-
-                            <td>
-                                <button type="button"
-                                        title="Eliminar"
-                                        class="btn btn-danger"
-                                        @onclick="() => HandleEliminar(socio)">
-                                    Eliminar
-                                </button>
-                            </td>
-                        }
+    <!-- TABLA EN TARJETA -->
+    <div class="table-card shadow-sm mb-4">
+        <div class="table-responsive">
+            <table class="table custom-table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th style="width: 70px;">Id</th>
+                        <th>Nombre</th>
+                        <th>DNI</th>
+                        <th>Localidad</th>
+                        <th class="text-center">Actividades</th>
+                        <th class="text-center">Estado</th>
+                        <th class="text-center" style="width: 180px;">Acciones</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+
+                <tbody>
+                    @foreach (var socio in sociosFiltrados)
+                    {
+                        <tr @key="socio.Id">
+                            <td class="fw-bold text-muted">#@socio.Id</td>
+                            <td class="fw-semibold text-dark">@socio.Nombre</td>
+                            <td>@socio.Dni</td>
+                            <td>@(socio.Localidad?.Nombre ?? "-")</td>
+
+                            <!-- BOTÓN ACTIVIDADES -->
+                            <td class="text-center">
+                                <button type="button"
+                                        class="btn btn-outline-custom-secondary btn-sm rounded-pill"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#EditarActividadSocio"
+                                        @onclick="() => SeleccionarSocio(socio)">
+                                    <i class="bi bi-list-check me-1"></i> Actividades
+                                </button>
+                            </td>
+
+                            <!-- ESTADO BADGE -->
+                            <td class="text-center">
+                                @if (socio.Activo)
+                                {
+                                    <span class="badge badge-pastel-success">Activo</span>
+                                }
+                                else
+                                {
+                                    <span class="badge badge-pastel-secondary">Inactivo</span>
+                                }
+                            </td>
+
+                            <!-- ACCIONES -->
+                            <td class="text-center">
+                                @if (MostrarEliminados)
+                                {
+                                    <button type="button"
+                                            title="Restaurar socio"
+                                            class="btn btn-custom-success btn-sm me-1"
+                                            @onclick="() => HandleRestaurar(socio)">
+                                        <i class="bi bi-arrow-counterclockwise me-1"></i> Restaurar
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button type="button"
+                                            title="Modificar socio"
+                                            class="btn btn-custom-edit btn-sm me-1"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#NuevoEditarSocio"
+                                            @onclick="() => HandleModificarDatosSocio(socio)">
+                                        <i class="bi bi-pencil-fill"></i>
+                                    </button>
+
+                                    <button type="button"
+                                            title="Eliminar socio"
+                                            class="btn btn-custom-danger btn-sm"
+                                            @onclick="() => HandleEliminar(socio)">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
 }
 

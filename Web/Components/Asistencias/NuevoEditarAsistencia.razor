@@ -1,0 +1,126 @@
+﻿@inject IGenericService<Socio> _socioService
+@inject IGenericService<Clase> _claseService
+
+<div class="modal fade" id="NuevoEditarModal" tabindex="-1"
+     aria-labelledby="tituloModalAsistencia" aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="tituloModalAsistencia">
+                    Nuevo / editar asistencia
+                </h1>
+
+                <button type="button" class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Cerrar">
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="socioInput" class="form-label">Socio</label>
+
+                        <InputSelect id="socioInput" class="form-select"
+                                     @bind-Value="Asistencia.SocioId">
+                            <option value="0">Seleccione un socio</option>
+
+                            @foreach (var socio in socios)
+                            {
+                                <option value="@socio.Id">@socio.Nombre</option>
+                            }
+                        </InputSelect>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="claseInput" class="form-label">Clase</label>
+
+                        <InputSelect id="claseInput" class="form-select"
+                                     @bind-Value="Asistencia.ClaseId">
+                            <option value="0">Seleccione una clase</option>
+
+                            @foreach (var clase in clases)
+                            {
+                                <option value="@clase.Id">
+                                    @TextoClase(clase)
+                                </option>
+                            }
+                        </InputSelect>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="fechaInput" class="form-label">Fecha</label>
+
+                        <InputDate id="fechaInput" class="form-control"
+                                   @bind-Value="Asistencia.Fecha" />
+                    </div>
+
+                    <div class="col-md-6 mb-3 d-flex align-items-end">
+                        <div class="form-check">
+                            <InputCheckbox id="presenteInput"
+                                           class="form-check-input"
+                                           @bind-Value="Asistencia.Presente" />
+
+                            <label for="presenteInput" class="form-check-label">
+                                Socio presente
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+                    Cancelar
+                </button>
+
+                <button type="button" class="btn btn-primary"
+                        data-bs-dismiss="modal"
+                        @onclick="HandleGuardar">
+                    Guardar cambios
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public Asistencia Asistencia { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<Asistencia> OnGuardar { get; set; }
+
+    private List<Socio> socios = new();
+    private List<Clase> clases = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        socios = await _socioService.GetAllAsync() ?? new List<Socio>();
+        clases = await _claseService.GetAllAsync() ?? new List<Clase>();
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (Asistencia.Id == 0 && Asistencia.Fecha == default)
+        {
+            Asistencia.Fecha = DateTime.Today;
+        }
+    }
+
+    private async Task HandleGuardar()
+    {
+        if (OnGuardar.HasDelegate)
+        {
+            await OnGuardar.InvokeAsync(Asistencia);
+        }
+    }
+
+    private static string TextoClase(Clase clase)
+    {
+        return $"{clase.Actividad?.Nombre ?? "Actividad"} — " +
+               $"{clase.HoraInicio:hh\\:mm}";
+    }
+}

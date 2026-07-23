@@ -1,61 +1,103 @@
-﻿
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="card shadow rounded-4 border border-light">
-            <div class="card-body">
-                <div class="mb-3 fw-bold" style="color: #274472;">¿Qué socio estás buscando?</div>
-                <div class="mb-3">
-                    <input class="form-control form-control-lg rounded-3 border-primary"
+﻿<div class="card table-card shadow-sm rounded-4 mb-3">
+    <div class="card-body p-3 p-md-4">
+
+        <!-- Título principal más grande y limpio (sin recuadro interior) -->
+        <div class="fs-5 fw-bold mb-3 d-flex align-items-center gap-2" style="color: var(--color-principal);">
+            <i class="bi bi-search fs-4"></i>
+            <span>¿Qué socio estás buscando?</span>
+        </div>
+
+        <!-- Barra principal de búsqueda -->
+        <div class="row g-2 mb-2">
+            <!-- Campo de entrada -->
+            <div class="col-12 col-md-7 col-lg-8">
+                <div class="input-group search-input-group">
+                    <span class="input-group-text bg-white border-end-0 text-muted">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input class="form-control custom-form-input border-start-0 ps-0"
                            placeholder="Buscar por nombre, DNI, localidad o actividad..."
                            @bind="SearchText" />
                 </div>
-                <div class="d-flex gap-2 mb-3">
-                    <button class="btn btn-primary" @onclick="HandleBuscar">🔍 Buscar</button>
-                    <button class="btn btn-outline-primary" @onclick="ToggleFiltros">⚙️ Filtros de búsqueda</button>
-                </div>
-                @if (MostrarFiltros)
-                {
-                    <div class="card p-3 mb-3" style="background-color: AliceBlue; border-color: LightBlue;">
-                        <div class="fw-bold mb-2" style="color: #274472;">🔎 Buscar en:</div>
-                        <div class="row mb-2">
-                            <div class="col-6 d-flex align-items-center mb-2">
-                                <input type="checkbox"
-                                       class="form-check-input me-2"
-                                       @bind="FiltrarPorNombre" />
-                                <label class="form-check-label">👤 Nombre</label>
-                            </div>
-                            <div class="col-6 d-flex align-items-center mb-2">
-                                <input type="checkbox"
-                                       class="form-check-input me-2"
-                                       @bind="FiltrarPorDni" />
-                                <label class="form-check-label">🪪 DNI</label>
-                            </div>
-                            <div class="col-6 d-flex align-items-center mb-2">
-                                <input type="checkbox"
-                                       class="form-check-input me-2"
-                                       @bind="FiltrarPorLocalidad" />
-                                <label class="form-check-label">📍 Localidad</label>
-                            </div>
-                            <div class="col-6 d-flex align-items-center mb-2">
-                                <input type="checkbox"
-                                       class="form-check-input me-2"
-                                       @bind="FiltrarPorActividad" />
-                                <label class="form-check-label">⚽ Actividad</label>
-                            </div>
-                        </div>
-                        <button class="btn btn-warning text-white mt-2" @onclick="LimpiarBusqueda">🗑️ Limpiar búsqueda</button>
-                    </div>
-                }
+            </div>
 
-                @if (IsBusy)
-                {
-                    <div class="d-flex align-items-center justify-content-center gap-2 mt-2">
-                        <div class="spinner-border text-primary" role="status"></div>
-                        <span class="text-primary">Buscando socios...</span>
-                    </div>
-                }
+            <!-- Botones de Acción -->
+            <div class="col-12 col-md-5 col-lg-4 d-flex gap-2">
+                <button class="btn btn-action-primary flex-grow-1 rounded-3 d-inline-flex align-items-center justify-content-center gap-2"
+                        @onclick="HandleBuscar">
+                    <i class="bi bi-search"></i>
+                    <span>Buscar</span>
+                </button>
+                <button class="btn btn-outline-secondary rounded-3 d-inline-flex align-items-center justify-content-center gap-2"
+                        @onclick="ToggleFiltros"
+                        title="Filtros de búsqueda">
+                    <i class="bi bi-sliders"></i>
+                    <span class="d-none d-sm-inline">Filtros</span>
+                </button>
             </div>
         </div>
+
+        <!-- Panel Desplegable de Filtros Específicos -->
+        @if (MostrarFiltros)
+        {
+            <div class="card border-0 bg-light p-3 rounded-3 mt-3 mb-1">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="fw-bold small d-flex align-items-center gap-2" style="color: var(--color-principal);">
+                        <i class="bi bi-funnel-fill"></i>
+                        Buscar específicamente en:
+                    </span>
+                    <button class="btn btn-sm btn-link text-danger text-decoration-none p-0 d-flex align-items-center gap-1"
+                            @onclick="LimpiarBusqueda">
+                        <i class="bi bi-trash"></i>
+                        <span>Limpiar filtros</span>
+                    </button>
+                </div>
+
+                <div class="row g-2">
+                    <div class="col-6 col-sm-3">
+                        <div class="form-check mb-0">
+                            <input type="checkbox" class="form-check-input" id="chkNombre" @bind="FiltrarPorNombre" />
+                            <label class="form-check-label text-secondary small fw-medium d-flex align-items-center gap-1" for="chkNombre">
+                                <i class="bi bi-person"></i> Nombre
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-6 col-sm-3">
+                        <div class="form-check mb-0">
+                            <input type="checkbox" class="form-check-input" id="chkDni" @bind="FiltrarPorDni" />
+                            <label class="form-check-label text-secondary small fw-medium d-flex align-items-center gap-1" for="chkDni">
+                                <i class="bi bi-card-heading"></i> DNI
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-6 col-sm-3">
+                        <div class="form-check mb-0">
+                            <input type="checkbox" class="form-check-input" id="chkLocalidad" @bind="FiltrarPorLocalidad" />
+                            <label class="form-check-label text-secondary small fw-medium d-flex align-items-center gap-1" for="chkLocalidad">
+                                <i class="bi bi-geo-alt"></i> Localidad
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-6 col-sm-3">
+                        <div class="form-check mb-0">
+                            <input type="checkbox" class="form-check-input" id="chkActividad" @bind="FiltrarPorActividad" />
+                            <label class="form-check-label text-secondary small fw-medium d-flex align-items-center gap-1" for="chkActividad">
+                                <i class="bi bi-activity"></i> Actividad
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Indicador de carga -->
+        @if (IsBusy)
+        {
+            <div class="d-flex align-items-center justify-content-center gap-2 pt-2" style="color: var(--color-principal);">
+                <div class="spinner-border spinner-border-sm" role="status"></div>
+                <span class="small fw-medium">Buscando socios...</span>
+            </div>
+        }
     </div>
 </div>
 

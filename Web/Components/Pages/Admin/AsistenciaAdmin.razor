@@ -1,0 +1,366 @@
+﻿@page "/admin/asistencias"
+@inject IGenericService<Clase> _claseService
+@inject IGenericService<SocioActividad> _socioActividadService
+@inject IGenericService<Asistencia> _asistenciaService
+@inject FirebaseAuthService firebaseAuthService
+@inject SweetAlertService _sweetAlert
+@rendermode InteractiveServer
+
+<EncabezadoPage Titulo="Tomar asistencia"
+                Descripcion="Registra la asistencia de los socios por clase y fecha" />
+
+<div class="container py-4">
+    @if (isLoading)
+    {
+        <ActivityIndicator Mensaje="Cargando datos..." IsBusy="isLoading" />
+    }
+    else
+    {
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label for="actividadInput" class="form-label">
+                            Actividad
+                        </label>
+
+                        <select id="actividadInput" class="form-select"
+                                value="@actividadSeleccionada"
+                                @onchange="CambiarActividad">
+                            <option value="0">Seleccione una actividad</option>
+
+                            @foreach (var actividad in actividadesDisponibles)
+                            {
+                                <option value="@actividad.Id">
+                                    @actividad.Nombre
+                                </option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="claseInput" class="form-label">
+                            Clase
+                        </label>
+
+                        <select id="claseInput" class="form-select"
+                                disabled="@(actividadSeleccionada == 0)"
+                                value="@claseSeleccionada"
+                                @onchange="CambiarClase">
+                            <option value="0">Seleccione una clase</option>
+
+                            @foreach (var clase in clasesDisponibles)
+                            {
+                                <option value="@clase.Id">
+                                    @NombreDia(clase.DiaSemana)
+                                    @clase.HoraInicio.ToString(@"hh\:mm")
+                                    -
+                                    @clase.HoraFin.ToString(@"hh\:mm")
+                                </option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="fechaInput" class="form-label">
+                            Fecha
+                        </label>
+
+                        <input id="fechaInput" type="date"
+                               class="form-control"
+                               value="@fecha.ToString("yyyy-MM-dd")"
+                               max="@DateTime.Today.ToString("yyyy-MM-dd")"
+                               @onchange="CambiarFecha" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @if (claseSeleccionada == 0)
+        {
+            <div class="alert alert-info">
+                Seleccioná una clase para cargar la asistencia.
+            </div>
+        }
+        else if (registros.Count == 0)
+        {
+            <div class="alert alert-warning">
+                No hay socios inscriptos a la actividad de esta clase.
+            </div>
+        }
+        else
+        {
+            @if (claseActual is not null && fecha.DayOfWeek != claseActual.DiaSemana)
+            {
+                <div class="alert alert-warning">
+                    La fecha seleccionada no coincide con el día habitual de esta clase.
+                </div>
+            }
+
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <strong>@TextoClase(claseActual!)</strong>
+                    <span class="ms-2">— @fecha.ToString("dd/MM/yyyy")</span>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 align-middle">
+                        <thead>
+                            <tr>
+                                <th>Socio</th>
+                                <th>DNI</th>
+                                <th class="text-center">Presente</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var registro in registros)
+                            {
+                                <tr @key="registro.Socio.Id">
+                                    <td>@registro.Socio.Nombre</td>
+                                    <td>@registro.Socio.Dni</td>
+                                    <td class="text-center">
+                                        <InputCheckbox class="form-check-input"
+                                                       @bind-Value="registro.Asistencia.Presente" />
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card-footer text-end">
+                    <button type="button"
+                            class="btn btn-success"
+                            @onclick="GuardarAsistencias">
+                        Guardar asistencia
+                    </button>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+@code {
+    private List<Clase> clases = new();
+    private List<SocioActividad> sociosActividades = new();
+    private List<Asistencia> asistenciasExistentes = new();
+    private List<RegistroAsistencia> registros = new();
+
+    private int claseSeleccionada = 0;
+    private DateTime fecha = DateTime.Today;
+    private bool isLoading = true;
+
+    private Clase? claseActual =>
+        clases.FirstOrDefault(c => c.Id == claseSeleccionada);
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+            return;
+
+        try
+        {
+            await firebaseAuthService.GetUserToken();
+
+            clases = await _claseService.GetAllAsync()
+                      ?? new List<Clase>();
+
+            sociosActividades = await _socioActividadService.GetAllAsync()
+                                ?? new List<SocioActividad>();
+
+            asistenciasExistentes = await _asistenciaService.GetAllAsync()
+                                    ?? new List<Asistencia>();
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine(ex.ToString());
+
+            var detalle = ex.InnerException?.Message ?? ex.Message;
+
+            await _sweetAlert.FireAsync(
+                "Error",
+                $"No se pudieron cargar los datos. Detalle: {detalle}",
+                SweetAlertIcon.Error);
+        }
+        finally
+        {
+            isLoading = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void CambiarClase(ChangeEventArgs e)
+    {
+        claseSeleccionada = int.TryParse(e.Value?.ToString(), out var claseId)
+            ? claseId
+            : 0;
+
+        CargarRegistros();
+    }
+
+    private void CambiarFecha(ChangeEventArgs e)
+    {
+        if (DateTime.TryParse(e.Value?.ToString(), out var nuevaFecha))
+        {
+            fecha = nuevaFecha.Date;
+            CargarRegistros();
+        }
+    }
+
+    private void CargarRegistros()
+    {
+        registros = new List<RegistroAsistencia>();
+
+        if (claseActual is null)
+            return;
+
+        var sociosDeLaActividad = sociosActividades
+            .Where(sa =>
+                sa.ActividadId == claseActual.ActividadId &&
+                sa.Socio is not null)
+            .GroupBy(sa => sa.SocioId)
+            .Select(grupo => grupo.First().Socio!)
+            .OrderBy(s => s.Nombre)
+            .ToList();
+
+        foreach (var socio in sociosDeLaActividad)
+        {
+            var asistenciaExistente = asistenciasExistentes.FirstOrDefault(a =>
+                a.SocioId == socio.Id &&
+                a.ClaseId == claseActual.Id &&
+                a.Fecha.Date == fecha.Date);
+
+            registros.Add(new RegistroAsistencia
+            {
+                Socio = socio,
+                Asistencia = asistenciaExistente ?? new Asistencia
+                {
+                    SocioId = socio.Id,
+                    ClaseId = claseActual.Id,
+                    Fecha = fecha,
+                    Presente = false
+                }
+            });
+        }
+    }
+
+    private int actividadSeleccionada = 0;
+
+    private List<Actividad> actividadesDisponibles => clases
+        .Where(c => c.Actividad is not null)
+        .Select(c => c.Actividad!)
+        .GroupBy(a => a.Id)
+        .Select(g => g.First())
+        .OrderBy(a => a.Nombre)
+        .ToList();
+
+    private List<Clase> clasesDisponibles => clases
+        .Where(c => c.ActividadId == actividadSeleccionada)
+        .OrderBy(c => c.DiaSemana)
+        .ThenBy(c => c.HoraInicio)
+        .ToList();
+
+    private void CambiarActividad(ChangeEventArgs e)
+    {
+        actividadSeleccionada = int.TryParse(e.Value?.ToString(), out var actividadId)
+            ? actividadId
+            : 0;
+
+        claseSeleccionada = 0;
+        registros = new List<RegistroAsistencia>();
+    }
+    private async Task GuardarAsistencias()
+    {
+        if (fecha.Date > DateTime.Today)
+        {
+            await _sweetAlert.FireAsync(
+                "Error",
+                "No se puede registrar asistencia en una fecha futura.",
+                SweetAlertIcon.Error);
+
+            return;
+        }
+
+        if (claseActual is null)
+            return;
+
+        try
+        {
+            isLoading = true;
+
+            foreach (var registro in registros)
+            {
+                var asistencia = new Asistencia
+                {
+                    Id = registro.Asistencia.Id,
+                    Fecha = fecha.Date,
+                    Presente = registro.Asistencia.Presente,
+                    SocioId = registro.Socio.Id,
+                    ClaseId = claseActual.Id
+                };
+
+                if (asistencia.Id == 0)
+                {
+                    await _asistenciaService.AddAsync(asistencia);
+                }
+                else
+                {
+                    await _asistenciaService.UpdateAsync(asistencia);
+                }
+            }
+
+            asistenciasExistentes = await _asistenciaService.GetAllAsync()
+                                    ?? new List<Asistencia>();
+
+            await _sweetAlert.FireAsync(
+                 "Guardado",
+                 "La asistencia fue registrada correctamente.",
+                 SweetAlertIcon.Success);
+
+            actividadSeleccionada = 0;
+            claseSeleccionada = 0;
+            fecha = DateTime.Today;
+            registros = new List<RegistroAsistencia>();
+        }
+        catch
+        {
+            await _sweetAlert.FireAsync(
+                "Error",
+                "Hubo un error al guardar la asistencia.",
+                SweetAlertIcon.Error);
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private static string TextoClase(Clase clase)
+    {
+        return $"{clase.Actividad?.Nombre ?? "Actividad"} — " +
+               $"{NombreDia(clase.DiaSemana)} " +
+               $"{clase.HoraInicio:hh\\:mm}";
+    }
+
+    private static string NombreDia(DayOfWeek dia)
+    {
+        return dia switch
+        {
+            DayOfWeek.Monday => "Lunes",
+            DayOfWeek.Tuesday => "Martes",
+            DayOfWeek.Wednesday => "Miércoles",
+            DayOfWeek.Thursday => "Jueves",
+            DayOfWeek.Friday => "Viernes",
+            DayOfWeek.Saturday => "Sábado",
+            DayOfWeek.Sunday => "Domingo",
+            _ => dia.ToString()
+        };
+    }
+
+    private class RegistroAsistencia
+    {
+        public Socio Socio { get; set; } = new();
+        public Asistencia Asistencia { get; set; } = new();
+    }
+}

@@ -14,7 +14,7 @@ namespace Service.Utils
         public static string Localidad { get; set; } = "localidades";
         public static string Profesor { get; set; } = "profesores";
         public static string Socio { get; set; } = "socios";
-        public static string SocioActividad { get; set; } = "sociosactividades";
+        public static string SocioActividad { get; set; } = "SocioActividades";
         public static string Usuario { get; set; } = "usuarios";
         public static string Gemini { get; set; } = "gemini";
         public static string Login { get; set; } = "auth";

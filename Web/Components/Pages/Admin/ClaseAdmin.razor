@@ -1,0 +1,253 @@
+﻿@page "/admin/clases"
+@using Service.Interfaces
+@using Service.Models
+@using Web.Components.Clases
+@inject IGenericService<Clase> _claseService
+@inject SweetAlertService _sweetAlert
+@rendermode InteractiveServer
+
+<EncabezadoPage Titulo="Administración de Clases"
+                Descripcion="Gestiona horarios y cupos de las actividades deportivas" />
+
+<div class="container py-4">
+    <SeccionBtnNuevoMostrarEliminados TargetModal="#NuevoEditarClase"
+                                      @bind-MostrarEliminados="MostrarEliminados"
+                                      OnAfterMostrarEliminados="GetClases"
+                                      OnNuevo="Nuevo" />
+
+    @if (isLoading)
+    {
+        <ActivityIndicator Mensaje="Cargando clases..." IsBusy="isLoading" />
+    }
+    else
+    {
+        @if (clases != null && clases.Count > 0)
+        {
+            <TablaClaseConFiltro
+                ListEntity="clases"
+                OnEliminar="Eliminar"
+                OnModificar="Modificar"
+                OnRestaurar="Restaurar"
+                MostrarEliminados="MostrarEliminados" />
+        }
+        else
+        {
+            @if (MostrarEliminados)
+            {
+                <div class="alert alert-info" role="alert">
+                    No hay clases eliminadas.
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info" role="alert">
+                    No hay clases registradas.
+                </div>
+            }
+        }
+    }
+
+    <NuevoEditarClase Clase="@claseCurrent" OnGuardar="Guardar" />
+</div>
+
+@code {
+    List<Clase>? clases = new();
+    Clase claseCurrent = new() { Activa = true, CupoMaximo = 1 };
+
+    bool isLoading = true;
+
+    public bool MostrarEliminados { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetClases();
+    }
+
+    private async Task GetClases()
+    {
+        isLoading = true;
+
+        try
+        {
+            clases = MostrarEliminados
+                ? await _claseService.GetAllDeletedsAsync()
+                : await _claseService.GetAllAsync();
+        }
+        catch
+        {
+            await _sweetAlert.FireAsync(
+                "Error",
+                "No se pudieron cargar las clases.",
+                SweetAlertIcon.Error);
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void Modificar(Clase clase)
+    {
+        claseCurrent = clase;
+    }
+
+    private void Nuevo()
+    {
+        claseCurrent = new Clase
+        {
+            Activa = true,
+            CupoMaximo = 1
+        };
+    }
+
+    private async Task Eliminar(Clase clase)
+    {
+        var respuesta = await _sweetAlert.FireAsync(new SweetAlertOptions
+        {
+            Title = "Eliminando clase",
+            Text = "¿Está seguro que desea eliminar esta clase?",
+            Icon = SweetAlertIcon.Warning,
+            ShowCancelButton = true,
+            ConfirmButtonText = "Sí, eliminar",
+            CancelButtonText = "Cancelar"
+        });
+
+        if (!respuesta.IsConfirmed)
+            return;
+
+        try
+        {
+            isLoading = true;
+
+            await _claseService.DeleteAsync(clase.Id);
+            await GetClases();
+
+            await _sweetAlert.FireAsync(
+                "Eliminada",
+                "La clase fue eliminada exitosamente.",
+                SweetAlertIcon.Success);
+        }
+        catch
+        {
+            await _sweetAlert.FireAsync(
+                "Error",
+                "Hubo un error al eliminar la clase.",
+                SweetAlertIcon.Error);
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task Guardar(Clase claseToSave)
+    {
+        if (claseToSave.ActividadId == 0)
+        {
+            await _sweetAlert.FireAsync(
+                "Error",
+                "Debes seleccionar una actividad.",
+                SweetAlertIcon.Error);
+
+            return;
+        }
+
+        if (claseToSave.CupoMaximo < 1 || claseToSave.CupoMaximo > 100)
+        {
+            await _sweetAlert.FireAsync(
+                "Error",
+                "El cupo máximo debe estar entre 1 y 100.",
+                SweetAlertIcon.Error);
+
+            return;
+        }
+
+        if (claseToSave.HoraInicio >= claseToSave.HoraFin)
+        {
+            await _sweetAlert.FireAsync(
+                "Error",
+                "La hora de finalización debe ser posterior a la hora de inicio.",
+                SweetAlertIcon.Error);
+
+            return;
+        }
+
+        try
+        {
+            isLoading = true;
+
+            if (claseToSave.Id == 0)
+            {
+                await _claseService.AddAsync(claseToSave);
+
+                await _sweetAlert.FireAsync(
+                    "Creada",
+                    "La clase fue creada exitosamente.",
+                    SweetAlertIcon.Success);
+            }
+            else
+            {
+                await _claseService.UpdateAsync(claseToSave);
+
+                await _sweetAlert.FireAsync(
+                    "Actualizada",
+                    "La clase fue actualizada exitosamente.",
+                    SweetAlertIcon.Success);
+            }
+
+            await GetClases();
+            Nuevo();
+        }
+        catch
+        {
+            await _sweetAlert.FireAsync(
+                "Error",
+                "Hubo un error al guardar la clase.",
+                SweetAlertIcon.Error);
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task Restaurar(Clase clase)
+    {
+        var respuesta = await _sweetAlert.FireAsync(new SweetAlertOptions
+        {
+            Title = "Restaurando clase",
+            Text = "¿Está seguro que desea restaurar esta clase?",
+            Icon = SweetAlertIcon.Question,
+            ShowCancelButton = true,
+            ConfirmButtonText = "Sí, restaurar",
+            CancelButtonText = "Cancelar"
+        });
+
+        if (!respuesta.IsConfirmed)
+            return;
+
+        try
+        {
+            isLoading = true;
+
+            await _claseService.RestoreAsync(clase.Id);
+            await GetClases();
+
+            await _sweetAlert.FireAsync(
+                "Restaurada",
+                "La clase fue restaurada exitosamente.",
+                SweetAlertIcon.Success);
+        }
+        catch
+        {
+            await _sweetAlert.FireAsync(
+                "Error",
+                "Hubo un error al restaurar la clase.",
+                SweetAlertIcon.Error);
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}

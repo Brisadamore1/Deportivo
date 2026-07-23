@@ -22,23 +22,37 @@ namespace Backend.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Asistencia>>> GetAsistencias([FromQuery] string filtro="")
         {
-            return await _context.Asistencias.AsNoTracking().ToListAsync();
+            return await _context.Asistencias
+                .Include(a => a.Socio)
+                .Include(a => a.Clase!)
+                .ThenInclude(c => c.Actividad)
+                .AsNoTracking()
+                .ToListAsync();
         }
 
         [HttpGet("deleteds")]
         public async Task<ActionResult<IEnumerable<Asistencia>>> GetDeletedsAsistencias()
         {
             return await _context.Asistencias
+                .Include(a => a.Socio)
+                .Include(a => a.Clase!)
+                .ThenInclude(c => c.Actividad)
                 .AsNoTracking()
                 .IgnoreQueryFilters()
-                .Where(a => a.IsDeleted).ToListAsync();
+                .Where(a => a.IsDeleted)
+                .ToListAsync();
         }
 
         // GET: api/Asistencias/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Asistencia>> GetAsistencia(int id)
         {
-            var asistencia = await _context.Asistencias.AsNoTracking().FirstOrDefaultAsync(a=>a.Id.Equals(id));
+            var asistencia = await _context.Asistencias
+                .Include(a => a.Socio)
+                .Include(a => a.Clase!)
+                .ThenInclude(c => c.Actividad)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(a=>a.Id.Equals(id));
 
             if (asistencia == null)
             {
@@ -84,10 +98,35 @@ namespace Backend.Controllers
         [HttpPost]
         public async Task<ActionResult<Asistencia>> PostAsistencia(Asistencia asistencia)
         {
+            if (asistencia.SocioId == 0 || asistencia.ClaseId == 0)
+            {
+                return BadRequest("Debe indicar un socio y una clase.");
+            }
+
+            var fechaInicio = asistencia.Fecha.Date;
+            var fechaFin = fechaInicio.AddDays(1);
+
+            var yaExiste = await _context.Asistencias.AnyAsync(a =>
+                a.SocioId == asistencia.SocioId &&
+                a.ClaseId == asistencia.ClaseId &&
+                a.Fecha >= fechaInicio &&
+                a.Fecha < fechaFin);
+
+            if (yaExiste)
+            {
+                return Conflict(
+                    "Ya existe una asistencia para este socio, clase y fecha.");
+            }
+
+            asistencia.Fecha = fechaInicio;
+
             _context.Asistencias.Add(asistencia);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetAsistencia", new { id = asistencia.Id }, asistencia);
+            return CreatedAtAction(
+                "GetAsistencia",
+                new { id = asistencia.Id },
+                asistencia);
         }
 
         // DELETE: api/Asistencias/5

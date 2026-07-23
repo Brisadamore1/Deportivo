@@ -3,44 +3,67 @@
 @inject FirebaseAuthService firebaseAuthService
 @rendermode InteractiveServer
 
-@if(Socios==null)
+@if (Socios == null)
 {
-    <div class="d-flex align-items-center justify-content-center" style="height: 100vh;">
-        <div class="spinner-border text-primary" role="status">
+    <div class="d-flex align-items-center justify-content-center min-vh-50 py-5">
+        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
             <span class="visually-hidden">Cargando...</span>
         </div>
     </div>
 }
 else
 {
-@* --- Encabezado --- *@
-<div class="container py-4">
-        <EncabezadoPage Titulo="🔍 Buscar Socios" Descripcion="Encuentra socios" />
+    <div class="container py-4">
+        @* --- Encabezado --- *@
+        <EncabezadoPage Titulo="Buscar Socios" Descripcion="Encuentra socios registrados en el sistema" />
 
-    @* --- Sección de búsqueda --- *@
-    <SeccionBusqueda Socios="Socios" OnBuscar="Buscar" />
+        @* --- Sección de búsqueda --- *@
+        <div class="card table-card shadow-sm border-0 mb-4 rounded-4">
+            <div class="card-body p-3 p-md-4">
+                <SeccionBusqueda Socios="Socios" OnBuscar="Buscar" />
+            </div>
+        </div>
 
-    @* --- Sección de resultados --- *@
-    <div class="row">
-        <div class="col-12">
+        @* --- Sección de resultados --- *@
+        <div class="row">
+            <div class="col-12">
+                <!-- Indicador de cantidad de resultados -->
                 <ResultadoBusqueda Cantidad="Socios.Count" TextoResultado="@(Socios.Count == 1 ? "socio encontrado" : "socios encontrados")" />
-            @if (Socios.Count == 0 && !IsBusy)
-            {
-                <div class="card shadow rounded-4 mb-3" style="background-color: LightYellow; border-color: Orange;">
-                    <div class="card-body text-center">
-                        <div class="fw-bold" style="color: DarkOrange;">🤔 Sin resultados</div>
-                        <div class="text-muted">Intenta con otros términos de búsqueda o ajusta los filtros</div>
-                        <div class="text-muted small mt-2">💡 Tip: Usa palabras clave simples y verifica que los filtros apropiados estén seleccionados</div>
+
+                <!-- Estado sin resultados -->
+                @if (Socios.Count == 0 && !IsBusy)
+                {
+                    <div class="card shadow-sm border-0 rounded-4 my-3 bg-light">
+                        <div class="card-body text-center py-5 px-4">
+                            <div class="mb-3">
+                                <i class="bi bi-search text-muted" style="font-size: 2.5rem;"></i>
+                            </div>
+                            <h5 class="fw-bold text-dark mb-2">Sin resultados</h5>
+                            <p class="text-secondary mb-2">
+                                Intenta con otros términos de búsqueda o ajusta los filtros seleccionados.
+                            </p>
+                            <small class="text-muted d-block">
+                                <i class="bi bi-lightbulb me-1 text-warning"></i>
+                                <strong>Tip:</strong> Usa palabras clave simples como el DNI o el apellido.
+                            </small>
+                        </div>
                     </div>
+                }
+
+                <!-- Grilla / Lista de Tarjetas de Socios -->
+                <div class="container-fluid px-0">
+                    @foreach (var socio in Socios)
+                    {
+                        <div class="row w-100 m-0">
+                            <div class="col-12 px-0">
+                                <CardSocio socio="socio" />
+                            </div>
+                        </div>
+                    }
                 </div>
-            }
-            @foreach (var socio in Socios)
-            {
-                    <CardSocio socio="socio" />
-            }
+            </div>
         </div>
     </div>
-</div>
 }
 @code {
     // Resultados

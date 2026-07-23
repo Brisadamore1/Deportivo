@@ -1,61 +1,56 @@
 ﻿@using Service.Models
-<div class="card shadow rounded-4 mb-3 border border-info">
-    <div class="card-body">
-        <div class="row">
-            <div class="col-auto d-flex align-items-center">
-                <span style="font-size: 2.5rem;">👤</span>
+<div class="row align-items-center bg-white border rounded-3 p-3 mb-3 shadow-sm w-100 mx-0">
+
+    <!-- Nombre y Estado (Cabecera de la fila) -->
+    <div class="col-12 col-lg-3 mb-2 mb-lg-0">
+        <div class="fw-bold fs-5" style="color: #274472;">
+            @socio.Nombre
+        </div>
+        <div>
+            @if (socio.Activo)
+            {
+                <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-1 small fw-semibold">
+                    <i class="bi bi-check-circle-fill me-1"></i> Activo
+                </span>
+            }
+            else
+            {
+                <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle rounded-pill px-2 py-1 small fw-semibold">
+                    <i class="bi bi-x-circle-fill me-1"></i> Inactivo
+                </span>
+            }
+        </div>
+    </div>
+
+    <!-- Datos del Socio en columnas horizontales -->
+    <div class="col-12 col-lg-9">
+        <div class="row g-2 text-secondary small">
+            <div class="col-12 col-sm-6 col-md-4">
+                <span class="fw-semibold text-dark">🪪 DNI:</span> @socio.Dni
             </div>
 
-            <div class="col">
-                <div class="fw-bold fs-5" style="color: #274472;">
-                    @socio.Nombre
-                </div>
-
-                <div class="mb-1 text-secondary">
-                    <span>🪪</span> DNI: @socio.Dni
-                </div>
-
-                <div class="mb-1 text-secondary">
-                    <span>📍</span> Localidad: @socio.Localidad?.Nombre
-                </div>
-
-                <div class="mb-1 text-secondary">
-                    <span>🏠</span> Domicilio: @socio.Domicilio
-                </div>
-
-                <div class="mb-1 text-secondary">
-                    <span>📞</span> Teléfono: @socio.Telefono
-                </div>
-
-                <div class="mb-1 text-secondary">
-                    <span>🎂</span> Fecha de nacimiento:
-                    @(socio.FechaNacimiento?.ToString("dd/MM/yyyy"))
-                </div>
-
-                <div class="mb-1 text-muted">
-                    ⚽ @socio.Actividades
-                </div>
-
-                <div class="mb-1">
-                    @if (socio.Activo)
-                    {
-                        <span class="badge bg-success">Activo</span>
-                    }
-                    else
-                    {
-                        <span class="badge bg-secondary">Inactivo</span>
-                    }
-                </div>
+            <div class="col-12 col-sm-6 col-md-4">
+                <span class="fw-semibold text-dark">📍 Localidad:</span> @(socio.Localidad?.Nombre ?? "-")
             </div>
 
-            <div class="col-auto d-flex align-items-center">
-                <button class="btn btn-info text-dark fw-bold"
-                        style="width:60px; height:60px; white-space:pre-line;">
-                    👤&#10;Ver
-                </button>
+            <div class="col-12 col-sm-6 col-md-4">
+                <span class="fw-semibold text-dark">🏠 Domicilio:</span> @(string.IsNullOrEmpty(socio.Domicilio) ? "-" : socio.Domicilio)
+            </div>
+
+            <div class="col-12 col-sm-6 col-md-4">
+                <span class="fw-semibold text-dark">📞 Teléfono:</span> @(string.IsNullOrEmpty(socio.Telefono) ? "-" : socio.Telefono)
+            </div>
+
+            <div class="col-12 col-sm-6 col-md-4">
+                <span class="fw-semibold text-dark">🎂 F. Nac.:</span> @(socio.FechaNacimiento?.ToString("dd/MM/yyyy") ?? "-")
+            </div>
+
+            <div class="col-12 col-sm-6 col-md-4">
+                <span class="fw-semibold text-dark">⚽ Actividades:</span> @(string.IsNullOrEmpty(socio.Actividades) ? "-" : socio.Actividades)
             </div>
         </div>
     </div>
+
 </div>
 
 @code {

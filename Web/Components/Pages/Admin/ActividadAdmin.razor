@@ -6,7 +6,10 @@
 
 <EncabezadoPage Titulo="Administración de Actividades" Descripcion="Gestiona las actividades deportivas del club" />
 <div class="container py-4">
-    <SeccionBtnNuevoMostrarEliminados @bind-MostrarEliminados="MostrarEliminados" OnAfterMostrarEliminados="GetActividades" OnNuevo="Nuevo" />
+    <SeccionBtnNuevoMostrarEliminados TargetModal="#NuevoEditarActividad"
+                                       @bind-MostrarEliminados="MostrarEliminados" 
+                                       OnAfterMostrarEliminados="GetActividades" 
+                                       OnNuevo="Nuevo" />
 
     @if (isLoading)
     {

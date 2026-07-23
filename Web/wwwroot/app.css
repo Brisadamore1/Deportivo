@@ -49,3 +49,658 @@ h1:focus {
 .darker-border-checkbox.form-check-input {
     border-color: #929292;
 }
+
+/* Estilos del Home */
+
+.home-page {
+    max-width: 1350px;
+    margin: auto;
+    padding: 3rem 1rem;
+}
+
+.hero-section {
+    background-image: linear-gradient(90deg, rgba(39, 68, 114, 0.88), rgba(80, 111, 151, 0.60)), url("/images/deportivofondo.jpg");
+    background-size: cover;
+    background-position: center;
+    border-radius: 28px;
+    padding: 5.5rem 3.5rem;
+    min-height: 420px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+}
+
+.hero-content {
+    max-width: 720px;
+}
+
+.hero-section h1 {
+    color: white;
+    font-weight: 700;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+}
+
+.hero-section p {
+    color: #f2f7ff;
+    font-size: 1.1rem;
+    margin: 1rem 0 1.5rem;
+}
+
+.hero-actions {
+    display: flex;
+    gap: .75rem;
+    flex-wrap: wrap;
+}
+
+.info-card {
+    border: 0;
+    border-radius: 20px;
+    padding: 1.5rem;
+    transition: transform .2s ease;
+}
+
+    .info-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .info-card h4 {
+        color: #274472;
+        font-weight: 700;
+    }
+
+    .info-card p {
+        color: #5c6872;
+        min-height: 72px;
+    }
+
+    .info-card a {
+        color: #274472;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+.info-icon {
+    font-size: 2.2rem;
+    margin-bottom: .8rem;
+}
+
+/* Colores pastel para las 6 tarjetas */
+.card-actividades {
+    background-color: #eaf8ef; /* Verde pastel */
+}
+
+.card-clases {
+    background-color: #fff4df; /* Naranja/Crema pastel */
+}
+
+.card-asistencias {
+    background-color: #f3edff; /* Púrpura pastel */
+}
+
+.card-socios {
+    background-color: #e9f6ff; /* Azul pastel */
+}
+
+.card-profesores {
+    background-color: #ffeef0; /* Rosa pastel */
+}
+
+.card-localidades {
+    background-color: #e6f7f5; /* Turquesa/Menta pastel */
+}
+
+.club-message {
+    background-color: #f5f8fc;
+    border-radius: 20px;
+    padding: 2.2rem 2.5rem;
+    color: #526777;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+.club-message h3 {
+    color: #274472;
+    font-weight: 700;
+}
+
+.club-message span {
+    font-size: 2.5rem;
+}
+
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 3rem 2rem;
+        min-height: 320px;
+    }
+
+    .home-page {
+        padding: 2rem 1rem;
+    }
+
+    .club-message {
+        padding: 1.5rem;
+    }
+}
+
+/* Corrección de alineación e íconos en la barra de navegación */
+.navbar-nav .nav-link {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.4rem !important;
+    white-space: nowrap;
+}
+
+    /* Forzar que todos los íconos del navbar tengan exactamente el mismo tamaño y no floten */
+    .navbar-nav .nav-link .bi,
+    .navbar-nav .nav-link [class^="bi-"] {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        float: none !important;
+        width: auto !important;
+        height: auto !important;
+        font-size: 1.1rem !important;
+        margin: 0 !important;
+    }
+
+    /* Quitar fondos extraños o desalineaciones en el estado activo/hover */
+    .navbar-nav .nav-item {
+        display: flex !important;
+        align-items: center !important;
+    }
+
+/* Header basado en el Hero Section del Home */
+.page-header-card {
+    background: linear-gradient(90deg, #274472 0%, #506f97 100%);
+    border-radius: 20px;
+    padding: 2rem 1.5rem; /* Ajustado para que no ensanche el box model */
+    box-shadow: 0 4px 15px rgba(39, 68, 114, 0.15);
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box; /* Asegura que el padding no desborde el ancho de la columna */
+}
+
+.page-header-content {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.page-header-title {
+    color: #ffffff;
+    font-weight: 700;
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
+    margin-bottom: 0.5rem;
+}
+
+.page-header-description {
+    color: #f2f7ff;
+    font-size: 1.05rem;
+    margin: 0;
+    opacity: 0.9;
+}
+
+/* Barra de herramientas / Acciones superior */
+.action-toolbar {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 1rem 1.25rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+/* Botón Nuevo (Mismo azul que el Home) */
+.btn-action-primary {
+    background-color: #274472;
+    color: #ffffff;
+    border: none;
+    border-radius: 10px;
+    padding: 0.55rem 1.25rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+    display: inline-flex;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+
+.btn-action-primary:hover {
+    background-color: #1d3356;
+    color: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(39, 68, 114, 0.25);
+}
+
+.btn-action-primary:active {
+    transform: translateY(0);
+}
+
+/* Estilos para el filtro / Switch */
+.filter-switch-container {
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 0.4rem 0.85rem;
+    display: inline-flex;
+    align-items: center;
+}
+
+.filter-switch-label {
+    color: #5c6872;
+    font-weight: 500;
+    font-size: 0.9rem;
+    cursor: pointer;
+    user-select: none;
+}
+
+.filter-switch-input {
+    cursor: pointer;
+    width: 2.2rem !important;
+    height: 1.1rem !important;
+}
+
+.filter-switch-input:checked {
+    background-color: #274472;
+    border-color: #274472;
+}
+
+/* Estilos para el Buscador */
+.search-box-container {
+    max-width: 500px;
+}
+
+.search-input-group {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+    transition: all 0.2s ease;
+}
+
+    .search-input-group:focus-within {
+        border-color: #274472;
+        box-shadow: 0 0 0 3px rgba(39, 68, 114, 0.15);
+    }
+
+    .search-input-group .form-control {
+        border: none;
+        box-shadow: none;
+        padding: 0.6rem 0.8rem;
+    }
+
+/* Tarjeta Contenedora de Tabla */
+.table-card {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+/* Tabla Personalizada */
+.custom-table {
+    margin-bottom: 0;
+}
+
+    .custom-table thead {
+        background-color: #274472;
+        color: #ffffff;
+    }
+
+        .custom-table thead th {
+            padding: 0.9rem 1rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border: none;
+        }
+
+    .custom-table tbody tr {
+        transition: background-color 0.15s ease;
+    }
+
+        .custom-table tbody tr:hover {
+            background-color: #f8fafc;
+        }
+
+    .custom-table tbody td {
+        padding: 0.85rem 1rem;
+        color: #4a5568;
+        border-color: #f1f5f9;
+    }
+
+/* Badges Pastel */
+.badge-pastel-success {
+    background-color: #eaf8ef;
+    color: #1e7e45;
+    font-weight: 600;
+    padding: 0.4em 0.8em;
+    border-radius: 50px;
+}
+
+.badge-pastel-secondary {
+    background-color: #f1f5f9;
+    color: #64748b;
+    font-weight: 600;
+    padding: 0.4em 0.8em;
+    border-radius: 50px;
+}
+
+/* Botones de Acción de la Tabla */
+.btn-outline-custom-secondary {
+    color: #274472;
+    border-color: #cbd5e1;
+    font-weight: 500;
+    font-size: 0.85rem;
+}
+
+    .btn-outline-custom-secondary:hover {
+        background-color: #f1f5f9;
+        color: #1d3356;
+    }
+
+.btn-custom-edit {
+    background-color: #e9f6ff;
+    color: #274472;
+    border: none;
+    border-radius: 8px;
+}
+
+    .btn-custom-edit:hover {
+        background-color: #d0eaff;
+        color: #1d3356;
+    }
+
+.btn-custom-danger {
+    background-color: #ffeef0;
+    color: #dc3545;
+    border: none;
+    border-radius: 8px;
+}
+
+    .btn-custom-danger:hover {
+        background-color: #ffd7dc;
+        color: #a71d2a;
+    }
+
+.btn-custom-success {
+    background-color: #eaf8ef;
+    color: #1e7e45;
+    border: none;
+    border-radius: 8px;
+    font-weight: 500;
+}
+
+    .btn-custom-success:hover {
+        background-color: #d1f2dc;
+    }
+
+/* Borde inferior al encabezado con el mismo tono gris */
+.custom-table thead th {
+    padding: 0.9rem 1rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    background-color: #274472;
+    color: #ffffff;
+    /* Línea divisoria entre títulos y el primer socio: */
+    border-bottom: 1px solid #cbd5e1 !important;
+}
+
+/* Mismo borde para las filas del cuerpo */
+.custom-table tbody td {
+    padding: 0.85rem 1rem;
+    color: #4a5568;
+    border-bottom: 1px solid #cbd5e1; /* Ajustado al mismo gris visible */
+}
+
+/* Estilos para Modales Institucionales */
+.custom-modal-content {
+    border: none;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+.custom-modal-header {
+    background: linear-gradient(90deg, #274472 0%, #506f97 100%);
+    padding: 1.25rem 1.5rem;
+    border-bottom: none;
+}
+
+    .custom-modal-header .modal-subtitle {
+        font-size: 0.875rem;
+    }
+
+/* Tarjeta vacía (Sin actividades) */
+.empty-state-card {
+    background-color: #f8fafc;
+    border: 1px dashed #cbd5e1;
+    border-radius: 12px;
+    color: #64748b;
+    font-size: 0.9rem;
+}
+
+/* Items de Actividades Asignadas */
+.activity-item-card {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+    transition: all 0.2s ease;
+}
+
+    .activity-item-card:hover {
+        border-color: #cbd5e1;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.04);
+    }
+
+/* Select e Inputs de Formulario */
+.custom-form-select {
+    border-radius: 10px;
+    border: 1px solid #cbd5e1;
+    padding: 0.35rem 0.65rem !important; /* Menos alto en las cajas de texto */
+    font-size: 0.9rem;
+    color: #334155;
+}
+
+    .custom-form-select:focus {
+        border-color: #274472;
+        box-shadow: 0 0 0 3px rgba(39, 68, 114, 0.15);
+    }
+
+/* Línea divisoria suave */
+.divider-line {
+    border-top: 1px solid #e2e8f0;
+    opacity: 1;
+}
+
+/* Etiquetas de Formulario */
+.custom-form-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #475569;
+    margin-bottom: 0.2rem;
+}
+
+/* Inputs de Texto y Fechas */
+.custom-form-input {
+    border-radius: 10px;
+    border: 1px solid #cbd5e1;
+    padding: 0.55rem 0.85rem;
+    font-size: 0.9rem;
+    color: #1e293b;
+    transition: all 0.2s ease;
+}
+
+    .custom-form-input:focus {
+        border-color: #274472;
+        box-shadow: 0 0 0 3px rgba(39, 68, 114, 0.15);
+    }
+
+/* Tarjeta contenedora para el switch de estado */
+.status-switch-card {
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 0.35rem 0.65rem; /* Menos alto en la tarjeta del switch */
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+/* Limita el ancho del modal para que no se extienda hacia los costados */
+/* Controla el ancho de los costados del modal */
+.modal-custom-width {
+    max-width: 600px !important; /* Ajusta este valor si deseas cerrarlo más de los lados */
+    width: 100%;
+}
+
+/* ==========================================
+   VARIABLES DE TU SISTEMA Y COLORES
+   ========================================== */
+:root {
+    --color-principal: #274472; /* Azul oscuro de tus títulos y modales */
+    --color-principal-hover: #1e355b;
+    --color-fondo-tarjeta: #ffffff;
+    --color-borde-suave: #e2e8f0;
+}
+
+/* ==========================================
+   ESTILOS DE TARJETAS (table-card)
+   ========================================== */
+.table-card {
+    background-color: var(--color-fondo-tarjeta);
+    border-radius: 1rem !important; /* rounded-4 */
+    border: 1px solid var(--color-borde-suave) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03) !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+    .table-card:hover {
+        box-shadow: 0 6px 16px rgba(39, 68, 114, 0.08) !important;
+    }
+
+/* Títulos con tu azul distintivo */
+.text-custom-title {
+    color: var(--color-principal) !important;
+}
+
+/* Separadores verticales discretos */
+.vr {
+    width: 1px;
+    align-self: center;
+    height: 1.2em;
+    background-color: #cbd5e1;
+    opacity: 0.6;
+}
+
+/* ==========================================
+   AVATAR E ICONOS CON TU AZUL #274472
+   ========================================== */
+.avatar-icon-container {
+    background-color: rgba(39, 68, 114, 0.08); /* Fondo con tu azul suave */
+    color: var(--color-principal);
+    border-radius: 50%;
+    width: 52px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ==========================================
+   INPUTS Y ENFOQUES CON TU ESTILO
+   ========================================== */
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--color-principal) !important;
+    box-shadow: 0 0 0 0.25rem rgba(39, 68, 114, 0.15) !important;
+}
+
+/* ==========================================
+   BOTONES CON TUS CLASES
+   ========================================== */
+.btn-action-primary {
+    background-color: var(--color-principal) !important;
+    color: #ffffff !important;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.5rem 1.25rem;
+    font-weight: 600;
+    transition: background-color 0.2s ease;
+}
+
+    .btn-action-primary:hover {
+        background-color: var(--color-principal-hover) !important;
+    }
+
+/* Adaptación para pantallas pequeñas */
+@media (max-width: 576px) {
+    .table-card .vr {
+        display: none !important;
+    }
+}
+
+/* ==========================================
+   AJUSTES COMPLEMENTARIOS PARA BÚSQUEDA
+   ========================================== */
+
+/* Altura compacta para el grupo de búsqueda general */
+.search-input-group .input-group-text {
+    border-radius: 10px 0 0 10px;
+    border-color: #cbd5e1;
+}
+
+.search-input-group .custom-form-input {
+    border-radius: 0 10px 10px 0;
+}
+
+/* Checkbox con el color principal al seleccionarse */
+.form-check-input:checked {
+    background-color: var(--color-principal) !important;
+    border-color: var(--color-principal) !important;
+}
+
+/* ==========================================
+   ESTILOS BASE CORPORATIVOS
+   ========================================== */
+:root {
+    --color-principal: #274472;
+    --color-principal-hover: #1e355b;
+    --color-fondo-tarjeta: #ffffff;
+    --color-borde-suave: #e2e8f0;
+}
+
+/* Tarjeta contenedora con esquinas redondeadas y sombra suave */
+.table-card {
+    background-color: var(--color-fondo-tarjeta);
+    border-radius: 1rem !important;
+    border: 1px solid var(--color-borde-suave) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03) !important;
+}
+
+/* ==========================================
+   ESTILOS COMPLEMENTARIOS DE TABLAS Y INPUTS
+   ========================================== */
+
+.custom-form-input {
+    border-radius: 10px !important;
+    border: 1px solid #cbd5e1 !important;
+    padding: 0.55rem 0.85rem !important;
+    font-size: 0.9rem !important;
+    color: #1e293b !important;
+    transition: all 0.2s ease !important;
+}
+
+    .custom-form-input:focus {
+        border-color: #274472 !important;
+        box-shadow: 0 0 0 3px rgba(39, 68, 114, 0.15) !important;
+    }
+
+.table thead th {
+    background-color: #f8fafc !important;
+    color: #274472 !important;
+    font-weight: 600 !important;
+    border-bottom: 2px solid #e2e8f0 !important;
+}

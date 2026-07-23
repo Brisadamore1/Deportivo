@@ -1,16 +1,19 @@
 ﻿@page "/admin/profesores"
+@using Service.Interfaces
+@using Service.Models
+@using Web.Components.Commons
+
 @inject IGenericService<Profesor> _profesorService
 @inject SweetAlertService _sweetAlert
 @rendermode InteractiveServer
 
-<EncabezadoPage Titulo="Administración de Profesores"
-                Descripcion="Gestiona los profesores" />
+<EncabezadoPage Titulo="Administración de Profesores" Descripcion="Gestiona los profesores" />
 
 <div class="container py-4">
-    <SeccionBtnNuevoMostrarEliminados
-        @bind-MostrarEliminados="MostrarEliminados"
-        OnAfterMostrarEliminados="GetProfesores"
-        OnNuevo="Nuevo" />
+    <SeccionBtnNuevoMostrarEliminados TargetModal="#NuevoEditarProfesor"
+                                      @bind-MostrarEliminados="MostrarEliminados"
+                                      OnAfterMostrarEliminados="GetProfesores"
+                                      OnNuevo="Nuevo" />
 
     @if (isLoading)
     {
@@ -20,12 +23,11 @@
     {
         @if (profesores != null && profesores.Count > 0)
         {
-            <TablaProfesorConFiltro 
-                ListEntity="profesores"
-                OnEliminar="Eliminar"
-                OnModificar="Modificar"
-                OnRestaurar="Restaurar"
-                MostrarEliminados="MostrarEliminados" />
+            <TablaProfesorConFiltro ListEntity="profesores"
+                                    OnEliminar="Eliminar"
+                                    OnModificar="Modificar"
+                                    OnRestaurar="Restaurar"
+                                    MostrarEliminados="MostrarEliminados" />
         }
         else
         {
@@ -44,9 +46,8 @@
         }
     }
 
-    <NuevoEditarProfesor
-        Profesor="@profesorCurrent"
-        OnGuardar="Guardar" />
+    <NuevoEditarProfesor Profesor="@profesorCurrent"
+                         OnGuardar="Guardar" />
 </div>
 
 @code {

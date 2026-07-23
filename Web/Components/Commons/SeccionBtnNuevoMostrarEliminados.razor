@@ -1,26 +1,40 @@
-﻿<div class="form-group">
-    <div class="row align-items-center g-2">
-        <div class="col-auto">
-            <button title="Nuevo" class="btn btn-info mb-2" @onclick="HandleNuevo" data-bs-toggle="modal" data-bs-target="#NuevoEditarModal">Nuevo</button>
+﻿<div class="action-toolbar mb-4">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+        <!-- Botón Principal "Nuevo" -->
+        <div>
+            <button title="Nuevo registro"
+                    class="btn btn-action-primary"
+                    @onclick="HandleNuevo"
+                    data-bs-toggle="modal"
+                    data-bs-target="@TargetModal">
+                <i class="bi bi-plus-lg me-1"></i> Nuevo
+            </button>
         </div>
-        <div class="col">
-            <div class="col-6 d-flex align-items-center">
-                <label class="form-check-label">🔍 Ver eliminados</label>
-                <InputCheckbox
-                    Value="MostrarEliminados"
-                    ValueChanged="OnMostrarEliminadosChanged"
-                    ValueExpression="() => MostrarEliminados"
-                    class="m-2" />
+
+        <!-- Filtro Ver Eliminados -->
+        <div class="filter-switch-container">
+            <label class="filter-switch-label me-2" for="checkboxEliminados">
+                <i class="bi bi-eye me-1"></i> Ver eliminados
+            </label>
+            <div class="form-check form-switch m-0 d-inline-block">
+                <InputCheckbox id="checkboxEliminados"
+                               Value="MostrarEliminados"
+                               ValueChanged="OnMostrarEliminadosChanged"
+                               ValueExpression="() => MostrarEliminados"
+                               class="form-check-input filter-switch-input" />
             </div>
         </div>
     </div>
 </div>
 
 @code {
+    // NUEVO PARÁMETRO DINÁMICO PARA EL MODAL TARGET
+    [Parameter]
+    public string TargetModal { get; set; } = "#NuevoEditarSocio";
+
     [Parameter]
     public bool MostrarEliminados { get; set; }
 
-    // Soporta @bind-MostrarEliminados en el padre
     [Parameter]
     public EventCallback<bool> MostrarEliminadosChanged { get; set; }
 

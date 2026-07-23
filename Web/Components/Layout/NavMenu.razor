@@ -1,4 +1,4 @@
-﻿@using Service.Enums 
+﻿@using Service.Enums
 @inject FirebaseAuthService _firebaseAuthService
 @inject NavigationManager _navigationManager
 @inject IUsuarioService _usuarioService
@@ -7,85 +7,121 @@
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="">Web</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <a class="navbar-brand" href="">Club Deportivo Kairos</a>
+
+        <button class="navbar-toggler" type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#navbarNav"
+                aria-controls="navbarNav"
+                aria-expanded="false"
+                aria-label="Abrir menú">
             <span class="navbar-toggler-icon"></span>
         </button>
+
         <div class="collapse navbar-collapse" id="navbarNav">
+            <!-- 1. ÍTEMS DE LA IZQUIERDA -->
             <ul class="navbar-nav me-auto">
-                <li class="nav-item" style="padding-top:0em !important">
+                <li class="nav-item">
                     <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                        <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Inicio
+                        <i class="bi bi-house-door-fill"></i>
+                        <span>Inicio</span>
                     </NavLink>
                 </li>
+
                 @if (_isLogued)
                 {
                     <li class="nav-item">
                         <NavLink class="nav-link" href="/miembros/buscar-socios">
-                            <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Buscar socios
+                            <i class="bi bi-search"></i>
+                            <span>Buscar socios</span>
                         </NavLink>
                     </li>
-                    <li class="nav-item">
-                        <span class="nav-link">Hola, @_usuarioLogueado?.Nombre</span>
-                    </li>
+
+                    @if (_usuarioLogueado?.TipoRol == TipoRolEnum.Administrativo)
+                    {
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle"
+                               href="#"
+                               id="adminDropdown"
+                               role="button"
+                               data-bs-toggle="dropdown"
+                               aria-expanded="false">
+                                Administración
+                            </a>
+
+                            <ul class="dropdown-menu" aria-labelledby="adminDropdown">
+                                <li><NavLink class="dropdown-item" href="/admin/socios">Socios</NavLink></li>
+                                <li><NavLink class="dropdown-item" href="/admin/actividades">Actividades</NavLink></li>
+                                <li><NavLink class="dropdown-item" href="/admin/localidades">Localidades</NavLink></li>
+                                <li><NavLink class="dropdown-item" href="/admin/profesores">Profesores</NavLink></li>
+                                <li><NavLink class="dropdown-item" href="/admin/clases">Clases</NavLink></li>
+                                <li><NavLink class="dropdown-item" href="/admin/asistencias">Asistencias</NavLink></li>
+                            </ul>
+                        </li>
+                    }
                 }
-                }
-                @if (_usuarioLogueado != null && (_usuarioLogueado.TipoRol == TipoRolEnum.Administrativo))
+            </ul>
+
+            <!-- 2. ÍTEMS DE LA DERECHA (Usuario / Sesión) -->
+            <ul class="navbar-nav ms-auto">
+                @if (_isLogued)
                 {
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Admin
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="adminDropdown">
-                            <li><NavLink class="dropdown-item" href="/admin/socios">Socios</NavLink></li>
-                            <li><NavLink class="dropdown-item" href="/admin/actividades">Actividades</NavLink></li>
-                            <li><NavLink class="dropdown-item" href="/admin/localidades">Localidades</NavLink></li>
-                            <li><NavLink class="dropdown-item" href="/admin/profesores">Profesores</NavLink></li>
+                    <li class="nav-item">
+                        <span class="nav-link">
+                            Hola, @_usuarioLogueado?.Nombre
+                        </span>
+                    </li>
 
-                            <!--inserto una linea de separación
-                            <li><hr class="dropdown-divider" /></li>
-                            <li><NavLink class="dropdown-item" href="/admin/libros">Libros</NavLink></li> -->
-
-
-                        </ul>
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="/login">
+                            <i class="bi bi-box-arrow-right"></i>
+                            <span>Cerrar sesión</span>
+                        </NavLink>
                     </li>
                 }
-                <li class="nav-item">
-                    <NavLink class="nav-link" href="login">
-                        <span class="bi bi-login" aria-hidden="true"></span> @textBtnLogin
-                    </NavLink>
-                </li>
+                else
+                {
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="/login">
+                            <i class="bi bi-box-arrow-in-right"></i>
+                            <span>Iniciar sesión</span>
+                        </NavLink>
+                    </li>
+                }
             </ul>
         </div>
     </div>
 </nav>
 
 @code {
-    FirebaseUser? _userLogued;
-    bool _isLogued = false;
-    Usuario? _usuarioLogueado;
-    private string textBtnLogin => _isLogued ? "Cerrar sesión" : "Iniciar sesión";
+    private FirebaseUser? _userLogued;
+    private bool _isLogued;
+    private Usuario? _usuarioLogueado;
 
-    protected async override Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
-        {
-            //_firebaseAuthService.OnChangeLogin += async () => await InvokeAsync(LoginChangedAsync);
-            _firebaseAuthService.OnChangeLogin += LoginChanged;
-            if (await _firebaseAuthService.IsUserAuthenticated())
-            {
-                _userLogued = _firebaseAuthService.CurrentUser;
-                _isLogued = true;
-                if (_usuarioLogueado == null) await CargarUsuarioAsync();
-            }
-            else
-            {
-                _isLogued = false;
-                _userLogued = null;
-                _navigationManager.NavigateTo("/login");
+        if (!firstRender)
+            return;
 
-            }
+        // Se consulta una sola vez al cargar el menú.
+        var autenticado = await _firebaseAuthService.IsUserAuthenticated();
+
+        if (autenticado)
+        {
+            _userLogued = _firebaseAuthService.CurrentUser;
+            _isLogued = true;
+
+            await CargarUsuarioAsync();
         }
+        else
+        {
+            LimpiarDatosSesion();
+        }
+
+        // Se suscribe después de la comprobación inicial.
+        _firebaseAuthService.OnChangeLogin += LoginChanged;
+
+        StateHasChanged();
     }
 
     private async Task CargarUsuarioAsync()
@@ -94,8 +130,10 @@
         {
             if (!string.IsNullOrWhiteSpace(_userLogued?.Email))
             {
-                _usuarioLogueado = await _usuarioService.GetByEmailAsync(_userLogued.Email);
-                if (_usuarioLogueado != null)
+                _usuarioLogueado =
+                    await _usuarioService.GetByEmailAsync(_userLogued.Email);
+
+                if (_usuarioLogueado is not null)
                 {
                     _cacheMemory.Set("usuarioLogueado", _usuarioLogueado);
                 }
@@ -103,29 +141,54 @@
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine(ex);
+            Console.Error.WriteLine(
+                $"Error al cargar el usuario logueado: {ex.Message}");
         }
     }
 
-    //se utiliza el loginChanged para actualizar el estado de la aplicación cuando el usuario inicia o cierra sesión.
-    private async void LoginChanged()
+    private void LoginChanged()
     {
-        if (_firebaseAuthService.CurrentUser != null)
+        _ = InvokeAsync(ActualizarMenuDesdeEventoAsync);
+    }
+
+    private async Task ActualizarMenuDesdeEventoAsync()
+    {
+        // Acá NO se llama IsUserAuthenticated(),
+        // porque ese método vuelve a disparar OnChangeLogin.
+
+        if (_firebaseAuthService.CurrentUser is not null)
         {
             _userLogued = _firebaseAuthService.CurrentUser;
             _isLogued = true;
-            if (_usuarioLogueado == null) await CargarUsuarioAsync();
 
+            await CargarUsuarioAsync();
         }
         else
         {
-            _isLogued = false;
-            _userLogued = null;
-            _navigationManager.NavigateTo("/login");
+            LimpiarDatosSesion();
         }
+
         StateHasChanged();
     }
 
+    private void LimpiarDatosSesion()
+    {
+        _isLogued = false;
+        _userLogued = null;
+        _usuarioLogueado = null;
 
+        _cacheMemory.Remove("usuarioLogueado");
+    }
+
+    private async Task CerrarSesion()
+    {
+        await _firebaseAuthService.SignOut();
+
+        LimpiarDatosSesion();
+
+        StateHasChanged();
+
+        // Al cerrar sesión vuelve al inicio.
+        _navigationManager.NavigateTo("/");
+    }
 }
-

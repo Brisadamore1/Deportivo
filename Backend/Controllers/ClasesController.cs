@@ -22,23 +22,31 @@ namespace Backend.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Clase>>> GetClases([FromQuery] string filtro="")
         {
-            return await _context.Clases.AsNoTracking().ToListAsync();
+            return await _context.Clases
+                .Include(c => c.Actividad)
+                .AsNoTracking()
+                .ToListAsync();
         }
 
         [HttpGet("deleteds")]
         public async Task<ActionResult<IEnumerable<Clase>>> GetDeletedsClases()
         {
             return await _context.Clases
+                .Include(c => c.Actividad)
                 .AsNoTracking()
                 .IgnoreQueryFilters()
-                .Where(a => a.IsDeleted).ToListAsync();
+                .Where(a => a.IsDeleted)
+                .ToListAsync();
         }
 
         // GET: api/CLases/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Clase>> GetClase(int id)
         {
-            var clase = await _context.Clases.AsNoTracking().FirstOrDefaultAsync(a=>a.Id.Equals(id));
+            var clase = await _context.Clases
+                .Include(c => c.Actividad)
+                .AsNoTracking().
+                FirstOrDefaultAsync(a=>a.Id.Equals(id));
 
             if (clase == null)
             {

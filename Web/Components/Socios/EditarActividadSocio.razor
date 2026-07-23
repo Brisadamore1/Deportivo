@@ -1,78 +1,112 @@
 ﻿@using Service.Interfaces
 @using Service.Models
 @inject IGenericService<Actividad> _actividadService
-@inject IJSRuntime JSRuntime
 
 <div class="modal fade" id="EditarActividadSocio" tabindex="-1"
      aria-labelledby="tituloActividadSocio" aria-hidden="true">
 
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5" id="tituloActividadSocio">
-                    Actividades de @(Socio?.Nombre ?? "Socio")
-                </h1>
+        <div class="modal-content custom-modal-content">
 
-                <button type="button" class="btn-close"
+            <!-- CABECERA DEGRADÉ AZUL -->
+            <div class="modal-header custom-modal-header text-white">
+                <div>
+                    <h5 class="modal-title fw-bold" id="tituloActividadSocio">
+                        Actividades de @(Socio?.Nombre ?? "Socio")
+                    </h5>
+                    <p class="modal-subtitle mb-0 opacity-75">Gestiona sus inscripciones</p>
+                </div>
+
+                <button type="button" class="btn-close btn-close-white"
                         data-bs-dismiss="modal"
                         aria-label="Cerrar">
                 </button>
             </div>
 
-            <div class="modal-body">
+            <!-- CUERPO DEL MODAL -->
+            <div class="modal-body p-4">
                 @if (cargando)
                 {
-                    <div class="d-flex align-items-center justify-content-center py-3 gap-2 text-muted">
-                        <div class="spinner-border spinner-border-sm" role="status"></div>
+                    <div class="d-flex align-items-center justify-content-center py-4 gap-2 text-muted">
+                        <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
                         <span>Cargando actividades...</span>
                     </div>
                 }
-                else if (actividadesDisponibles == null || !actividadesDisponibles.Any())
-                {
-                    <p class="text-danger mb-0">No hay actividades registradas en el sistema.</p>
-                }
                 else
                 {
-                    <p class="form-label text-muted mb-3">
-                        Seleccioná o quitá las actividades asignadas:
-                    </p>
-
-                    <div class="list-group max-height-250">
-                        @foreach (var actividad in actividadesDisponibles)
+                    <!-- 1. LISTA DE ACTIVIDADES INSCRIPTAS -->
+                    <div class="mb-4">
+                        @if (Socio?.SocioActividades == null || !Socio.SocioActividades.Any())
                         {
-                            bool estaMarcada = IsActividadSeleccionada(actividad.Id);
-
-                            <label class="list-group-item d-flex justify-content-between align-items-center cursor-pointer">
-                                <div>
-                                    <input class="form-check-input me-2"
-                                           type="checkbox"
-                                           checked="@estaMarcada"
-                                           @onchange="@(e => ToggleActividad(actividad.Id, e.Value))" />
-                                    <span>@actividad.Nombre</span>
-                                </div>
-
-                                @if (estaMarcada)
-                                {
-                                    <span class="badge bg-primary rounded-pill">Asignada</span>
-                                }
-                            </label>
+                            <div class="empty-state-card text-center my-2 py-3">
+                                <i class="bi bi-info-circle me-1"></i> El socio no tiene actividades asignadas.
+                            </div>
                         }
+                        else
+                        {
+                            <div class="d-flex flex-column gap-2">
+                                @foreach (var sa in Socio.SocioActividades)
+                                {
+                                    var actividad = ObtenerActividadPorId(sa.ActividadId);
+                                    if (actividad != null)
+                                    {
+                                        <div class="activity-item-card d-flex justify-content-between align-items-center">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <i class="bi bi-check-circle-fill text-success fs-5"></i>
+                                                <span class="fw-semibold text-dark">@actividad.Nombre</span>
+                                            </div>
+
+                                            <button type="button"
+                                                    class="btn btn-custom-danger btn-sm d-inline-flex align-items-center gap-1"
+                                                    @onclick="() => EliminarActividad(sa.ActividadId)">
+                                                <i class="bi bi-trash-fill"></i> Baja
+                                            </button>
+                                        </div>
+                                    }
+                                }
+                            </div>
+                        }
+                    </div>
+
+                    <hr class="my-3 divider-line" />
+
+                    <!-- 2. DESPLEGABLE PARA AGREGAR NUEVA ACTIVIDAD -->
+                    <div class="row g-2 align-items-center mt-2">
+                        <div class="col">
+                            <select class="form-select custom-form-select" @bind="actividadSeleccionadaId">
+                                <option value="0" disabled selected>Agregar actividad...</option>
+                                @foreach (var act in ObtenerActividadesDisponiblesParaInscribir())
+                                {
+                                    <option value="@act.Id">@act.Nombre</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-auto">
+                            <button type="button"
+                                    class="btn btn-action-primary px-3"
+                                    disabled="@(actividadSeleccionadaId == 0)"
+                                    @onclick="InscribirActividad">
+                                Inscribir
+                            </button>
+                        </div>
                     </div>
                 }
             </div>
 
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary"
+            <!-- PIE DE PÁGINA / BOTONES -->
+            <div class="modal-footer border-0 p-4 pt-0">
+                <button type="button" class="btn btn-outline-secondary px-4 rounded-3 fw-semibold"
                         data-bs-dismiss="modal">
                     Cancelar
                 </button>
 
-                <button type="button" class="btn btn-primary"
+                <button type="button" class="btn btn-action-primary px-4 fw-semibold"
                         data-bs-dismiss="modal"
                         @onclick="HandleGuardar">
                     Guardar cambios
                 </button>
             </div>
+
         </div>
     </div>
 </div>
@@ -84,12 +118,13 @@
     [Parameter]
     public EventCallback<Socio> OnGuardar { get; set; }
 
-    private List<Actividad> actividadesDisponibles = new();
+    private List<Actividad> todasLasActividades = new();
+    private int actividadSeleccionadaId = 0;
     private bool cargando = true;
 
     protected override async Task OnInitializedAsync()
     {
-        actividadesDisponibles = await _actividadService.GetAllAsync() ?? new List<Actividad>();
+        todasLasActividades = await _actividadService.GetAllAsync() ?? new List<Actividad>();
         cargando = false;
     }
 
@@ -101,38 +136,47 @@
         }
     }
 
-    private bool IsActividadSeleccionada(int actividadId)
+    private Actividad? ObtenerActividadPorId(int actividadId)
     {
-        return Socio?.SocioActividades != null &&
-               Socio.SocioActividades.Any(sa => sa.ActividadId == actividadId);
+        return todasLasActividades.FirstOrDefault(a => a.Id == actividadId);
     }
 
-    private void ToggleActividad(int actividadId, object? checkedValue)
+    // Filtra el combo para que solo muestre las actividades a las que aún NO está inscripto
+    private IEnumerable<Actividad> ObtenerActividadesDisponiblesParaInscribir()
     {
-        if (Socio == null) return;
+        if (Socio?.SocioActividades == null) return todasLasActividades;
 
-        bool isChecked = checkedValue is bool b && b;
+        var idsInscriptos = Socio.SocioActividades.Select(sa => sa.ActividadId).ToList();
+        return todasLasActividades.Where(a => !idsInscriptos.Contains(a.Id));
+    }
+
+    private void InscribirActividad()
+    {
+        if (actividadSeleccionadaId == 0 || Socio == null) return;
 
         Socio.SocioActividades ??= new List<SocioActividad>();
 
-        if (isChecked)
+        if (!Socio.SocioActividades.Any(sa => sa.ActividadId == actividadSeleccionadaId))
         {
-            if (!Socio.SocioActividades.Any(sa => sa.ActividadId == actividadId))
+            Socio.SocioActividades.Add(new SocioActividad
             {
-                Socio.SocioActividades.Add(new SocioActividad
-                {
-                    SocioId = Socio.Id,
-                    ActividadId = actividadId
-                });
-            }
+                SocioId = Socio.Id,
+                ActividadId = actividadSeleccionadaId
+            });
         }
-        else
+
+        // Resetea la selección del combo
+        actividadSeleccionadaId = 0;
+    }
+
+    private void EliminarActividad(int actividadId)
+    {
+        if (Socio?.SocioActividades == null) return;
+
+        var item = Socio.SocioActividades.FirstOrDefault(sa => sa.ActividadId == actividadId);
+        if (item != null)
         {
-            var item = Socio.SocioActividades.FirstOrDefault(sa => sa.ActividadId == actividadId);
-            if (item != null)
-            {
-                Socio.SocioActividades.Remove(item);
-            }
+            Socio.SocioActividades.Remove(item);
         }
     }
 

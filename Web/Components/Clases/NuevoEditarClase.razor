@@ -1,0 +1,184 @@
+﻿@inject IActivityService _actividadService
+
+<div class="modal fade" id="NuevoEditarClase" tabindex="-1"
+     aria-labelledby="tituloModalClase" aria-hidden="true">
+
+    <!-- DIÁLOGO CON ANCHO ADAPTADO -->
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content custom-modal-content">
+
+            <!-- CABECERA EN DEGRADÉ -->
+            <div class="modal-header custom-modal-header text-white py-2 px-3">
+                <div>
+                    <h6 class="modal-title fw-bold mb-0" id="tituloModalClase">
+                        @(Clase?.Id > 0 ? "Editar clase" : "Nueva clase")
+                    </h6>
+                    <small class="modal-subtitle opacity-75">Complete los detalles del horario y capacidad</small>
+                </div>
+
+                <button type="button" class="btn-close btn-close-white"
+                        data-bs-dismiss="modal"
+                        aria-label="Cerrar">
+                </button>
+            </div>
+
+            <!-- CUERPO DEL FORMULARIO -->
+            <div class="modal-body p-3">
+                <div class="row g-3">
+                    <!-- ACTIVIDAD -->
+                    <div class="col-md-6 mb-1">
+                        <label for="actividadInput" class="custom-form-label">
+                            Actividad
+                        </label>
+                        <InputSelect id="actividadInput" class="form-select custom-form-input"
+                                     @bind-Value="Clase.ActividadId">
+                            <option value="0">Seleccione una actividad</option>
+
+                            @foreach (var actividad in actividades)
+                            {
+                                <option value="@actividad.Id">
+                                    @actividad.Nombre
+                                </option>
+                            }
+                        </InputSelect>
+                    </div>
+
+                    <!-- DÍA DE LA SEMANA -->
+                    <div class="col-md-6 mb-1">
+                        <label for="diaInput" class="custom-form-label">
+                            Día de la semana
+                        </label>
+                        <InputSelect id="diaInput" class="form-select custom-form-input"
+                                     @bind-Value="Clase.DiaSemana">
+                            @foreach (var dia in Enum.GetValues<DayOfWeek>())
+                            {
+                                <option value="@dia">@NombreDia(dia)</option>
+                            }
+                        </InputSelect>
+                    </div>
+
+                    <!-- HORA DE INICIO -->
+                    <div class="col-md-4 mb-1">
+                        <label for="horaInicioInput" class="custom-form-label">
+                            Hora de inicio
+                        </label>
+                        <input id="horaInicioInput" type="time"
+                               class="form-control custom-form-input"
+                               @bind="HoraInicioInput" />
+                    </div>
+
+                    <!-- HORA DE FIN -->
+                    <div class="col-md-4 mb-1">
+                        <label for="horaFinInput" class="custom-form-label">
+                            Hora de finalización
+                        </label>
+                        <input id="horaFinInput" type="time"
+                               class="form-control custom-form-input"
+                               @bind="HoraFinInput" />
+                    </div>
+
+                    <!-- CUPO MÁXIMO -->
+                    <div class="col-md-4 mb-1">
+                        <label for="cupoInput" class="custom-form-label">
+                            Cupo máximo
+                        </label>
+                        <InputNumber id="cupoInput" class="form-control custom-form-input"
+                                     @bind-Value="Clase.CupoMaximo" />
+                    </div>
+
+                    <!-- CHECKBOX ACTIVA -->
+                    <div class="col-12 mt-2">
+                        <div class="form-check form-switch pt-1">
+                            <InputCheckbox id="activaInput"
+                                           class="form-check-input"
+                                           @bind-Value="Clase.Activa" />
+                            <label for="activaInput" class="form-check-label fw-semibold text-dark">
+                                Clase activa
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PIE DE PÁGINA / BOTONES -->
+            <div class="modal-footer border-0 p-4 pt-0">
+                <button type="button" class="btn btn-outline-secondary px-4 rounded-3 fw-semibold"
+                        data-bs-dismiss="modal">
+                    Cancelar
+                </button>
+
+                <button type="button" class="btn btn-action-primary px-4 fw-semibold"
+                        data-bs-dismiss="modal"
+                        @onclick="HandleGuardar">
+                    Guardar cambios
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public Clase Clase { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<Clase> OnGuardar { get; set; }
+
+    private List<Actividad> actividades = new();
+
+    private TimeOnly? HoraInicioInput
+    {
+        get => TimeOnly.FromTimeSpan(Clase.HoraInicio);
+
+        set
+        {
+            if (value.HasValue)
+            {
+                Clase.HoraInicio = value.Value.ToTimeSpan();
+            }
+        }
+    }
+
+    private TimeOnly? HoraFinInput
+    {
+        get => TimeOnly.FromTimeSpan(Clase.HoraFin);
+
+        set
+        {
+            if (value.HasValue)
+            {
+                Clase.HoraFin = value.Value.ToTimeSpan();
+            }
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        actividades = await _actividadService.GetAllAsync()
+                      ?? new List<Actividad>();
+    }
+
+    private async Task HandleGuardar()
+    {
+        if (OnGuardar.HasDelegate)
+        {
+            await OnGuardar.InvokeAsync(Clase);
+        }
+    }
+
+    private static string NombreDia(DayOfWeek dia)
+    {
+        return dia switch
+        {
+            DayOfWeek.Monday => "Lunes",
+            DayOfWeek.Tuesday => "Martes",
+            DayOfWeek.Wednesday => "Miércoles",
+            DayOfWeek.Thursday => "Jueves",
+            DayOfWeek.Friday => "Viernes",
+            DayOfWeek.Saturday => "Sábado",
+            DayOfWeek.Sunday => "Domingo",
+            _ => dia.ToString()
+        };
+    }
+}

@@ -87,16 +87,21 @@ namespace Service.Services
         public virtual async Task<List<T>?> GetAllAsync(string? filtro = "")
         {
             SetAuthorizationHeader();
-            var response = await _httpClient.GetAsync($"{_endpoint}?filtro={filtro}");
-            if (response.IsSuccessStatusCode)
+
+            var response = await _httpClient.GetAsync(
+                $"{_endpoint}?filtro={filtro}");
+
+            var content = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
             {
-                var content = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<List<T>>(content, _options);
+                throw new Exception(
+                    $"Error al obtener los datos. " +
+                    $"URL: {_httpClient.BaseAddress}{_endpoint}. " +
+                    $"Código: {(int)response.StatusCode} - {response.StatusCode}.");
             }
-            else
-            {
-                throw new Exception("Error al obtener los datos");
-            }
+
+            return JsonSerializer.Deserialize<List<T>>(content, _options);
         }
 
         public async Task<List<T>?> GetAllDeletedsAsync()

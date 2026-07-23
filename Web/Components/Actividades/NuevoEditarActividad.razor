@@ -1,100 +1,112 @@
 ﻿@inject IGenericService<Profesor> _profesorService
-
-<div class="modal fade" id="NuevoEditarModal" tabindex="-1"
+<div class="modal fade" id="NuevoEditarActividad" tabindex="-1"
      aria-labelledby="tituloModalActividad" aria-hidden="true">
 
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5" id="tituloModalActividad">
-                    Nuevo / editar actividad
-                </h1>
+    <!-- DIÁLOGO CON CLASE DE ANCHO PERSONALIZADO -->
+    <div class="modal-dialog modal-dialog-centered modal-custom-width">
+        <div class="modal-content custom-modal-content">
 
-                <button type="button" class="btn-close"
+            <!-- CABECERA EN DEGRADÉ -->
+            <div class="modal-header custom-modal-header text-white py-2 px-3">
+                <div>
+                    <h6 class="modal-title fw-bold mb-0" id="tituloModalActividad">
+                        @(Actividad?.Id > 0 ? "Editar actividad" : "Nueva actividad")
+                    </h6>
+                    <small class="modal-subtitle opacity-75">Complete la información de la actividad</small>
+                </div>
+
+                <button type="button" class="btn-close btn-close-white"
                         data-bs-dismiss="modal"
                         aria-label="Cerrar">
                 </button>
             </div>
 
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="nombreInput" class="form-label">Nombre</label>
-                        <InputText id="nombreInput" class="form-control"
+            <!-- CUERPO DEL FORMULARIO -->
+            <div class="modal-body p-3">
+                <div class="row g-2">
+                    <!-- FILA 1: Nombre (6) y URL Imagen (6) -->
+                    <div class="col-md-6">
+                        <label for="nombreInput" class="custom-form-label">Nombre</label>
+                        <InputText id="nombreInput" class="form-control custom-form-input"
+                                   placeholder="Ej: Tenis Infantil"
                                    @bind-Value="Actividad.Nombre" />
                     </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label for="imagenInput" class="form-label">URL de imagen</label>
-                        <InputText id="imagenInput" class="form-control"
-                                   @bind-Value="Actividad.Imagen"
-                                   placeholder="https://..." />
+                    <div class="col-md-6">
+                        <label for="imagenInput" class="custom-form-label">URL de imagen</label>
+                        <InputText id="imagenInput" class="form-control custom-form-input"
+                                   placeholder="https://..."
+                                   @bind-Value="Actividad.Imagen" />
                     </div>
 
-                    <div class="col-12 mb-3">
-                        <label for="descripcionInput" class="form-label">Descripción</label>
-                        <InputTextArea id="descripcionInput" class="form-control"
-                                       rows="3"
+                    <!-- FILA 2: Descripción (12) -->
+                    <div class="col-12">
+                        <label for="descripcionInput" class="custom-form-label">Descripción</label>
+                        <InputTextArea id="descripcionInput" class="form-control custom-form-input"
+                                       rows="2"
+                                       placeholder="Ingrese una descripción breve..."
                                        @bind-Value="Actividad.Descripcion" />
                     </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label for="edadInput" class="form-label">Edad recomendada</label>
-                        <InputText id="edadInput" class="form-control"
-                                   @bind-Value="Actividad.EdadRecomendada"
-                                   placeholder="Ej.: Desde 6 años" />
+                    <!-- FILA 3: Edad recomendada (4), Nivel (4), Profesor (4) -->
+                    <div class="col-md-4">
+                        <label for="edadInput" class="custom-form-label">Edad recomendada</label>
+                        <InputText id="edadInput" class="form-control custom-form-input"
+                                   placeholder="Ej: Desde 6 años"
+                                   @bind-Value="Actividad.EdadRecomendada" />
                     </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label for="nivelInput" class="form-label">Nivel</label>
-
-                        <InputSelect id="nivelInput" class="form-select"
+                    <div class="col-md-4">
+                        <label for="nivelInput" class="custom-form-label">Nivel</label>
+                        <InputSelect id="nivelInput" class="form-select custom-form-select"
                                      @bind-Value="Actividad.Nivel">
-                            <option value="">Seleccione un nivel</option>
+                            <option value="">Seleccione nivel</option>
                             <option value="Principiante">Principiante</option>
                             <option value="Intermedio">Intermedio</option>
                             <option value="Avanzado">Avanzado</option>
                         </InputSelect>
                     </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label for="profesorInput" class="form-label">Profesor</label>
-
-                        <InputSelect id="profesorInput" class="form-select"
+                    <div class="col-md-4">
+                        <label for="profesorInput" class="custom-form-label">Profesor</label>
+                        <InputSelect id="profesorInput" class="form-select custom-form-select"
                                      @bind-Value="Actividad.ProfesorId">
-                            <option value="0">Seleccione un profesor</option>
-
-                            @foreach (var profesor in profesores)
+                            <option value="0">Seleccione profesor</option>
+                            @if (profesores != null)
                             {
-                                <option value="@profesor.Id">
-                                    @profesor.Nombre
-                                </option>
+                                @foreach (var profesor in profesores)
+                                {
+                                    <option value="@profesor.Id">@profesor.Nombre</option>
+                                }
                             }
                         </InputSelect>
                     </div>
 
-                    <div class="col-12 mb-3">
-                        <label for="beneficiosInput" class="form-label">Beneficios</label>
-                        <InputTextArea id="beneficiosInput" class="form-control"
-                                       rows="3"
-                                       @bind-Value="Actividad.Beneficios"
-                                       placeholder="Beneficios de realizar esta actividad" />
+                    <!-- FILA 4: Beneficios (12) -->
+                    <div class="col-12">
+                        <label for="beneficiosInput" class="custom-form-label">Beneficios</label>
+                        <InputTextArea id="beneficiosInput" class="form-control custom-form-input"
+                                       rows="2"
+                                       placeholder="Beneficios de realizar esta actividad..."
+                                       @bind-Value="Actividad.Beneficios" />
                     </div>
                 </div>
             </div>
 
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary"
+            <!-- PIE DE PÁGINA / BOTONES -->
+            <div class="modal-footer border-0 p-4 pt-0">
+                <button type="button" class="btn btn-outline-secondary px-4 rounded-3 fw-semibold"
                         data-bs-dismiss="modal">
                     Cancelar
                 </button>
 
-                <button type="button" class="btn btn-primary"
+                <button type="button" class="btn btn-action-primary px-4 fw-semibold"
                         data-bs-dismiss="modal"
                         @onclick="HandleGuardar">
                     Guardar cambios
                 </button>
             </div>
+
         </div>
     </div>
 </div>

@@ -1,55 +1,67 @@
-﻿<div class="modal fade" id="NuevoEditarModal" tabindex="-1"
+﻿<div class="modal fade" id="NuevoEditarProfesor" tabindex="-1"
      aria-labelledby="tituloModalProfesor" aria-hidden="true">
 
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5" id="tituloModalProfesor">
-                    Nuevo / editar profesor
-                </h1>
+    <div class="modal-dialog modal-dialog-centered modal-custom-width">
+        <div class="modal-content custom-modal-content">
 
-                <button type="button" class="btn-close"
+            <!-- CABECERA EN DEGRADÉ -->
+            <div class="modal-header custom-modal-header text-white py-2 px-3">
+                <div>
+                    <h6 class="modal-title fw-bold mb-0" id="tituloModalProfesor">
+                        @(Profesor?.Id > 0 ? "Editar profesor" : "Nuevo profesor")
+                    </h6>
+                    <small class="modal-subtitle opacity-75">Complete la información del profesor</small>
+                </div>
+
+                <button type="button" class="btn-close btn-close-white"
                         data-bs-dismiss="modal"
                         aria-label="Cerrar">
                 </button>
             </div>
 
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-12 mb-3">
-                        <label for="nombreInput" class="form-label">
+            <!-- CUERPO DEL FORMULARIO -->
+            <div class="modal-body p-3">
+                <div class="row g-3 align-items-end">
+                    <!-- NOMBRE DEL PROFESOR (50% del ancho) -->
+                    <div class="col-md-6">
+                        <label for="nombreInput" class="custom-form-label">
                             Nombre del profesor
                         </label>
-
-                        <InputText id="nombreInput" class="form-control"
+                        <InputText id="nombreInput" class="form-control custom-form-input"
                                    @bind-Value="Profesor.Nombre"
                                    placeholder="Ej.: Pérez Juan" />
                     </div>
-                    <div class="col-md-4 mb-3 d-flex align-items-end">
-                        <div class="form-check">
-                            <InputCheckbox class="form-check-input"
-                                           @bind-Value="Profesor.Activo" />
-                            <label class="form-check-label">
+
+                    <!-- ESTADO ACTIVO / SWITCH (50% del ancho y mismo alto) -->
+                    <div class="col-md-6">
+                        <label class="custom-form-label d-block text-transparent">Estado</label>
+                        <div class="status-switch-card w-100 d-flex align-items-center justify-content-between px-3" style="height: 38px;">
+                            <label class="form-check-label fw-semibold text-dark cursor-pointer small mb-0" for="profesorActivoSwitch">
                                 Profesor activo
                             </label>
+                            <div class="form-check form-switch m-0 p-0 d-flex align-items-center">
+                                <InputCheckbox id="profesorActivoSwitch" class="form-check-input filter-switch-input m-0"
+                                               @bind-Value="Profesor.Activo" />
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary"
+            <!-- PIE DE PÁGINA / BOTONES -->
+            <div class="modal-footer border-0 p-4 pt-0">
+                <button type="button" class="btn btn-outline-secondary px-4 rounded-3 fw-semibold"
                         data-bs-dismiss="modal">
                     Cancelar
                 </button>
 
-                <button type="button" class="btn btn-primary"
+                <button type="button" class="btn btn-action-primary px-4 fw-semibold"
                         data-bs-dismiss="modal"
                         @onclick="HandleGuardar">
                     Guardar cambios
                 </button>
             </div>
+
         </div>
     </div>
 </div>

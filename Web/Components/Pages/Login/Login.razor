@@ -121,42 +121,73 @@ else
 
     private async Task Loguear()
     {
+        if (isBusy)
+            return;
+
         try
         {
-            Console.WriteLine("Loguear llamado");
             isBusy = true;
-            var user = await _firebaseAuthService.SignInWithEmailPassword(email, password, rememberPassword);
-            if (user != null)
-            {
-                if (user.EmailVerified == false)
-                {
-                    await _sweetAlert.FireAsync("Verificación de correo", "Por favor, verifica tu correo electrónico antes de iniciar sesión.", SweetAlertIcon.Warning);
-                    return;
-                }
-                if (!await _usuarioService.LoginInSystem(email, password))
-                {
-                    await _sweetAlert.FireAsync("Error", "El usuario no esta registrado en el sistema.", SweetAlertIcon.Error);
-                    return;
-                }
-                isAuthenticated = true;
-                await _firebaseAuthService.IsUserAuthenticated();
-                StateHasChanged();
+            StateHasChanged();
 
-            }
-            else
+            var user = await _firebaseAuthService.SignInWithEmailPassword(
+                email,
+                password,
+                rememberPassword);
+
+            if (user is null)
             {
-                await _sweetAlert.FireAsync("Error de autenticación", "Correo o contraseña incorrectos.", SweetAlertIcon.Error);
+                await _sweetAlert.FireAsync(
+                    "Error de autenticación",
+                    "Correo o contraseña incorrectos.",
+                    SweetAlertIcon.Error);
+
+                return;
             }
+
+            if (!user.EmailVerified)
+            {
+                await _firebaseAuthService.SignOut();
+
+                await _sweetAlert.FireAsync(
+                    "Verificación de correo",
+                    "Por favor, verifica tu correo electrónico antes de iniciar sesión.",
+                    SweetAlertIcon.Warning);
+
+                return;
+            }
+
+            // Firebase validó la contraseña.
+            // Solo comprobamos que el usuario esté registrado en tu sistema.
+            var usuarioSistema = await _usuarioService.GetByEmailAsync(user.Email);
+
+            if (usuarioSistema is null)
+            {
+                await _firebaseAuthService.SignOut();
+
+                await _sweetAlert.FireAsync(
+                    "Error",
+                    "El usuario no está registrado en el sistema.",
+                    SweetAlertIcon.Error);
+
+                return;
+            }
+
+            isAuthenticated = true;
         }
         catch (Exception ex)
         {
-            await _sweetAlert.FireAsync("Error", ex.Message, SweetAlertIcon.Error);
+            await _firebaseAuthService.SignOut();
+
+            await _sweetAlert.FireAsync(
+                "Error al iniciar sesión",
+                ex.Message,
+                SweetAlertIcon.Error);
         }
         finally
         {
             isBusy = false;
+            StateHasChanged();
         }
-
     }
 
     private async Task Desloguear()
