@@ -54,7 +54,25 @@ jobs:
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_36FE007319794EADB2A106138AA7D736 }}
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_513F65027F064A9DAAC67BF75342503E }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_C70CBA45037346D6BBF9A5CF49F3EC04 }}
-
+          
+      - name: Set environment variable in Azure App Service
+        uses: Azure/appservice-settings@v1
+        with:
+          app-name: 'deportivobackend'
+          slot-name: Production
+          app-settings-json: |
+            [
+              {
+                "name": "GOOGLE_CREDENTIALS",
+                "value": "${{ secrets.GOOGLE_CREDENTIALS }}",
+                "slotSetting": false
+              },
+              {
+                "name": "ConnectionStrings__mysqlRemoto",
+                "value": "${{ secrets.MYSQLREMOTO_CONNECTIONSTRING }}",
+                "slotSetting": false
+              }
+            ]
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
