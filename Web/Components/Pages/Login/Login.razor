@@ -102,6 +102,7 @@ else
     </div>
 }
 @code {
+    //Si el usuario está autenticado, se mostrará la opción de cerrar sesión. De lo contrario, se mostrará el formulario de inicio de sesión.
     bool isAuthenticated = false;
     string email = string.Empty;
     string password = string.Empty;
