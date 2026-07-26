@@ -144,6 +144,7 @@
     bool _showPasswordVerify = false;
     bool _isSubmitting = false;
 
+    //Data control es el control de los datos ingresados por el usuario antes de enviarlos al servidor. La tarea de esta función es verificar que todos los campos obligatorios estén completos y que las contraseñas coincidan. Si hay algún error, se muestra un mensaje de alerta al usuario y la función devuelve false. Si todo está correcto, devuelve true.
     private async Task<bool> DataControl()
     {
         if (string.IsNullOrWhiteSpace(usuario.Nombre) ||
