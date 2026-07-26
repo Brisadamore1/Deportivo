@@ -6,78 +6,79 @@
 @rendermode InteractiveServer
 
 <div class="auth-wrapper">
-    <div class="card register-card shadow-lg border-0 rounded-4">
-        <div class="card-header bg-gradient-primary text-white border-0 rounded-top-4 py-3">
+    <div class="card register-card shadow-lg border-0 rounded-4" style="border: 1px solid #e2e8f0 !important; border-radius: 1rem !important; overflow: hidden;">
+        <div class="card-header text-white border-0 py-3" style="background-color: #274472;">
             <div class="d-flex align-items-center">
                 <span class="me-2 fs-4">📝</span>
                 <div>
-                    <h5 class="mb-0 fw-semibold">Crear cuenta</h5>
+                    <h5 class="mb-0 fw-semibold text-white">Crear cuenta</h5>
                     <small class="opacity-75">Regístrate para continuar</small>
                 </div>
             </div>
         </div>
 
-        <div class="card-body p-4 p-md-5">
+        <div class="card-body p-4 p-md-5" style="background-color: #ffffff;">
             <EditForm Model="usuario">
                 <div class="mb-3">
-                    <label class="form-label fw-semibold" for="Nombre">Nombre <span class="text-danger">*</span></label>
+                    <label class="form-label fw-semibold" for="Nombre" style="color: #274472;">Nombre <span class="text-danger">*</span></label>
                     <div class="input-group input-group-lg">
-                        <span class="input-group-text bg-light-subtle">
+                        <span class="input-group-text bg-white text-muted" style="border-color: #cbd5e1; border-top-left-radius: 10px; border-bottom-left-radius: 10px;">
                             <i class="bi bi-person"></i>
                         </span>
-                        <InputText id="Nombre" class="form-control" @bind-Value="usuario.Nombre" placeholder="Nombre y apellido" />
+                        <InputText id="Nombre" class="form-control" style="border-color: #cbd5e1; font-size: 0.9rem; border-top-right-radius: 10px; border-bottom-right-radius: 10px;" @bind-Value="usuario.Nombre" placeholder="Nombre y apellido" />
                     </div>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label fw-semibold" for="email">Email <span class="text-danger">*</span></label>
+                    <label class="form-label fw-semibold" for="email" style="color: #274472;">Email <span class="text-danger">*</span></label>
                     <div class="input-group input-group-lg">
-                        <span class="input-group-text bg-light-subtle">
+                        <span class="input-group-text bg-white text-muted" style="border-color: #cbd5e1; border-top-left-radius: 10px; border-bottom-left-radius: 10px;">
                             <i class="bi bi-envelope"></i>
                         </span>
-                        <InputText id="email" class="form-control" @bind-Value="usuario.Email" placeholder="usuario@gmail.com" type="email" autocomplete="email" />
+                        <InputText id="email" class="form-control" style="border-color: #cbd5e1; font-size: 0.9rem; border-top-right-radius: 10px; border-bottom-right-radius: 10px;" @bind-Value="usuario.Email" placeholder="usuario@gmail.com" type="email" autocomplete="email" />
                     </div>
                 </div>
+
                 <div class="mb-3">
-                    <label class="form-label fw-semibold" for="dni">DNI <span class="text-danger">*</span></label>
+                    <label class="form-label fw-semibold" for="dni" style="color: #274472;">DNI <span class="text-danger">*</span></label>
                     <div class="input-group input-group-lg">
-                        <span class="input-group-text bg-light-subtle">
+                        <span class="input-group-text bg-white text-muted" style="border-color: #cbd5e1; border-top-left-radius: 10px; border-bottom-left-radius: 10px;">
                             <i class="bi bi-card-text"></i>
                         </span>
-                        <InputText id="dni" class="form-control" @bind-Value="usuario.Dni" placeholder="12345678" />
+                        <InputText id="dni" class="form-control" style="border-color: #cbd5e1; font-size: 0.9rem; border-top-right-radius: 10px; border-bottom-right-radius: 10px;" @bind-Value="usuario.Dni" placeholder="12345678" />
                     </div>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label fw-semibold" for="domicilio">Domicilio</label>
+                    <label class="form-label fw-semibold" for="domicilio" style="color: #274472;">Domicilio</label>
                     <div class="input-group input-group-lg">
-                        <span class="input-group-text bg-light-subtle">
+                        <span class="input-group-text bg-white text-muted" style="border-color: #cbd5e1; border-top-left-radius: 10px; border-bottom-left-radius: 10px;">
                             <i class="bi bi-house"></i>
                         </span>
-                        <InputText id="domicilio" class="form-control" @bind-Value="usuario.Domicilio" placeholder="Calle 123, Ciudad" />
+                        <InputText id="domicilio" class="form-control" style="border-color: #cbd5e1; font-size: 0.9rem; border-top-right-radius: 10px; border-bottom-right-radius: 10px;" @bind-Value="usuario.Domicilio" placeholder="Calle 123, Ciudad" />
                     </div>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label fw-semibold" for="telefono">Teléfono</label>
+                    <label class="form-label fw-semibold" for="telefono" style="color: #274472;">Teléfono</label>
                     <div class="input-group input-group-lg">
-                        <span class="input-group-text bg-light-subtle">
+                        <span class="input-group-text bg-white text-muted" style="border-color: #cbd5e1; border-top-left-radius: 10px; border-bottom-left-radius: 10px;">
                             <i class="bi bi-telephone"></i>
                         </span>
-                        <InputText id="telefono" class="form-control" @bind-Value="usuario.Telefono" placeholder="+54 11 1234-5678" />
+                        <InputText id="telefono" class="form-control" style="border-color: #cbd5e1; font-size: 0.9rem; border-top-right-radius: 10px; border-bottom-right-radius: 10px;" @bind-Value="usuario.Telefono" placeholder="+54 11 1234-5678" />
                     </div>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label fw-semibold" for="tipoRol">Tipo de Rol <span class="text-danger">*</span></label>
+                    <label class="form-label fw-semibold" for="tipoRol" style="color: #274472;">Tipo de Rol <span class="text-danger">*</span></label>
                     <div class="input-group input-group-lg">
-                        <span class="input-group-text bg-light-subtle">
+                        <span class="input-group-text bg-white text-muted" style="border-color: #cbd5e1; border-top-left-radius: 10px; border-bottom-left-radius: 10px;">
                             <i class="bi bi-person-badge"></i>
                         </span>
-                        <InputSelect id="tipoRol" class="form-select" @bind-Value="usuario.TipoRol">
+                        <InputSelect id="tipoRol" class="form-select" style="border-color: #cbd5e1; font-size: 0.9rem; border-top-right-radius: 10px; border-bottom-right-radius: 10px;" @bind-Value="usuario.TipoRol">
                             @foreach (var value in Enum.GetValues<TipoRolEnum>())
                             {
-                                if (value != TipoRolEnum.Administrativo) // 👈 Oculta ese rol
+                                if (value != TipoRolEnum.Administrativo)
                                 {
                                     <option value="@value">@value</option>
                                 }
@@ -87,32 +88,32 @@
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label fw-semibold" for="password">Contraseña <span class="text-danger">*</span></label>
+                    <label class="form-label fw-semibold" for="password" style="color: #274472;">Contraseña <span class="text-danger">*</span></label>
                     <div class="input-group input-group-lg">
-                        <span class="input-group-text bg-light-subtle">
+                        <span class="input-group-text bg-white text-muted" style="border-color: #cbd5e1; border-top-left-radius: 10px; border-bottom-left-radius: 10px;">
                             <i class="bi bi-lock"></i>
                         </span>
-                        <InputText id="password" class="form-control" @bind-Value="usuario.Password" placeholder="••••••••" type="@(_showPassword ? "text" : "password")" autocomplete="new-password" />
-                        <button type="button" class="btn btn-outline-secondary" @onclick="() => _showPassword = !_showPassword">
+                        <InputText id="password" class="form-control border-end-0" style="border-color: #cbd5e1; font-size: 0.9rem;" @bind-Value="usuario.Password" placeholder="••••••••" type="@(_showPassword ? "text" : "password")" autocomplete="new-password" />
+                        <button type="button" class="btn btn-outline-secondary bg-white text-muted" style="border-color: #cbd5e1; border-top-right-radius: 10px; border-bottom-right-radius: 10px;" @onclick="() => _showPassword = !_showPassword">
                             <i class="bi @( _showPassword ? "bi-eye-slash" : "bi-eye")"></i>
                         </button>
                     </div>
                 </div>
 
                 <div class="mb-4">
-                    <label class="form-label fw-semibold" for="passwordverify">Verificar contraseña <span class="text-danger">*</span></label>
+                    <label class="form-label fw-semibold" for="passwordverify" style="color: #274472;">Verificar contraseña <span class="text-danger">*</span></label>
                     <div class="input-group input-group-lg">
-                        <span class="input-group-text bg-light-subtle">
+                        <span class="input-group-text bg-white text-muted" style="border-color: #cbd5e1; border-top-left-radius: 10px; border-bottom-left-radius: 10px;">
                             <i class="bi bi-shield-lock"></i>
                         </span>
-                        <InputText id="passwordverify" class="form-control" @bind-Value="passwordverify" placeholder="Repite tu contraseña" type="@(_showPasswordVerify ? "text" : "password")" autocomplete="new-password" />
-                        <button type="button" class="btn btn-outline-secondary" @onclick="() => _showPasswordVerify = !_showPasswordVerify">
+                        <InputText id="passwordverify" class="form-control border-end-0" style="border-color: #cbd5e1; font-size: 0.9rem;" @bind-Value="passwordverify" placeholder="Repite tu contraseña" type="@(_showPasswordVerify ? "text" : "password")" autocomplete="new-password" />
+                        <button type="button" class="btn btn-outline-secondary bg-white text-muted" style="border-color: #cbd5e1; border-top-right-radius: 10px; border-bottom-right-radius: 10px;" @onclick="() => _showPasswordVerify = !_showPasswordVerify">
                             <i class="bi @( _showPasswordVerify ? "bi-eye-slash" : "bi-eye")"></i>
                         </button>
                     </div>
                 </div>
 
-                <button type="button" class="btn btn-gradient w-100 mb-2" @onclick="Register" disabled="@_isSubmitting">
+                <button type="button" class="btn w-100 mb-2 text-white fw-semibold rounded-3 py-2" style="background-color: #274472;" @onclick="Register" disabled="@_isSubmitting">
                     @if (_isSubmitting)
                     {
                         <span class="spinner-border spinner-border-sm me-2" role="status"></span>
@@ -123,13 +124,13 @@
                 <div class="text-center mt-2">
                     <small class="text-muted">
                         ¿Ya tienes cuenta?
-                        <a class="text-decoration-none" href="/login">Inicia sesión</a>
+                        <a class="text-decoration-none fw-semibold" style="color: #274472;" href="/login">Inicia sesión</a>
                     </small>
                 </div>
             </EditForm>
         </div>
 
-        <div class="card-footer text-body-secondary text-center small">
+        <div class="card-footer bg-white text-body-secondary text-center small py-3" style="border-top: 1px solid #e2e8f0;">
             Club Deportivo
         </div>
     </div>

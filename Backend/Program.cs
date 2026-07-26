@@ -92,8 +92,8 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigins",
         builder => builder
-            .WithOrigins("https://deportivo.azurewebsites.net/",
-                    "https://www.deportivo.azurewebsites.net/",
+            .WithOrigins("https://deportivobackend-h9d0hrcph9e7abge.centralus-01.azurewebsites.net/",
+                    "https://www.deportivobackend-h9d0hrcph9e7abge.centralus-01.azurewebsites.net/",
                     "https://localhost:8000",
                     "https://localhost:7190",
                     "https://localhost:5091")
