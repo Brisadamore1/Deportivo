@@ -156,7 +156,7 @@ else
             }
 
             // Firebase validó la contraseña.
-            // Solo comprobamos que el usuario esté registrado en tu sistema.
+            // Comprueba que el usuario esté registrado en el sistema.
             var usuarioSistema = await _usuarioService.GetByEmailAsync(user.Email);
 
             if (usuarioSistema is null)
