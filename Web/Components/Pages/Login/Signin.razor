@@ -145,6 +145,7 @@
     bool _isSubmitting = false;
 
     //Data control es el control de los datos ingresados por el usuario antes de enviarlos al servidor. La tarea de esta función es verificar que todos los campos obligatorios estén completos y que las contraseñas coincidan. Si hay algún error, se muestra un mensaje de alerta al usuario y la función devuelve false. Si todo está correcto, devuelve true.
+
     private async Task<bool> DataControl()
     {
         if (string.IsNullOrWhiteSpace(usuario.Nombre) ||
@@ -160,6 +161,61 @@
 
             return false;
         }
+
+        // Nombre
+        if (usuario.Nombre.Trim().Length < 3)
+        {
+            await sweetAlert.FireAsync(
+                "Error",
+                "El nombre debe tener al menos 3 caracteres.",
+                SweetAlertIcon.Error);
+
+            return false;
+        }
+
+        if (usuario.Nombre.Any(char.IsDigit))
+        {
+            await sweetAlert.FireAsync(
+                "Error",
+                "El nombre no puede contener números.",
+                SweetAlertIcon.Error);
+
+            return false;
+        }
+
+        // DNI: solo números
+        if (!usuario.Dni.All(char.IsDigit))
+        {
+            await sweetAlert.FireAsync(
+                "Error",
+                "El DNI solo puede contener números.",
+                SweetAlertIcon.Error);
+
+            return false;
+        }
+
+        if (usuario.Dni.Length < 7 || usuario.Dni.Length > 8)
+        {
+            await sweetAlert.FireAsync(
+                "Error",
+                "El DNI debe tener entre 7 y 8 dígitos.",
+                SweetAlertIcon.Error);
+
+            return false;
+        }
+
+        // Teléfono (si fue ingresado)
+        if (!string.IsNullOrWhiteSpace(usuario.Telefono) &&
+             !usuario.Telefono.All(char.IsDigit))
+        {
+            await sweetAlert.FireAsync(
+                "Error",
+                "El teléfono solo puede contener números.",
+                SweetAlertIcon.Error);
+
+            return false;
+        }
+
 
         if (usuario.Password != passwordverify)
         {
@@ -186,6 +242,12 @@
 
     private async Task Register()
     {
+        usuario.Nombre = usuario.Nombre.Trim();
+        usuario.Email = usuario.Email.Trim();
+        usuario.Dni = usuario.Dni.Trim();
+        usuario.Domicilio = usuario.Domicilio.Trim();
+        usuario.Telefono = usuario.Telefono.Trim();
+
         if (!await DataControl())
             return;
 
@@ -194,6 +256,44 @@
 
         try
         {
+            try
+            {
+                var usuarioExistente = await _usuarioService.GetByEmailAsync(usuario.Email);
+
+                if (usuarioExistente != null)
+                {
+                    await sweetAlert.FireAsync(
+                        "Error",
+                        "Ya existe un usuario registrado con ese correo electrónico.",
+                        SweetAlertIcon.Error);
+
+                    return;
+                }
+            }
+
+            catch
+            {
+                // Si devuelve NotFound significa que el email no existe y puede continuar.
+            }
+            try
+            {
+                var usuarioExistente = await _usuarioService.GetByDniAsync(usuario.Dni);
+
+                if (usuarioExistente != null)
+                {
+                    await sweetAlert.FireAsync(
+                        "Error",
+                        "Ya existe un usuario registrado con ese DNI.",
+                        SweetAlertIcon.Error);
+
+                    return;
+                }
+            }
+            catch
+            {
+                // Si devuelve NotFound significa que el DNI no existe y puede continuar.
+            }
+
             usuario.TipoRol = TipoRolEnum.Profesor;
 
             var loginResponse = await firebaseAuthService
@@ -212,9 +312,23 @@
                 return;
             }
 
-            usuario.Password = usuario.Password.GetHashSha256();
+            var passwordOriginal = usuario.Password;
 
-            var usuarioNuevo = await _usuarioService.AddAsync(usuario);
+            var usuarioGuardar = new Usuario
+            {
+                Nombre = usuario.Nombre,
+                Email = usuario.Email,
+                Password = passwordOriginal.GetHashSha256(),
+                TipoRol = usuario.TipoRol,
+                FechaRegistracion = usuario.FechaRegistracion,
+                Dni = usuario.Dni,
+                Domicilio = usuario.Domicilio,
+                Telefono = usuario.Telefono,
+                Observacion = usuario.Observacion,
+                IsDeleted = usuario.IsDeleted
+            };
+
+            var usuarioNuevo = await _usuarioService.AddAsync(usuarioGuardar);
 
             if (usuarioNuevo is null)
             {

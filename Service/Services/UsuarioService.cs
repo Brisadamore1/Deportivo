@@ -25,6 +25,23 @@ namespace Service.Services
             }
             return JsonSerializer.Deserialize<Usuario>(content, _options);
         }
+
+        public async Task<Usuario?> GetByDniAsync(string dni)
+        {
+            SetAuthorizationHeader();
+
+            var response = await _httpClient.GetAsync($"{_endpoint}/bydni?dni={dni}");
+
+            var content = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception($"Error al obtener los datos: {response.StatusCode}");
+            }
+
+            return JsonSerializer.Deserialize<Usuario>(content, _options);
+        }
+
         public async Task<bool> LoginInSystem(string email, string password)
         {
             var loginDTO = new LoginDTO

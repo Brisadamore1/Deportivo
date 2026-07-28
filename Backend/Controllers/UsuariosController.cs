@@ -74,6 +74,26 @@ namespace Backend.Controllers
             return usuario;
         }
 
+        // GET: api/Usuarios/bydni
+        [HttpGet("bydni")]
+        [Authorize]
+        public async Task<ActionResult<Usuario>> GetByDniUsuario([FromQuery] string? dni)
+        {
+            if (string.IsNullOrEmpty(dni))
+                return BadRequest("El parámetro dni es obligatorio.");
+
+            var usuario = await _context.Usuarios
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u => u.Dni.Equals(dni));
+
+            if (usuario == null)
+            {
+                return NotFound();
+            }
+
+            return usuario;
+        }
+
         // PUT: api/Usuarios/5
         [HttpPut("{id}")]
         [Authorize]

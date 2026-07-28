@@ -11,5 +11,6 @@ namespace Service.Interfaces
     {
         public Task<Usuario?> GetByEmailAsync(string email); //Email devuelve un solo usuario o null si no se encuentra
         public Task<bool> LoginInSystem(string email, string password);
+        public Task<Usuario?> GetByDniAsync(string dni);
     }
 }

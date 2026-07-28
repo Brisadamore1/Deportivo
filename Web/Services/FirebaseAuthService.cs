@@ -101,7 +101,7 @@ namespace Web.Services
         //recuperación de contraseña
         public async Task<bool> RecoveryPassword(string email)
         {
-               return await _jsRuntime.InvokeAsync<bool>("firebaseAuth.recoveryPassword", email);
+            return await _jsRuntime.InvokeAsync<bool>("firebaseAuth.recoveryPassword", email);
         }
 
     }
