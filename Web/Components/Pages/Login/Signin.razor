@@ -328,7 +328,7 @@
 
             navigationManager.NavigateTo("/login");
         }
-        catch (Exception ex)
+        catch
         {
            await sweetAlert.FireAsync("Error","Ocurrió un error al registrar el usuario.",SweetAlertIcon.Error);
         }
