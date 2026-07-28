@@ -50,6 +50,26 @@ namespace Service.Services
             return JsonSerializer.Deserialize<Usuario>(content, _options);
         }
 
+        public async Task<bool> CheckEmailAsync(string email)
+        {
+            var response = await _httpClient.GetAsync($"{_endpoint}/checkemail?email={email}");
+
+            if (!response.IsSuccessStatusCode)
+                return false;
+
+            return await response.Content.ReadFromJsonAsync<bool>();
+        }
+
+        public async Task<bool> CheckDniAsync(string dni)
+        {
+            var response = await _httpClient.GetAsync($"{_endpoint}/checkdni?dni={dni}");
+
+            if (!response.IsSuccessStatusCode)
+                return false;
+
+            return await response.Content.ReadFromJsonAsync<bool>();
+        }
+
         public async Task<bool> LoginInSystem(string email, string password)
         {
             var loginDTO = new LoginDTO

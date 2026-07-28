@@ -138,6 +138,7 @@
 
     bool _showPassword = false;
     bool _showPasswordVerify = false;
+    //submitting es una variable booleana que indica si el formulario de registro está siendo enviado. Se utiliza para deshabilitar el botón de envío mientras se procesa la solicitud, evitando envíos múltiples.
     bool _isSubmitting = false;
 
     //Data control es el control de los datos ingresados por el usuario antes de enviarlos al servidor. La tarea de esta función es verificar que todos los campos obligatorios estén completos y que las contraseñas coincidan. Si hay algún error, se muestra un mensaje de alerta al usuario y la función devuelve false. Si todo está correcto, devuelve true.
@@ -249,6 +250,9 @@
 
     private async Task Register()
     {
+        if (_isSubmitting)
+        return;
+
         usuario.Nombre = usuario.Nombre.Trim();
         usuario.Email = usuario.Email.Trim();
         usuario.Dni = usuario.Dni.Trim();
@@ -263,63 +267,73 @@
 
         try
         {
-            var usuarioExistente = await _usuarioService.GetByEmailAsync(usuario.Email);
+            var existeEmail = await _usuarioService.CheckEmailAsync(usuario.Email);
 
-            if (usuarioExistente != null)
+            if (existeEmail)
             {
-                await sweetAlert.FireAsync("Error","Ya existe un usuario registrado con ese correo electrónico.",SweetAlertIcon.Error);
+                await sweetAlert.FireAsync(
+                    "Error",
+                    "Ya existe un usuario registrado con ese correo electrónico.",
+                    SweetAlertIcon.Error);
 
                 return;
             }
 
-            var usuarioExistenteDni = await _usuarioService.GetByDniAsync(usuario.Dni);
 
-            if (usuarioExistenteDni  != null)
+            var existeDni = await _usuarioService.CheckDniAsync(usuario.Dni);
+
+            if (existeDni)
             {
-                await sweetAlert.FireAsync("Error","Ya existe un usuario registrado con ese DNI.",SweetAlertIcon.Error);
+                await sweetAlert.FireAsync(
+                    "Error",
+                    "Ya existe un usuario registrado con ese DNI.",
+                    SweetAlertIcon.Error);
 
                 return;
             }
+
 
             var loginResponse = await firebaseAuthService
-                    .createUserWithEmailAndPassword(
+                .createUserWithEmailAndPassword(
                     usuario.Email,
                     usuario.Password,
                     usuario.Nombre);
 
+
             if (string.IsNullOrEmpty(loginResponse?.UserUid))
             {
-                await sweetAlert.FireAsync("Error",loginResponse?.Error ?? "No se pudo crear el usuario en Firebase.",SweetAlertIcon.Error);
+                await sweetAlert.FireAsync(
+                    "Error",
+                    loginResponse?.Error ?? "No se pudo crear la cuenta.",
+                    SweetAlertIcon.Error);
 
                 return;
             }
 
-            var passwordOriginal = usuario.Password;
 
             var usuarioGuardar = new Usuario
-                {
-                    Nombre = usuario.Nombre,
-                    Email = usuario.Email,
-                    Password = passwordOriginal.GetHashSha256(),
-                    TipoRol = usuario.TipoRol,
-                    FechaRegistracion = usuario.FechaRegistracion,
-                    Dni = usuario.Dni,
-                    Domicilio = usuario.Domicilio,
-                    Telefono = usuario.Telefono,
-                    Observacion = usuario.Observacion,
-                    IsDeleted = usuario.IsDeleted
-                };
+            {
+                Nombre = usuario.Nombre,
+                Email = usuario.Email,
+                Password = usuario.Password.GetHashSha256(),
+                TipoRol = usuario.TipoRol,
+                FechaRegistracion = usuario.FechaRegistracion,
+                Dni = usuario.Dni,
+                Domicilio = usuario.Domicilio,
+                Telefono = usuario.Telefono,
+                Observacion = usuario.Observacion,
+                IsDeleted = usuario.IsDeleted
+            };
+
 
             var usuarioNuevo = await _usuarioService.AddAsync(usuarioGuardar);
 
-            if (usuarioNuevo is null)
-            {
-                await sweetAlert.FireAsync("Error","No se pudo registrar el usuario en el sistema.",SweetAlertIcon.Error);
 
-                return;
-            }
+            await sweetAlert.FireAsync(
+                "Éxito",
+                "Usuario registrado correctamente. Revisa tu correo para verificar la cuenta.",
+                SweetAlertIcon.Success);
 
-            await sweetAlert.FireAsync("Éxito","Usuario registrado correctamente. Revisa tu correo para verificar la cuenta.",SweetAlertIcon.Success);
 
             await firebaseAuthService.SignOut();
 
@@ -328,11 +342,14 @@
 
             navigationManager.NavigateTo("/login");
         }
-        catch (Exception ex)
+        catch(Exception ex)
         {
-           Console.WriteLine(ex.Message);
+            Console.WriteLine(ex);
 
-           await sweetAlert.FireAsync("Error","Ocurrió un error inesperado al registrar el usuario.",SweetAlertIcon.Error);
+            await sweetAlert.FireAsync(
+                "Error",
+                ex.Message,
+                SweetAlertIcon.Error);
         }
         finally
         {

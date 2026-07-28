@@ -94,6 +94,24 @@ namespace Backend.Controllers
             return usuario;
         }
 
+        [HttpGet("checkemail")]
+        public async Task<ActionResult<bool>> CheckEmailUsuario([FromQuery] string email)
+        {
+            var existe = await _context.Usuarios
+                .AnyAsync(u => u.Email.Equals(email));
+
+            return existe;
+        }
+
+        [HttpGet("checkdni")]
+        public async Task<ActionResult<bool>> CheckDniUsuario([FromQuery] string dni)
+        {
+            var existe = await _context.Usuarios
+                .AnyAsync(u => u.Dni.Equals(dni));
+
+            return existe;
+        }
+
         // PUT: api/Usuarios/5
         [HttpPut("{id}")]
         [Authorize]
