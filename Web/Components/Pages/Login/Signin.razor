@@ -5,8 +5,6 @@
 @inject IUsuarioService _usuarioService
 @rendermode InteractiveServer
 
-<h1>PRUEBA SIGNIN</h1>
-
 <div class="auth-wrapper">
     <div class="card register-card shadow-lg border-0 rounded-4" style="border: 1px solid #e2e8f0 !important; border-radius: 1rem !important; overflow: hidden;">
         <div class="card-header text-white border-0 py-3" style="background-color: #274472;">
@@ -332,7 +330,9 @@
         }
         catch (Exception ex)
         {
-           await sweetAlert.FireAsync("Error", ex.Message,SweetAlertIcon.Error);
+           Console.WriteLine(ex.Message);
+
+           await sweetAlert.FireAsync("Error","Ocurrió un error inesperado al registrar el usuario.",SweetAlertIcon.Error);
         }
         finally
         {
