@@ -57,6 +57,7 @@ namespace Backend.Controllers
 
         // GET: api/Usuarios/5
         [HttpGet("byemail")]
+        [Authorize]
         public async Task<ActionResult<Usuario>> GetByEmailUsuario([FromQuery] string? email)
         {
             if (string.IsNullOrEmpty(email))
@@ -75,6 +76,7 @@ namespace Backend.Controllers
 
         // GET: api/Usuarios/bydni
         [HttpGet("bydni")]
+        [Authorize]
         public async Task<ActionResult<Usuario>> GetByDniUsuario([FromQuery] string? dni)
         {
             if (string.IsNullOrEmpty(dni))
