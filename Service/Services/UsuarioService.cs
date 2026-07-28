@@ -19,6 +19,11 @@ namespace Service.Services
             SetAuthorizationHeader();
             var response = await _httpClient.GetAsync($"{_endpoint}/byemail?email={email}");
             var content = await response.Content.ReadAsStringAsync();
+            if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                return null;
+            }
+
             if (!response.IsSuccessStatusCode)
             {
                 throw new Exception($"Error al obtener los datos: {response.StatusCode}");
@@ -29,10 +34,13 @@ namespace Service.Services
         public async Task<Usuario?> GetByDniAsync(string dni)
         {
             SetAuthorizationHeader();
-
             var response = await _httpClient.GetAsync($"{_endpoint}/bydni?dni={dni}");
-
             var content = await response.Content.ReadAsStringAsync();
+
+            if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                return null;
+            }
 
             if (!response.IsSuccessStatusCode)
             {

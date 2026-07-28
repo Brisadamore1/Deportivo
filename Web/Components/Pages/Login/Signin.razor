@@ -65,7 +65,7 @@
                         <span class="input-group-text bg-white text-muted" style="border-color: #cbd5e1; border-top-left-radius: 10px; border-bottom-left-radius: 10px;">
                             <i class="bi bi-telephone"></i>
                         </span>
-                        <InputText id="telefono" class="form-control" style="border-color: #cbd5e1; font-size: 0.9rem; border-top-right-radius: 10px; border-bottom-right-radius: 10px;" @bind-Value="usuario.Telefono" placeholder="+54 11 1234-5678" />
+                        <InputText id="telefono" class="form-control" style="border-color: #cbd5e1; font-size: 0.9rem; border-top-right-radius: 10px; border-bottom-right-radius: 10px;" @bind-Value="usuario.Telefono" placeholder="3498345678" />
                     </div>
                 </div>
 
@@ -75,15 +75,11 @@
                         <span class="input-group-text bg-white text-muted" style="border-color: #cbd5e1; border-top-left-radius: 10px; border-bottom-left-radius: 10px;">
                             <i class="bi bi-person-badge"></i>
                         </span>
-                        <InputSelect id="tipoRol" class="form-select" style="border-color: #cbd5e1; font-size: 0.9rem; border-top-right-radius: 10px; border-bottom-right-radius: 10px;" @bind-Value="usuario.TipoRol">
-                            @foreach (var value in Enum.GetValues<TipoRolEnum>())
-                            {
-                                if (value != TipoRolEnum.Administrativo)
-                                {
-                                    <option value="@value">@value</option>
-                                }
-                            }
-                        </InputSelect>
+                        <InputText id="tipoRol"
+                                   class="form-control"
+                                   style="border-color: #cbd5e1; font-size: 0.9rem;"
+                                   Value="Profesor"
+                                   readonly />
                     </div>
                 </div>
 
@@ -157,6 +153,17 @@
             await sweetAlert.FireAsync(
                 "Error",
                 "Por favor, completa todos los campos obligatorios.",
+                SweetAlertIcon.Error);
+
+            return false;
+        }
+
+        // Validación de formato de email
+        if (!Regex.IsMatch(usuario.Email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
+        {
+            await sweetAlert.FireAsync(
+                "Error",
+                "El email no tiene un formato válido.",
                 SweetAlertIcon.Error);
 
             return false;
@@ -256,58 +263,33 @@
 
         try
         {
-            try
+            var usuarioExistente = await _usuarioService.GetByEmailAsync(usuario.Email);
+
+            if (usuarioExistente != null)
             {
-                var usuarioExistente = await _usuarioService.GetByEmailAsync(usuario.Email);
+                await sweetAlert.FireAsync("Error","Ya existe un usuario registrado con ese correo electrónico.",SweetAlertIcon.Error);
 
-                if (usuarioExistente != null)
-                {
-                    await sweetAlert.FireAsync(
-                        "Error",
-                        "Ya existe un usuario registrado con ese correo electrónico.",
-                        SweetAlertIcon.Error);
-
-                    return;
-                }
+                return;
             }
 
-            catch
-            {
-                // Si devuelve NotFound significa que el email no existe y puede continuar.
-            }
-            try
-            {
-                var usuarioExistente = await _usuarioService.GetByDniAsync(usuario.Dni);
+            var usuarioExistenteDni = await _usuarioService.GetByDniAsync(usuario.Dni);
 
-                if (usuarioExistente != null)
-                {
-                    await sweetAlert.FireAsync(
-                        "Error",
-                        "Ya existe un usuario registrado con ese DNI.",
-                        SweetAlertIcon.Error);
-
-                    return;
-                }
-            }
-            catch
+            if (usuarioExistenteDni  != null)
             {
-                // Si devuelve NotFound significa que el DNI no existe y puede continuar.
-            }
+                await sweetAlert.FireAsync("Error","Ya existe un usuario registrado con ese DNI.",SweetAlertIcon.Error);
 
-            usuario.TipoRol = TipoRolEnum.Profesor;
+                return;
+            }
 
             var loginResponse = await firebaseAuthService
-                .createUserWithEmailAndPassword(
+                    .createUserWithEmailAndPassword(
                     usuario.Email,
                     usuario.Password,
                     usuario.Nombre);
 
             if (string.IsNullOrEmpty(loginResponse?.UserUid))
             {
-                await sweetAlert.FireAsync(
-                    "Error",
-                    loginResponse?.Error ?? "No se pudo crear el usuario en Firebase.",
-                    SweetAlertIcon.Error);
+                await sweetAlert.FireAsync("Error",loginResponse?.Error ?? "No se pudo crear el usuario en Firebase.",SweetAlertIcon.Error);
 
                 return;
             }
@@ -315,35 +297,29 @@
             var passwordOriginal = usuario.Password;
 
             var usuarioGuardar = new Usuario
-            {
-                Nombre = usuario.Nombre,
-                Email = usuario.Email,
-                Password = passwordOriginal.GetHashSha256(),
-                TipoRol = usuario.TipoRol,
-                FechaRegistracion = usuario.FechaRegistracion,
-                Dni = usuario.Dni,
-                Domicilio = usuario.Domicilio,
-                Telefono = usuario.Telefono,
-                Observacion = usuario.Observacion,
-                IsDeleted = usuario.IsDeleted
-            };
+                {
+                    Nombre = usuario.Nombre,
+                    Email = usuario.Email,
+                    Password = passwordOriginal.GetHashSha256(),
+                    TipoRol = usuario.TipoRol,
+                    FechaRegistracion = usuario.FechaRegistracion,
+                    Dni = usuario.Dni,
+                    Domicilio = usuario.Domicilio,
+                    Telefono = usuario.Telefono,
+                    Observacion = usuario.Observacion,
+                    IsDeleted = usuario.IsDeleted
+                };
 
             var usuarioNuevo = await _usuarioService.AddAsync(usuarioGuardar);
 
             if (usuarioNuevo is null)
             {
-                await sweetAlert.FireAsync(
-                    "Error",
-                    "No se pudo registrar el usuario en el sistema.",
-                    SweetAlertIcon.Error);
+                await sweetAlert.FireAsync("Error","No se pudo registrar el usuario en el sistema.",SweetAlertIcon.Error);
 
                 return;
             }
 
-            await sweetAlert.FireAsync(
-                "Éxito",
-                "Usuario registrado correctamente. Revisa tu correo para verificar la cuenta.",
-                SweetAlertIcon.Success);
+            await sweetAlert.FireAsync("Éxito","Usuario registrado correctamente. Revisa tu correo para verificar la cuenta.",SweetAlertIcon.Success);
 
             await firebaseAuthService.SignOut();
 
@@ -354,7 +330,7 @@
         }
         catch (Exception ex)
         {
-            await sweetAlert.FireAsync("Error", ex.Message, SweetAlertIcon.Error);
+           await sweetAlert.FireAsync("Error","Ocurrió un error al registrar el usuario.",SweetAlertIcon.Error);
         }
         finally
         {
