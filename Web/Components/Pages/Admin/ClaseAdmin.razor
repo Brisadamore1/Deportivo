@@ -228,7 +228,10 @@ else
 
     private void Nuevo()
     {
-        claseCurrent = new Clase();
+        claseCurrent = new Clase
+        {
+            Activa = true
+        };
     }
 
     private async Task Eliminar(Clase clase)
@@ -236,7 +239,7 @@ else
         var respuesta = await _sweetAlert.FireAsync(new SweetAlertOptions
         {
             Title = "Eliminando clase",
-            Text = $"¿Está seguro que desea eliminar la clase de {(clase.Actividad?.Nombre ?? "esta actividad")}?",
+            Text = $"¿Está seguro que desea eliminar la clase de {(clase.Actividad?.Nombre ?? "esta actividad")} ({ObtenerNombreDia(clase.DiaSemana)} {clase.HoraInicio:hh\\:mm} - {clase.HoraFin:hh\\:mm})?",
             Icon = SweetAlertIcon.Warning,
             ShowCancelButton = true,
             ConfirmButtonText = "Sí, eliminar",
@@ -317,7 +320,10 @@ else
             }
 
             await GetClases();
-            claseCurrent = new Clase();
+            claseCurrent = new Clase
+            {
+                Activa = true
+            };
         }
         catch
         {

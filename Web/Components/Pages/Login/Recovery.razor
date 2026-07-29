@@ -1,64 +1,141 @@
 ﻿@page "/recovery"
-@inject FirebaseAuthService _firebaseAuthService
-@inject SweetAlertService _sweetAlert
-@inject NavigationManager _navigationManager
+@inject SweetAlertService sweetAlert
+@inject FirebaseAuthService firebaseAuthService
+@inject NavigationManager navigationManager
 @rendermode InteractiveServer
 
 <div class="auth-wrapper">
-    <div class="card login-card shadow-lg border-0 rounded-4">
-        <div class="card-header bg-gradient-primary text-white border-0 rounded-top-4 py-3">
+    <div class="card register-card shadow-lg border-0 rounded-4"
+         style="border: 1px solid #e2e8f0 !important; border-radius: 1rem !important; overflow: hidden;">
+
+        <!-- Header -->
+        <div class="card-header text-white border-0 py-3" style="background-color: #274472;">
             <div class="d-flex align-items-center">
                 <span class="me-2 fs-4">🔐</span>
                 <div>
-                    <h5 class="mb-0 fw-semibold">Recuperar contraseña en Club Deportivo Kairos</h5>
+                    <h5 class="mb-0 fw-semibold text-white">Recuperar contraseña</h5>
+                    <small class="opacity-75">Restablece el acceso a tu cuenta</small>
                 </div>
             </div>
         </div>
 
-        <div class="card-body p-4 p-md-5">
-            <div class="mb-3">
-                <label class="form-label fw-semibold">Correo electrónico</label>
+        <!-- Body -->
+        <div class="card-body p-4 p-md-5" style="background-color: #ffffff;">
+
+            <div class="mb-4">
+                <label class="form-label fw-semibold" style="color: #274472;">
+                    Correo electrónico <span class="text-danger">*</span>
+                </label>
+
                 <div class="input-group input-group-lg">
-                    <span class="input-group-text bg-light-subtle">
+                    <span class="input-group-text bg-white text-muted"
+                          style="border-color:#cbd5e1;border-top-left-radius:10px;border-bottom-left-radius:10px;">
                         <i class="bi bi-envelope"></i>
                     </span>
-                    <InputText class="form-control" @bind-Value="email" placeholder="usuario@gmail.com" autocomplete="email" />
+
+                    <InputText class="form-control"
+                               style="border-color:#cbd5e1;font-size:.9rem;border-top-right-radius:10px;border-bottom-right-radius:10px;"
+                               @bind-Value="email"
+                               placeholder="usuario@gmail.com"
+                               autocomplete="email" />
                 </div>
+
+                <small class="text-muted mt-2 d-block">
+                    Ingresa el correo asociado a tu cuenta. Recibirás un enlace para restablecer tu contraseña.
+                </small>
             </div>
 
-            <button class="btn btn-gradient w-100 mb-3" @onclick="Enviar">
-                <i class="bi bi-box-arrow-in-right me-1"></i> Enviar
-            </button>
+            <!-- Botones -->
+            <div class="d-flex gap-2">
+
+                <a href="/login"
+                   class="btn btn-outline-secondary fw-semibold rounded-3 py-2 flex-fill">
+                    <i class="bi bi-x-circle me-1"></i>
+                    Cancelar
+                </a>
+
+                <button class="btn text-white fw-semibold rounded-3 py-2 flex-fill"
+                        style="background-color:#274472;"
+                        @onclick="Enviar">
+                    <i class="bi bi-send me-1"></i>
+                    Enviar
+                </button>
+
+            </div>
 
         </div>
 
-        <div class="card-footer text-body-secondary text-center small">
-            Desarrollo 3er año - TSDS - 2025
+        <!-- Footer -->
+        <div class="card-footer bg-white text-body-secondary text-center small py-3"
+             style="border-top:1px solid #e2e8f0;">
+            Club Deportivo
         </div>
+
     </div>
 </div>
 
 @code {
     string email = string.Empty;
 
+    private async Task<bool> DataControl()
+    {
+        email = email?.Trim() ?? "";
+
+        if (string.IsNullOrWhiteSpace(email))
+        {
+            await sweetAlert.FireAsync(
+                "Error",
+                "Por favor, ingresa tu correo electrónico.",
+                SweetAlertIcon.Error);
+
+            return false;
+        }
+
+        // Validación de formato de email
+        if (!Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
+        {
+            await sweetAlert.FireAsync(
+                "Error",
+                "El correo electrónico no tiene un formato válido.",
+                SweetAlertIcon.Error);
+
+            return false;
+        }
+
+        return true;
+    }
+
     private async Task Enviar()
     {
+        if (!await DataControl())
+            return;
+
         try
         {
-            var success = await _firebaseAuthService.RecoveryPassword(email);
-            if (success != null)
+            bool enviado = await firebaseAuthService.RecoveryPassword(email);
+
+            if (!enviado)
             {
-                await _sweetAlert.FireAsync("Correo enviado", "Se ha enviado un correo para recuperar tu contraseña.", SweetAlertIcon.Success);
+                await sweetAlert.FireAsync(
+                    "Error",
+                    "No se pudo enviar el correo de recuperación.",
+                    SweetAlertIcon.Error);
+                return;
             }
-            else
-            {
-                await _sweetAlert.FireAsync("Error", "No se pudo enviar el correo de recuperación. Verifica que el correo sea correcto.", SweetAlertIcon.Error);
-            }
+
+            await sweetAlert.FireAsync(
+                "Correo enviado",
+                "Si existe una cuenta asociada a ese correo electrónico, recibirás un enlace para restablecer tu contraseña.",
+                SweetAlertIcon.Success);
+
+            navigationManager.NavigateTo("/login");
         }
         catch (Exception ex)
         {
-            await _sweetAlert.FireAsync("Error", $"Ocurrió un error: {ex.Message}", SweetAlertIcon.Error);
+            await sweetAlert.FireAsync(
+                "Error",
+                ex.Message,
+                SweetAlertIcon.Error);
         }
-        _navigationManager.NavigateTo("/login");
     }
 }

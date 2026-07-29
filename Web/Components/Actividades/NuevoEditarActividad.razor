@@ -30,7 +30,7 @@
                 <div class="modal-body p-3">
                     <div class="row g-2">
                         <!-- FILA 1: Nombre (6) y URL Imagen (6) -->
-                        <div class="col-md-6">
+                        <div class="col-md-12">
                             <label for="nombreInput" class="custom-form-label">
                                 Nombre <span class="text-danger">*</span>
                             </label>
@@ -38,13 +38,6 @@
                                        placeholder="Ej: Tenis Infantil"
                                        @bind-Value="Actividad.Nombre" />
                             <ValidationMessage For="@(() => Actividad.Nombre)" class="text-danger small mt-1" />
-                        </div>
-
-                        <div class="col-md-6">
-                            <label for="imagenInput" class="custom-form-label">URL de imagen</label>
-                            <InputText id="imagenInput" class="form-control custom-form-input"
-                                       placeholder="https://..."
-                                       @bind-Value="Actividad.Imagen" />
                         </div>
 
                         <!-- FILA 2: Descripción (12) -->
@@ -69,13 +62,10 @@
 
                         <div class="col-md-4">
                             <label for="nivelInput" class="custom-form-label">Nivel</label>
-                            <InputSelect id="nivelInput" class="form-select custom-form-select"
-                                         @bind-Value="Actividad.Nivel">
-                                <option value="">Seleccione nivel</option>
-                                <option value="Principiante">Principiante</option>
-                                <option value="Intermedio">Intermedio</option>
-                                <option value="Avanzado">Avanzado</option>
-                            </InputSelect>
+                            <InputText id="nivelInput"
+                                       class="form-control custom-form-input"
+                                       placeholder="Ej: Principiante"
+                                       @bind-Value="Actividad.Nivel" />
                         </div>
 
                         <div class="col-md-4">

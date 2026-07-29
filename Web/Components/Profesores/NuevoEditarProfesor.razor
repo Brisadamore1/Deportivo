@@ -33,13 +33,13 @@
                             <ValidationMessage For="@(() => Profesor.Nombre)" class="text-danger small mt-1" />
                         </div>
 
-                        <!-- Activo (Checkbox) -->
-                        <div class="col-12 mt-3">
-                            <div class="form-check">
-                                <InputCheckbox id="activoInput" class="form-check-input"
+                        <!-- Activo -->
+                        <div class="col-md-6 d-flex align-items-end">
+                            <div class="form-check form-switch m-0 d-flex align-items-center">
+                                <InputCheckbox id="activoInput" class="form-check-input filter-switch-input me-2"
                                                @bind-Value="Profesor.Activo" />
-                                <label class="form-check-label custom-form-label" for="activoInput">
-                                    Activo
+                                <label class="form-check-label fw-semibold text-dark mb-0" for="activoInput">
+                                   Profesor Activo
                                 </label>
                             </div>
                         </div>

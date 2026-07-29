@@ -6,136 +6,217 @@
 @inject SweetAlertService _sweetAlert
 @rendermode InteractiveServer
 
-<EncabezadoPage Titulo="Tomar asistencia"
-                Descripcion="Registra la asistencia de los socios por clase y fecha" />
-
 <div class="container py-4">
+    @* --- 1. Encabezado --- *@
+    <EncabezadoPage Titulo="Tomar Asistencia"
+                    Descripcion="Registra la asistencia de los socios por clase y fecha" />
+
     @if (isLoading)
     {
-        <ActivityIndicator Mensaje="Cargando datos..." IsBusy="isLoading" />
+        <div class="d-flex align-items-center justify-content-center min-vh-50 py-5">
+            <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+        </div>
     }
     else
     {
-        <div class="card shadow-sm mb-4">
-            <div class="card-body">
-                <div class="row g-3">
-                    <div class="col-md-4">
-                        <label for="actividadInput" class="form-label">
-                            Actividad
-                        </label>
+        @* --- 2. Panel de Filtros / Selección --- *@
+        <div class="mb-4">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label for="actividadInput" class="form-label fw-semibold" style="color: #274472;">Actividad</label>
+                    <select id="actividadInput" class="form-select rounded-3 shadow-none"
+                            value="@actividadSeleccionada"
+                            @onchange="CambiarActividad">
+                        <option value="0">Seleccione una actividad</option>
+                        @foreach (var actividad in actividadesDisponibles)
+                        {
+                            <option value="@actividad.Id">@actividad.Nombre</option>
+                        }
+                    </select>
+                </div>
 
-                        <select id="actividadInput" class="form-select"
-                                value="@actividadSeleccionada"
-                                @onchange="CambiarActividad">
-                            <option value="0">Seleccione una actividad</option>
+                <div class="col-md-4">
+                    <label for="claseInput" class="form-label fw-semibold" style="color: #274472;">Clase</label>
+                    <select id="claseInput" class="form-select rounded-3 shadow-none"
+                            disabled="@(actividadSeleccionada == 0)"
+                            value="@claseSeleccionada"
+                            @onchange="CambiarClase">
+                        <option value="0">Seleccione una clase</option>
+                        @foreach (var clase in clasesDisponibles)
+                        {
+                            <option value="@clase.Id">
+                                @NombreDia(clase.DiaSemana) @clase.HoraInicio.ToString(@"hh\:mm") - @clase.HoraFin.ToString(@"hh\:mm")
+                            </option>
+                        }
+                    </select>
+                </div>
 
-                            @foreach (var actividad in actividadesDisponibles)
-                            {
-                                <option value="@actividad.Id">
-                                    @actividad.Nombre
-                                </option>
-                            }
-                        </select>
-                    </div>
-
-                    <div class="col-md-4">
-                        <label for="claseInput" class="form-label">
-                            Clase
-                        </label>
-
-                        <select id="claseInput" class="form-select"
-                                disabled="@(actividadSeleccionada == 0)"
-                                value="@claseSeleccionada"
-                                @onchange="CambiarClase">
-                            <option value="0">Seleccione una clase</option>
-
-                            @foreach (var clase in clasesDisponibles)
-                            {
-                                <option value="@clase.Id">
-                                    @NombreDia(clase.DiaSemana)
-                                    @clase.HoraInicio.ToString(@"hh\:mm")
-                                    -
-                                    @clase.HoraFin.ToString(@"hh\:mm")
-                                </option>
-                            }
-                        </select>
-                    </div>
-
-                    <div class="col-md-4">
-                        <label for="fechaInput" class="form-label">
-                            Fecha
-                        </label>
-
-                        <input id="fechaInput" type="date"
-                               class="form-control"
-                               value="@fecha.ToString("yyyy-MM-dd")"
-                               max="@DateTime.Today.ToString("yyyy-MM-dd")"
-                               @onchange="CambiarFecha" />
-                    </div>
+                <div class="col-md-4">
+                    <label for="fechaInput" class="form-label fw-semibold" style="color: #274472;">Fecha</label>
+                    <input id="fechaInput" type="date"
+                           class="form-control rounded-3 shadow-none"
+                           value="@fecha.ToString("yyyy-MM-dd")"
+                           max="@DateTime.Today.ToString("yyyy-MM-dd")"
+                           @onchange="CambiarFecha" />
                 </div>
             </div>
         </div>
 
         @if (claseSeleccionada == 0)
         {
-            <div class="alert alert-info">
-                Seleccioná una clase para cargar la asistencia.
+            <div class="card shadow-sm border-0 rounded-4 my-3 bg-light">
+                <div class="card-body text-center py-5 px-4">
+                    <div class="mb-3">
+                        <i class="bi bi-calendar-check text-muted" style="font-size: 2.5rem;"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2" style="color: #274472;">Selección requerida</h5>
+                    <p class="text-secondary mb-0">Seleccioná una actividad y una clase para comenzar a tomar asistencia.</p>
+                </div>
             </div>
         }
         else if (registros.Count == 0)
         {
-            <div class="alert alert-warning">
-                No hay socios inscriptos a la actividad de esta clase.
+            <div class="card shadow-sm border-0 rounded-4 my-3 bg-light">
+                <div class="card-body text-center py-5 px-4">
+                    <div class="mb-3">
+                        <i class="bi bi-people text-muted" style="font-size: 2.5rem;"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2" style="color: #274472;">Sin socios activos inscriptos</h5>
+                    <p class="text-secondary mb-0">No hay socios activos inscriptos a esta actividad.</p>
+                </div>
             </div>
         }
         else
         {
-            @if (claseActual is not null && fecha.DayOfWeek != claseActual.DiaSemana)
+            @* --- 3. Recuadro de Resumen Superior Homogéneo (#274472) --- *@
+            <div class="card shadow-sm rounded-4 mb-3 border-0" style="background-color: #ffffff; border: 1px solid #e2e8f0 !important; border-radius: 1rem !important;">
+                <div class="card-body py-3 px-4">
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+                        <div class="d-flex align-items-center flex-wrap gap-2 fs-5">
+                            <span class="fw-bold" style="color: #274472;">
+                                @claseActual?.Actividad?.Nombre
+                            </span>
+                            <span class="text-muted fw-light">|</span>
+                            <span class="fw-semibold" style="color: #274472;">
+                                @NombreDia(claseActual!.DiaSemana) (@claseActual.HoraInicio.ToString(@"hh\:mm") - @claseActual.HoraFin.ToString(@"hh\:mm"))
+                            </span>
+                            <span class="text-muted fw-light">|</span>
+                            <span class="fw-semibold" style="color: #274472;">
+                                @fecha.ToString("dd/MM/yyyy")
+                            </span>
+                        </div>
+                        <div>
+                            <span class="badge rounded-pill lex-wrap gap-2 fw-bold fs-5" style="background-color: #f8fafc; color: #274472;">
+                                Total Inscriptos Activos: @registros.Count
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @if (fecha.DayOfWeek != claseActual.DiaSemana)
             {
-                <div class="alert alert-warning">
-                    La fecha seleccionada no coincide con el día habitual de esta clase.
+                <div class="alert alert-warning border-0 shadow-sm rounded-3 mb-4">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    Atención: La fecha seleccionada no coincide con el día habitual de esta clase (@NombreDia(claseActual.DiaSemana)).
                 </div>
             }
 
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <strong>@TextoClase(claseActual!)</strong>
-                    <span class="ms-2">— @fecha.ToString("dd/MM/yyyy")</span>
+            @* --- 4. Barra de búsqueda y contadores (Con border-radius unificado de 3px/rounded-3) --- *@
+            <div class="row align-items-center mb-3 g-3">
+                <div class="col-12 col-md-5">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0 text-muted rounded-start-3 ps-3" style="border-color: #cbd5e1;">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input id="filterText"
+                               class="form-control border-start-0 rounded-end-3 py-2 ps-1 shadow-none"
+                               style="border-color: #cbd5e1; font-size: 0.9rem;"
+                               value="@filtroSocio"
+                               @oninput="FiltrarSocios"
+                               placeholder="Filtrar por nombre, DNI..." />
+                    </div>
                 </div>
+                <div class="col-12 col-md-7 text-md-end">
+                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-2 fw-semibold fs-6 me-2">
+                        <i class="bi bi-check-circle-fill me-1"></i> Presentes: @sociosPresentesCount
+                    </span>
+                    <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle rounded-pill px-3 py-2 fw-semibold fs-6">
+                        <i class="bi bi-x-circle-fill me-1"></i> Ausentes: @sociosAusentesCount
+                    </span>
+                </div>
+            </div>
 
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0 align-middle">
-                        <thead>
+            @* --- 5. Tabla en Tarjeta --- *@
+            <div class="card shadow-sm rounded-4 border-0 overflow-hidden mb-4" style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 1rem !important;">
+                <div class="table-responsive mb-0">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead style="background-color: #f8fafc; color: #274472;">
                             <tr>
-                                <th>Socio</th>
-                                <th>DNI</th>
-                                <th class="text-center">Presente</th>
+                                <th class="py-3 px-3 fw-bold" style="color: #274472; width: 70px;">Id</th>
+                                <th class="py-3 fw-bold" style="color: #274472;">Nombre</th>
+                                <th class="py-3 fw-bold" style="color: #274472;">DNI</th>
+                                <th class="py-3 fw-bold" style="color: #274472;">Estado</th>
+                                <th class="py-3 text-center px-3 fw-bold" style="color: #274472; width: 150px;">Presente</th>
                             </tr>
                         </thead>
 
                         <tbody>
-                            @foreach (var registro in registros)
+                            @foreach (var registro in registrosFiltrados)
                             {
                                 <tr @key="registro.Socio.Id">
-                                    <td>@registro.Socio.Nombre</td>
-                                    <td>@registro.Socio.Dni</td>
-                                    <td class="text-center">
-                                        <InputCheckbox class="form-check-input"
-                                                       @bind-Value="registro.Asistencia.Presente" />
+                                    <td class="px-3 fw-bold text-muted">#@registro.Socio.Id</td>
+                                    <td class="fw-semibold" style="color: #274472;">@registro.Socio.Nombre</td>
+                                    <td class="text-secondary">@registro.Socio.Dni</td>
+                                    <td>
+                                        @if (registro.Socio.Activo)
+                                        {
+                                            <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-1 fw-semibold">Activo</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle rounded-pill px-3 py-1 fw-semibold">Inactivo</span>
+                                        }
+                                    </td>
+                                    <td class="text-center px-3">
+                                        <div class="form-check d-inline-block">
+                                            <input type="checkbox" class="form-check-input shadow-none"
+                                                   style="transform: scale(1.3); cursor: pointer;"
+                                                   checked="@registro.Presente"
+                                                   @onchange="(e) => registro.Presente = (bool)(e.Value ?? false)" />
+                                        </div>
                                     </td>
                                 </tr>
                             }
                         </tbody>
                     </table>
                 </div>
+            </div>
 
-                <div class="card-footer text-end">
-                    <button type="button"
-                            class="btn btn-success"
-                            @onclick="GuardarAsistencias">
-                        Guardar asistencia
-                    </button>
-                </div>
+            @* --- 6. Botones de acción inferiores --- *@
+            <div class="d-flex justify-content-end align-items-center gap-2 mb-4">
+                <button type="button"
+                        class="btn btn-outline-secondary px-4 rounded-3 fw-semibold shadow-none"
+                        @onclick="VolverFiltros">
+                    <i class="bi bi-arrow-left me-1"></i> Volver
+                </button>
+
+                <button type="button"
+                        class="btn btn-success px-4 rounded-3 fw-semibold d-inline-flex align-items-center gap-1 shadow-none"
+                        disabled="@isSaving"
+                        @onclick="GuardarAsistencias">
+                    @if (isSaving)
+                    {
+                        <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                        <span>Guardando...</span>
+                    }
+                    else
+                    {
+                        <span><i class="bi bi-check2-all me-1"></i> Guardar asistencia</span>
+                    }
+                </button>
             </div>
         }
     }
@@ -145,107 +226,16 @@
     private List<Clase> clases = new();
     private List<SocioActividad> sociosActividades = new();
     private List<Asistencia> asistenciasExistentes = new();
-    private List<RegistroAsistencia> registros = new();
-
-    private int claseSeleccionada = 0;
-    private DateTime fecha = DateTime.Today;
-    private bool isLoading = true;
-
-    private Clase? claseActual =>
-        clases.FirstOrDefault(c => c.Id == claseSeleccionada);
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (!firstRender)
-            return;
-
-        try
-        {
-            await firebaseAuthService.GetUserToken();
-
-            clases = await _claseService.GetAllAsync()
-                      ?? new List<Clase>();
-
-            sociosActividades = await _socioActividadService.GetAllAsync()
-                                ?? new List<SocioActividad>();
-
-            asistenciasExistentes = await _asistenciaService.GetAllAsync()
-                                    ?? new List<Asistencia>();
-        }
-        catch (Exception ex)
-        {
-            Console.Error.WriteLine(ex.ToString());
-
-            var detalle = ex.InnerException?.Message ?? ex.Message;
-
-            await _sweetAlert.FireAsync(
-                "Error",
-                $"No se pudieron cargar los datos. Detalle: {detalle}",
-                SweetAlertIcon.Error);
-        }
-        finally
-        {
-            isLoading = false;
-            await InvokeAsync(StateHasChanged);
-        }
-    }
-
-    private void CambiarClase(ChangeEventArgs e)
-    {
-        claseSeleccionada = int.TryParse(e.Value?.ToString(), out var claseId)
-            ? claseId
-            : 0;
-
-        CargarRegistros();
-    }
-
-    private void CambiarFecha(ChangeEventArgs e)
-    {
-        if (DateTime.TryParse(e.Value?.ToString(), out var nuevaFecha))
-        {
-            fecha = nuevaFecha.Date;
-            CargarRegistros();
-        }
-    }
-
-    private void CargarRegistros()
-    {
-        registros = new List<RegistroAsistencia>();
-
-        if (claseActual is null)
-            return;
-
-        var sociosDeLaActividad = sociosActividades
-            .Where(sa =>
-                sa.ActividadId == claseActual.ActividadId &&
-                sa.Socio is not null)
-            .GroupBy(sa => sa.SocioId)
-            .Select(grupo => grupo.First().Socio!)
-            .OrderBy(s => s.Nombre)
-            .ToList();
-
-        foreach (var socio in sociosDeLaActividad)
-        {
-            var asistenciaExistente = asistenciasExistentes.FirstOrDefault(a =>
-                a.SocioId == socio.Id &&
-                a.ClaseId == claseActual.Id &&
-                a.Fecha.Date == fecha.Date);
-
-            registros.Add(new RegistroAsistencia
-            {
-                Socio = socio,
-                Asistencia = asistenciaExistente ?? new Asistencia
-                {
-                    SocioId = socio.Id,
-                    ClaseId = claseActual.Id,
-                    Fecha = fecha,
-                    Presente = false
-                }
-            });
-        }
-    }
+    private List<RegistroAsistenciaVM> registros = new();
 
     private int actividadSeleccionada = 0;
+    private int claseSeleccionada = 0;
+    private DateTime fecha = DateTime.Today;
+    private string filtroSocio = string.Empty;
+    private bool isLoading = true;
+    private bool isSaving = false;
+
+    private Clase? claseActual => clases.FirstOrDefault(c => c.Id == claseSeleccionada);
 
     private List<Actividad> actividadesDisponibles => clases
         .Where(c => c.Actividad is not null)
@@ -261,42 +251,144 @@
         .ThenBy(c => c.HoraInicio)
         .ToList();
 
+    private List<RegistroAsistenciaVM> registrosFiltrados => string.IsNullOrWhiteSpace(filtroSocio)
+        ? registros
+        : registros.Where(r =>
+            r.Socio.Nombre.Contains(filtroSocio, StringComparison.OrdinalIgnoreCase) ||
+            (r.Socio.Dni?.Contains(filtroSocio) ?? false)).ToList();
+
+    private int sociosPresentesCount => registros.Count(r => r.Presente);
+    private int sociosAusentesCount => registros.Count(r => !r.Presente);
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        try
+        {
+            await firebaseAuthService.GetUserToken();
+            clases = await _claseService.GetAllAsync() ?? new();
+            sociosActividades = await _socioActividadService.GetAllAsync() ?? new();
+            asistenciasExistentes = await _asistenciaService.GetAllAsync() ?? new();
+        }
+        catch (Exception ex)
+        {
+            await _sweetAlert.FireAsync("Error", $"No se pudieron cargar los datos: {ex.Message}", SweetAlertIcon.Error);
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
     private void CambiarActividad(ChangeEventArgs e)
     {
-        actividadSeleccionada = int.TryParse(e.Value?.ToString(), out var actividadId)
-            ? actividadId
-            : 0;
-
+        actividadSeleccionada = int.TryParse(e.Value?.ToString(), out var id) ? id : 0;
         claseSeleccionada = 0;
-        registros = new List<RegistroAsistencia>();
+        registros.Clear();
+        filtroSocio = string.Empty;
     }
+
+    private void CambiarClase(ChangeEventArgs e)
+    {
+        claseSeleccionada = int.TryParse(e.Value?.ToString(), out var id) ? id : 0;
+        filtroSocio = string.Empty;
+
+        if (claseActual is not null)
+        {
+            fecha = ObtenerFechaInteligente(claseActual.DiaSemana);
+        }
+
+        CargarRegistros();
+    }
+
+    private void CambiarFecha(ChangeEventArgs e)
+    {
+        if (DateTime.TryParse(e.Value?.ToString(), out var nuevaFecha))
+        {
+            fecha = nuevaFecha.Date;
+            CargarRegistros();
+        }
+    }
+
+    private void VolverFiltros()
+    {
+        actividadSeleccionada = 0;
+        claseSeleccionada = 0;
+        registros.Clear();
+        filtroSocio = string.Empty;
+    }
+
+    private DateTime ObtenerFechaInteligente(DayOfWeek diaClase)
+    {
+        var hoy = DateTime.Today;
+        if (hoy.DayOfWeek == diaClase) return hoy;
+
+        var fechaAnterior = hoy.AddDays(-1);
+        while (fechaAnterior.DayOfWeek != diaClase)
+        {
+            fechaAnterior = fechaAnterior.AddDays(-1);
+        }
+        return fechaAnterior;
+    }
+
+    private void CargarRegistros()
+    {
+        registros.Clear();
+
+        if (claseActual is null) return;
+
+        var sociosDeLaActividad = sociosActividades
+            .Where(sa => sa.ActividadId == claseActual.ActividadId && sa.Socio is not null && sa.Socio.Activo)
+            .GroupBy(sa => sa.SocioId)
+            .Select(grupo => grupo.First().Socio!)
+            .OrderBy(s => s.Nombre)
+            .ToList();
+
+        foreach (var socio in sociosDeLaActividad)
+        {
+            var asistenciaExistente = asistenciasExistentes.FirstOrDefault(a =>
+                a.SocioId == socio.Id &&
+                a.ClaseId == claseActual.Id &&
+                a.Fecha.Date == fecha.Date);
+
+            registros.Add(new RegistroAsistenciaVM
+            {
+                Socio = socio,
+                AsistenciaId = asistenciaExistente?.Id ?? 0,
+                Presente = asistenciaExistente?.Presente ?? false
+            });
+        }
+    }
+
+    private void FiltrarSocios(ChangeEventArgs e)
+    {
+        filtroSocio = e.Value?.ToString() ?? string.Empty;
+    }
+
     private async Task GuardarAsistencias()
     {
         if (fecha.Date > DateTime.Today)
         {
-            await _sweetAlert.FireAsync(
-                "Error",
-                "No se puede registrar asistencia en una fecha futura.",
-                SweetAlertIcon.Error);
-
+            await _sweetAlert.FireAsync("Error", "No se puede registrar asistencia en una fecha futura.", SweetAlertIcon.Error);
             return;
         }
 
-        if (claseActual is null)
-            return;
+        if (claseActual is null) return;
 
         try
         {
-            isLoading = true;
+            isSaving = true;
 
-            foreach (var registro in registros)
+            foreach (var reg in registros)
             {
                 var asistencia = new Asistencia
                 {
-                    Id = registro.Asistencia.Id,
+                    Id = reg.AsistenciaId,
                     Fecha = fecha.Date,
-                    Presente = registro.Asistencia.Presente,
-                    SocioId = registro.Socio.Id,
+                    Presente = reg.Presente,
+                    SocioId = reg.Socio.Id,
                     ClaseId = claseActual.Id
                 };
 
@@ -310,57 +402,37 @@
                 }
             }
 
-            asistenciasExistentes = await _asistenciaService.GetAllAsync()
-                                    ?? new List<Asistencia>();
+            asistenciasExistentes = await _asistenciaService.GetAllAsync() ?? new();
+            CargarRegistros();
 
-            await _sweetAlert.FireAsync(
-                 "Guardado",
-                 "La asistencia fue registrada correctamente.",
-                 SweetAlertIcon.Success);
-
-            actividadSeleccionada = 0;
-            claseSeleccionada = 0;
-            fecha = DateTime.Today;
-            registros = new List<RegistroAsistencia>();
+            await _sweetAlert.FireAsync("¡Guardado!", "La asistencia fue registrada correctamente.", SweetAlertIcon.Success);
         }
-        catch
+        catch (Exception)
         {
-            await _sweetAlert.FireAsync(
-                "Error",
-                "Hubo un error al guardar la asistencia.",
-                SweetAlertIcon.Error);
+            await _sweetAlert.FireAsync("Error", "Hubo un error al guardar la asistencia.", SweetAlertIcon.Error);
         }
         finally
         {
-            isLoading = false;
+            isSaving = false;
         }
     }
 
-    private static string TextoClase(Clase clase)
+    private static string NombreDia(DayOfWeek dia) => dia switch
     {
-        return $"{clase.Actividad?.Nombre ?? "Actividad"} — " +
-               $"{NombreDia(clase.DiaSemana)} " +
-               $"{clase.HoraInicio:hh\\:mm}";
-    }
+        DayOfWeek.Monday => "Lunes",
+        DayOfWeek.Tuesday => "Martes",
+        DayOfWeek.Wednesday => "Miércoles",
+        DayOfWeek.Thursday => "Jueves",
+        DayOfWeek.Friday => "Viernes",
+        DayOfWeek.Saturday => "Sábado",
+        DayOfWeek.Sunday => "Domingo",
+        _ => dia.ToString()
+    };
 
-    private static string NombreDia(DayOfWeek dia)
-    {
-        return dia switch
-        {
-            DayOfWeek.Monday => "Lunes",
-            DayOfWeek.Tuesday => "Martes",
-            DayOfWeek.Wednesday => "Miércoles",
-            DayOfWeek.Thursday => "Jueves",
-            DayOfWeek.Friday => "Viernes",
-            DayOfWeek.Saturday => "Sábado",
-            DayOfWeek.Sunday => "Domingo",
-            _ => dia.ToString()
-        };
-    }
-
-    private class RegistroAsistencia
+    private class RegistroAsistenciaVM
     {
         public Socio Socio { get; set; } = new();
-        public Asistencia Asistencia { get; set; } = new();
+        public int AsistenciaId { get; set; }
+        public bool Presente { get; set; }
     }
 }
