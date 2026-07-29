@@ -1,106 +1,125 @@
 ﻿@inject IGenericService<Localidad> _localidadService
+@inject SweetAlertService _sweetAlert
 
 <div class="modal fade" id="NuevoEditarSocio" tabindex="-1"
      aria-labelledby="tituloModalSocio" aria-hidden="true">
 
-    <!-- ÚNICO DIÁLOGO CON CLASE DE ANCHO PERSONALIZADO -->
     <div class="modal-dialog modal-dialog-centered modal-custom-width">
         <div class="modal-content custom-modal-content">
 
-            <!-- CABECERA EN DEGRADÉ -->
-            <div class="modal-header custom-modal-header text-white py-2 px-3">
-                <div>
-                    <h6 class="modal-title fw-bold mb-0" id="tituloModalSocio">
-                        @(Socio?.Id > 0 ? "Editar socio" : "Nuevo socio")
-                    </h6>
-                    <small class="modal-subtitle opacity-75">Complete la información del socio</small>
+            <EditForm Model="@Socio">
+                <DataAnnotationsValidator />
+
+                <div class="modal-header custom-modal-header text-white py-2 px-3">
+                    <div>
+                        <h6 class="modal-title fw-bold mb-0" id="tituloModalSocio">
+                            @(Socio?.Id > 0 ? "Editar socio" : "Nuevo socio")
+                        </h6>
+                        <small class="modal-subtitle opacity-75">Complete la información del socio</small>
+                    </div>
+
+                    <button type="button" class="btn-close btn-close-white"
+                            data-bs-dismiss="modal"
+                            aria-label="Cerrar">
+                    </button>
                 </div>
 
-                <button type="button" class="btn-close btn-close-white"
-                        data-bs-dismiss="modal"
-                        aria-label="Cerrar">
-                </button>
-            </div>
+                <div class="modal-body p-3">
+                    <div class="row g-2">
+                        <!-- Nombre -->
+                        <div class="col-md-4">
+                            <label for="nombreInput" class="custom-form-label">
+                                Apellido y Nombre <span class="text-danger">*</span>
+                            </label>
+                            <InputText id="nombreInput" class="form-control custom-form-input"
+                                       placeholder="Ej: Pérez Juan"
+                                       @bind-Value="Socio.Nombre" />
+                        </div>
 
-            <!-- CUERPO DEL FORMULARIO -->
-            <div class="modal-body p-3">
-                <div class="row g-2">
-                    <!-- FILA 1: Nombre (4), DNI (4), Fecha Nac. (4) -->
-                    <div class="col-md-4">
-                        <label for="nombreInput" class="custom-form-label">Nombre y apellido</label>
-                        <InputText id="nombreInput" class="form-control custom-form-input"
-                                   placeholder="Ej: Juan Pérez"
-                                   @bind-Value="Socio.Nombre" />
-                    </div>
+                        <!-- DNI -->
+                        <div class="col-md-4">
+                            <label for="dniInput" class="custom-form-label">
+                                DNI <span class="text-danger">*</span>
+                            </label>
+                            <InputText id="dniInput" class="form-control custom-form-input"
+                                       placeholder="Sin puntos"
+                                       @bind-Value="Socio.Dni" />
+                        </div>
 
-                    <div class="col-md-4">
-                        <label for="dniInput" class="custom-form-label">DNI</label>
-                        <InputText id="dniInput" class="form-control custom-form-input"
-                                   placeholder="Sin puntos"
-                                   @bind-Value="Socio.Dni" />
-                    </div>
+                        <!-- Fecha de Nacimiento (Limitada a max="hoy") -->
+                        <div class="col-md-4">
+                            <label for="fechaNacimientoInput" class="custom-form-label">Fecha Nacimiento</label>
+                            <InputDate id="fechaNacimientoInput" class="form-control custom-form-input"
+                                       max="@DateTime.Today.ToString("yyyy-MM-dd")"
+                                       @bind-Value="Socio.FechaNacimiento" />
+                        </div>
 
-                    <div class="col-md-4">
-                        <label for="fechaNacimientoInput" class="custom-form-label">Fecha nac.</label>
-                        <InputDate id="fechaNacimientoInput" class="form-control custom-form-input"
-                                   @bind-Value="Socio.FechaNacimiento" />
-                    </div>
+                        <!-- Domicilio -->
+                        <div class="col-md-6">
+                            <label for="domicilioInput" class="custom-form-label">
+                                Domicilio <span class="text-danger">*</span>
+                            </label>
+                            <InputText id="domicilioInput" class="form-control custom-form-input"
+                                       placeholder="Calle y altura"
+                                       @bind-Value="Socio.Domicilio" />
+                        </div>
 
-                    <!-- FILA 2: Domicilio (6), Localidad (6) -->
-                    <div class="col-md-6">
-                        <label for="domicilioInput" class="custom-form-label">Domicilio</label>
-                        <InputText id="domicilioInput" class="form-control custom-form-input"
-                                   placeholder="Calle y altura"
-                                   @bind-Value="Socio.Domicilio" />
-                    </div>
+                        <!-- Localidad -->
+                        <div class="col-md-6">
+                            <label for="localidadInput" class="custom-form-label">
+                                Localidad <span class="text-danger">*</span>
+                            </label>
+                            <InputSelect id="localidadInput" class="form-select custom-form-select"
+                                         @bind-Value="Socio.LocalidadId">
+                                <option value="0" disabled>Seleccione una localidad</option>
+                                @foreach (var localidad in localidades)
+                                {
+                                    <option value="@localidad.Id">@localidad.Nombre</option>
+                                }
+                            </InputSelect>
+                        </div>
 
-                    <div class="col-md-6">
-                        <label for="localidadInput" class="custom-form-label">Localidad</label>
-                        <InputSelect id="localidadInput" class="form-select custom-form-select"
-                                     @bind-Value="Socio.LocalidadId">
-                            <option value="0" disabled>Seleccione una localidad</option>
-                            @foreach (var localidad in localidades)
-                            {
-                                <option value="@localidad.Id">@localidad.Nombre</option>
-                            }
-                        </InputSelect>
-                    </div>
+                        <!-- Teléfono -->
+                        <div class="col-md-6">
+                            <label for="telefonoInput" class="custom-form-label">
+                                Teléfono <span class="text-danger">*</span>
+                            </label>
+                            <InputText id="telefonoInput" class="form-control custom-form-input"
+                                       placeholder="Ej: 3498456789"
+                                       @bind-Value="Socio.Telefono" />
+                        </div>
 
-                    <!-- FILA 3: Teléfono (6), Activo (6) -->
-                    <div class="col-md-6">
-                        <label for="telefonoInput" class="custom-form-label">Teléfono</label>
-                        <InputText id="telefonoInput" class="form-control custom-form-input"
-                                   placeholder="Ej: 11 2345-6789"
-                                   @bind-Value="Socio.Telefono" />
-                    </div>
-
-                    <div class="col-md-6 d-flex align-items-end">
-                        <div class="status-switch-card w-100">
-                            <div class="form-check form-switch m-0 d-flex align-items-center justify-content-between pe-1">
-                                <label class="form-check-label fw-semibold text-dark cursor-pointer small" for="socioActivoSwitch">
-                                    Socio activo
-                                </label>
-                                <InputCheckbox id="socioActivoSwitch" class="form-check-input filter-switch-input"
-                                               @bind-Value="Socio.Activo" />
+                        <!-- Activo -->
+                        <div class="col-md-6 d-flex align-items-end">
+                            <div class="status-switch-card w-100">
+                                <div class="form-check form-switch m-0 d-flex align-items-center justify-content-between pe-1">
+                                    <label class="form-check-label fw-semibold text-dark cursor-pointer small" for="socioActivoSwitch">
+                                        Socio activo
+                                    </label>
+                                    <InputCheckbox id="socioActivoSwitch" class="form-check-input filter-switch-input"
+                                                   @bind-Value="Socio.Activo" />
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- PIE DE PÁGINA / BOTONES -->
-            <div class="modal-footer border-0 p-4 pt-0">
-                <button type="button" class="btn btn-outline-secondary px-4 rounded-3 fw-semibold"
-                        data-bs-dismiss="modal">
-                    Cancelar
-                </button>
+                <!-- PIE DE PÁGINA / BOTONES -->
+                <div class="modal-footer border-0 p-4 pt-0">
+                    <button type="button" class="btn btn-outline-secondary px-4 rounded-3 fw-semibold"
+                            data-bs-dismiss="modal">
+                        Cancelar
+                    </button>
 
-                <button type="button" class="btn btn-action-primary px-4 fw-semibold"
-                        data-bs-dismiss="modal"
-                        @onclick="HandleGuardar">
-                    Guardar cambios
-                </button>
-            </div>
+                    <!-- Agregamos data-bs-dismiss="modal" aquí -->
+                    <button type="button" class="btn btn-action-primary px-4 fw-semibold"
+                            data-bs-dismiss="modal"
+                            @onclick="ValidarYGuardar">
+                        Guardar cambios
+                    </button>
+                </div>
+
+            </EditForm>
 
         </div>
     </div>
@@ -121,8 +140,75 @@
                       ?? new List<Localidad>();
     }
 
-    private async Task HandleGuardar()
+    private async Task<bool> DataControl()
     {
+        // Campos obligatorios
+        if (string.IsNullOrWhiteSpace(Socio.Nombre) ||
+            string.IsNullOrWhiteSpace(Socio.Dni) ||
+            string.IsNullOrWhiteSpace(Socio.Domicilio) ||
+            string.IsNullOrWhiteSpace(Socio.Telefono) ||
+            Socio.LocalidadId <= 0)
+        {
+            await _sweetAlert.FireAsync("Error", "Por favor, completa todos los campos obligatorios.", SweetAlertIcon.Error);
+            return false;
+        }
+
+        // Validación de Nombre 
+        if (Socio.Nombre.Trim().Length < 3)
+        {
+            await _sweetAlert.FireAsync("Error", "El nombre debe tener al menos 3 caracteres.", SweetAlertIcon.Error);
+            return false;
+        }
+
+        if (Socio.Nombre.Any(char.IsDigit))
+        {
+            await _sweetAlert.FireAsync("Error", "El nombre no puede contener números.", SweetAlertIcon.Error);
+            return false;
+        }
+
+        // Validación de DNI 
+        if (!Socio.Dni.All(char.IsDigit))
+        {
+            await _sweetAlert.FireAsync("Error", "El DNI solo puede contener números.", SweetAlertIcon.Error);
+            return false;
+        }
+
+        if (Socio.Dni.Length < 7 || Socio.Dni.Length > 8)
+        {
+            await _sweetAlert.FireAsync("Error", "El DNI debe tener entre 7 y 8 dígitos.", SweetAlertIcon.Error);
+            return false;
+        }
+
+        // Validación de Teléfono 
+        if (!Socio.Telefono.All(char.IsDigit))
+        {
+            await _sweetAlert.FireAsync("Error", "El teléfono solo puede contener números.", SweetAlertIcon.Error);
+            return false;
+        }
+
+        // Validación de Fecha de Nacimiento (no puede ser futura)
+        if (Socio.FechaNacimiento > DateTime.Today)
+        {
+            await _sweetAlert.FireAsync("Error", "La fecha de nacimiento no puede ser posterior al día de hoy.", SweetAlertIcon.Error);
+            return false;
+        }
+
+        return true;
+    }
+
+    private async Task ValidarYGuardar()
+    {
+        // Limpiamos espacios en blanco
+        Socio.Nombre = Socio.Nombre?.Trim() ?? string.Empty;
+        Socio.Dni = Socio.Dni?.Trim() ?? string.Empty;
+        Socio.Domicilio = Socio.Domicilio?.Trim() ?? string.Empty;
+        Socio.Telefono = Socio.Telefono?.Trim() ?? string.Empty;
+
+        // Ejecutamos las reglas de negocio idénticas a Signin
+        if (!await DataControl())
+            return;
+
+        // Si pasa todas las validaciones, enviamos el socio hacia el componente padre
         if (OnGuardar.HasDelegate)
         {
             await OnGuardar.InvokeAsync(Socio);

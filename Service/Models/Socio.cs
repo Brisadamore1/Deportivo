@@ -7,13 +7,13 @@ namespace Service.Models
     public class Socio : IEntityIdNombre
     {
         public int Id { get; set; }
-        [Required]
+        [Required(ErrorMessage = "El nombre del socio es requerido.")]
         public string Nombre { get; set; } = string.Empty;
-        [Required]
+        [Required(ErrorMessage = "El dni es requerido.")]
         public string Dni { get; set; } = string.Empty;
-        [Required]
+        [Required(ErrorMessage = "El domicilio es requerido.")]
         public string Domicilio { get; set; } = string.Empty;
-        [Required]
+        [Required(ErrorMessage = "El teléfono es requerido.")]
         public string Telefono { get; set; } = string.Empty;
         [Required]
         public bool Activo { get; set; } = true;

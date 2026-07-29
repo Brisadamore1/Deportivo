@@ -7,7 +7,7 @@ namespace Service.Models
     public class Profesor : IEntityIdNombre
     {
         public int Id { get; set; }
-        [Required]
+        [Required(ErrorMessage = "El nombre del profesor es requerido.")]
         public string Nombre { get; set; } = string.Empty;
         public bool Activo { get; set; } = true;
         public bool IsDeleted { get; set; } = false;

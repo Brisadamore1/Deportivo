@@ -8,11 +8,11 @@ namespace Service.Models
     {
         public int Id { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "El nombre de la actividad es requerido.")]
         public string Nombre { get; set; } = string.Empty;
         public string Imagen { get; set; } = string.Empty;
 
-        [Required]
+        [Required(ErrorMessage = "El nombre de la descripción es requerido.")]
         [Column(TypeName = "text")]
         public string Descripcion { get; set; } = string.Empty;
         public string? EdadRecomendada { get; set; } = string.Empty;

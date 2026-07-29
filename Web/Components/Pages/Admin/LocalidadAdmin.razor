@@ -17,7 +17,7 @@ else
         @* --- 1. Encabezado --- *@
         <EncabezadoPage Titulo="Administración de Localidades" Descripcion="Gestiona las localidades disponibles para los socios" />
 
-        @* --- 2. Filtro arriba (ÚNICO buscador) --- *@
+        @* --- 2. Filtro arriba --- *@
         <div class="mx-auto mb-4" style="max-width:500px;">
             <div class="search-box-container mb-4">
                 <div class="input-group search-input-group">
@@ -39,7 +39,7 @@ else
             <div class="col-12">
                 <ResultadoBusqueda Cantidad="localidadesFiltradas.Count" TextoResultado="@(localidadesFiltradas.Count == 1 ? "localidad encontrada" : "localidades encontradas")" />
 
-                @* Estado sin resultados (Compacto y chico) *@
+                @* Estado sin resultados *@
                 @if (localidadesFiltradas.Count == 0 && !isLoading)
                 {
                     <div class="card shadow-sm border-0 rounded-3 my-2 bg-light">
@@ -64,7 +64,7 @@ else
                                               OnNuevo="Nuevo" />
         </div>
 
-        @* --- 5. Tabla de localidades (Renderiza el spinner pequeño al actualizar o la tabla completa) --- *@
+        @* --- 5. Tabla de localidades --- *@
         @if (isLoading)
         {
             <div class="text-center py-4">
@@ -119,10 +119,7 @@ else
         {
             localidades = new List<Localidad>();
             localidadesFiltradas = new List<Localidad>();
-            await _sweetAlert.FireAsync(
-                "Error",
-                "No se pudieron cargar las localidades.",
-                SweetAlertIcon.Error);
+            await _sweetAlert.FireAsync("Error", "No se pudieron cargar las localidades.", SweetAlertIcon.Error);
         }
         finally
         {
@@ -149,12 +146,10 @@ else
 
         if (string.IsNullOrWhiteSpace(filterText))
         {
-            // Ordenado alfabéticamente por Nombre al inicio o sin filtro
             localidadesFiltradas = localidades.OrderBy(l => l.Nombre).ToList();
             return;
         }
 
-        // Ordenado alfabéticamente por Nombre también al filtrar
         localidadesFiltradas = localidades
             .Where(l => l.Nombre != null && l.Nombre.Contains(filterText, StringComparison.OrdinalIgnoreCase))
             .OrderBy(l => l.Nombre)
@@ -174,15 +169,7 @@ else
 
     private async Task Eliminar(Localidad localidad)
     {
-        var respuesta = await _sweetAlert.FireAsync(new SweetAlertOptions
-        {
-            Title = "Eliminando localidad",
-            Text = $"¿Está seguro que desea eliminar la localidad {localidad.Nombre}?",
-            Icon = SweetAlertIcon.Warning,
-            ShowCancelButton = true,
-            ConfirmButtonText = "Sí, eliminar",
-            CancelButtonText = "Cancelar"
-        });
+        var respuesta = await _sweetAlert.FireAsync(new SweetAlertOptions { Title = "Eliminando localidad", Text = $"¿Está seguro que desea eliminar la localidad {localidad.Nombre}?", Icon = SweetAlertIcon.Warning, ShowCancelButton = true, ConfirmButtonText = "Sí, eliminar", CancelButtonText = "Cancelar" });
 
         if (!respuesta.IsConfirmed)
             return;
@@ -190,21 +177,13 @@ else
         try
         {
             isLoading = true;
-
             await _localidadService.DeleteAsync(localidad.Id);
             await GetLocalidades();
-
-            await _sweetAlert.FireAsync(
-                "Eliminada",
-                "La localidad fue eliminada exitosamente.",
-                SweetAlertIcon.Success);
+            await _sweetAlert.FireAsync("Eliminada", "La localidad fue eliminada exitosamente.", SweetAlertIcon.Success);
         }
         catch
         {
-            await _sweetAlert.FireAsync(
-                "Error",
-                "Hubo un error al eliminar la localidad.",
-                SweetAlertIcon.Error);
+            await _sweetAlert.FireAsync("Error", "Hubo un error al eliminar la localidad.", SweetAlertIcon.Error);
         }
         finally
         {
@@ -214,6 +193,13 @@ else
 
     private async Task Guardar(Localidad localidadToSave)
     {
+        // Validación extra por seguridad ante envíos vacíos
+        if (string.IsNullOrWhiteSpace(localidadToSave.Nombre))
+        {
+            await _sweetAlert.FireAsync("Atención", "El nombre de la localidad es requerido y no puede estar vacío.", SweetAlertIcon.Warning);
+            return;
+        }
+
         try
         {
             isLoading = true;
@@ -221,20 +207,12 @@ else
             if (localidadToSave.Id == 0)
             {
                 await _localidadService.AddAsync(localidadToSave);
-
-                await _sweetAlert.FireAsync(
-                    "Creada",
-                    "La localidad fue creada exitosamente.",
-                    SweetAlertIcon.Success);
+                await _sweetAlert.FireAsync("Creada", "La localidad fue creada exitosamente.", SweetAlertIcon.Success);
             }
             else
             {
                 await _localidadService.UpdateAsync(localidadToSave);
-
-                await _sweetAlert.FireAsync(
-                    "Actualizada",
-                    "La localidad fue actualizada exitosamente.",
-                    SweetAlertIcon.Success);
+                await _sweetAlert.FireAsync("Actualizada", "La localidad fue actualizada exitosamente.", SweetAlertIcon.Success);
             }
 
             await GetLocalidades();
@@ -242,10 +220,7 @@ else
         }
         catch
         {
-            await _sweetAlert.FireAsync(
-                "Error",
-                "Hubo un error al guardar la localidad.",
-                SweetAlertIcon.Error);
+            await _sweetAlert.FireAsync("Error", "Hubo un error al guardar la localidad.", SweetAlertIcon.Error);
         }
         finally
         {
@@ -255,15 +230,7 @@ else
 
     private async Task Restaurar(Localidad localidad)
     {
-        var respuesta = await _sweetAlert.FireAsync(new SweetAlertOptions
-        {
-            Title = "Restaurando localidad",
-            Text = $"¿Está seguro que desea restaurar la localidad {localidad.Nombre}?",
-            Icon = SweetAlertIcon.Question,
-            ShowCancelButton = true,
-            ConfirmButtonText = "Sí, restaurar",
-            CancelButtonText = "Cancelar"
-        });
+        var respuesta = await _sweetAlert.FireAsync(new SweetAlertOptions { Title = "Restaurando localidad", Text = $"¿Está seguro que desea restaurar la localidad {localidad.Nombre}?", Icon = SweetAlertIcon.Question, ShowCancelButton = true, ConfirmButtonText = "Sí, restaurar", CancelButtonText = "Cancelar" });
 
         if (!respuesta.IsConfirmed)
             return;
@@ -271,21 +238,13 @@ else
         try
         {
             isLoading = true;
-
             await _localidadService.RestoreAsync(localidad.Id);
             await GetLocalidades();
-
-            await _sweetAlert.FireAsync(
-                "Restaurada",
-                "La localidad fue restaurada exitosamente.",
-                SweetAlertIcon.Success);
+            await _sweetAlert.FireAsync("Restaurada", "La localidad fue restaurada exitosamente.", SweetAlertIcon.Success);
         }
         catch
         {
-            await _sweetAlert.FireAsync(
-                "Error",
-                "Hubo un error al restaurar la localidad.",
-                SweetAlertIcon.Error);
+            await _sweetAlert.FireAsync("Error", "Hubo un error al restaurar la localidad.", SweetAlertIcon.Error);
         }
         finally
         {

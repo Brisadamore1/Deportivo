@@ -222,20 +222,12 @@ else
             if (actividadToSave.Id == 0)
             {
                 await _actividadService.AddAsync(actividadToSave);
-
-                await _sweetAlert.FireAsync(
-                    "Creada",
-                    "La actividad fue creada exitosamente.",
-                    SweetAlertIcon.Success);
+                await _sweetAlert.FireAsync("Creada", "La actividad fue creada exitosamente.", SweetAlertIcon.Success);
             }
             else
             {
                 await _actividadService.UpdateAsync(actividadToSave);
-
-                await _sweetAlert.FireAsync(
-                    "Actualizada",
-                    "La actividad fue actualizada exitosamente.",
-                    SweetAlertIcon.Success);
+                await _sweetAlert.FireAsync("Actualizada", "La actividad fue actualizada exitosamente.", SweetAlertIcon.Success);
             }
 
             await GetActividades();
@@ -243,10 +235,7 @@ else
         }
         catch
         {
-            await _sweetAlert.FireAsync(
-                "Error",
-                "Hubo un error al guardar la actividad.",
-                SweetAlertIcon.Error);
+            await _sweetAlert.FireAsync("Error", "Hubo un error al guardar la actividad.", SweetAlertIcon.Error);
         }
         finally
         {

@@ -221,20 +221,12 @@ else
             if (profesorToSave.Id == 0)
             {
                 await _profesorService.AddAsync(profesorToSave);
-
-                await _sweetAlert.FireAsync(
-                    "Creado",
-                    "El profesor fue creado exitosamente.",
-                    SweetAlertIcon.Success);
+                await _sweetAlert.FireAsync("Creado", "El profesor fue creado exitosamente.", SweetAlertIcon.Success);
             }
             else
             {
                 await _profesorService.UpdateAsync(profesorToSave);
-
-                await _sweetAlert.FireAsync(
-                    "Actualizado",
-                    "El profesor fue actualizado exitosamente.",
-                    SweetAlertIcon.Success);
+                await _sweetAlert.FireAsync("Actualizado", "El profesor fue actualizado exitosamente.", SweetAlertIcon.Success);
             }
 
             await GetProfesores();
@@ -242,10 +234,7 @@ else
         }
         catch
         {
-            await _sweetAlert.FireAsync(
-                "Error",
-                "Hubo un error al guardar el profesor.",
-                SweetAlertIcon.Error);
+            await _sweetAlert.FireAsync("Error", "Hubo un error al guardar el profesor.", SweetAlertIcon.Error);
         }
         finally
         {

@@ -6,7 +6,7 @@ namespace Service.Models
     public class Localidad : IEntityIdNombre
     {
         public int Id { get; set; }
-        [Required]
+        [Required(ErrorMessage = "El nombre de la localidad es requerido.")]
         public string Nombre { get; set; } = string.Empty;
         public bool IsDeleted { get; set; } = false;
 
