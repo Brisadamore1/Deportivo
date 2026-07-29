@@ -1,58 +1,97 @@
 ﻿@page "/admin/profesores"
-@using Service.Interfaces
-@using Service.Models
-@using Web.Components.Commons
-
 @inject IGenericService<Profesor> _profesorService
 @inject SweetAlertService _sweetAlert
 @rendermode InteractiveServer
 
-<EncabezadoPage Titulo="Administración de Profesores" Descripcion="Gestiona los profesores" />
+@if (profesores == null)
+{
+    <div class="d-flex align-items-center justify-content-center min-vh-50 py-5">
+        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+            <span class="visually-hidden">Cargando...</span>
+        </div>
+    </div>
+}
+else
+{
+    <div class="container py-4">
+        @* --- 1. Encabezado --- *@
+        <EncabezadoPage Titulo="Administración de Profesores" Descripcion="Gestiona los profesores disponibles para las actividades" />
 
-<div class="container py-4">
-    <SeccionBtnNuevoMostrarEliminados TargetModal="#NuevoEditarProfesor"
-                                      @bind-MostrarEliminados="MostrarEliminados"
-                                      OnAfterMostrarEliminados="GetProfesores"
-                                      OnNuevo="Nuevo" />
+        @* --- 2. Filtro arriba en el centro --- *@
+        <div class="mx-auto mb-4" style="max-width:500px;">
+            <div class="search-box-container mb-4">
+                <div class="input-group search-input-group">
+                    <span class="input-group-text bg-transparent border-end-0 px-3">
+                        <i class="bi bi-search text-muted"></i>
+                    </span>
+                    <input id="filterText"
+                           type="text"
+                           class="form-control border-start-0 ps-2"
+                           value="@filterText"
+                           @oninput="FilterList"
+                           placeholder="Filtrar por apellido y nombre del profesor..." />
+                </div>
+            </div>
+        </div>
 
-    @if (isLoading)
-    {
-        <ActivityIndicator Mensaje="Cargando profesores..." IsBusy="isLoading" />
-    }
-    else
-    {
-        @if (profesores != null && profesores.Count > 0)
+        @* --- 3. Resultados de búsqueda en el medio --- *@
+        <div class="row mb-3">
+            <div class="col-12">
+                <ResultadoBusqueda Cantidad="profesoresFiltrados.Count" TextoResultado="@(profesoresFiltrados.Count == 1 ? "profesor encontrado" : "profesores encontrados")" />
+
+                @* Estado sin resultados *@
+                @if (profesoresFiltrados.Count == 0 && !isLoading)
+                {
+                    <div class="card shadow-sm border-0 rounded-3 my-2 bg-light">
+                        <div class="card-body text-center py-3 px-3">
+                            <div class="mb-1">
+                                <i class="bi bi-search text-muted" style="font-size: 1.25rem;"></i>
+                            </div>
+                            <p class="text-secondary small mb-0">
+                                @(MostrarEliminados ? "No hay profesores eliminados." : "No hay profesores registrados.")
+                            </p>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        @* --- 4. Botón Nuevo y Ver eliminados antes de la tabla --- *@
+        <div class="mb-4">
+            <SeccionBtnNuevoMostrarEliminados TargetModal="#NuevoEditarProfesor"
+                                              @bind-MostrarEliminados="MostrarEliminados"
+                                              OnAfterMostrarEliminados="GetProfesores"
+                                              OnNuevo="Nuevo" />
+        </div>
+
+        @* --- 5. Tabla de profesores --- *@
+        @if (isLoading)
         {
-            <TablaProfesorConFiltro ListEntity="profesores"
+            <div class="text-center py-4">
+                <div class="spinner-border spinner-border-sm text-primary" role="status">
+                    <span class="visually-hidden">Actualizando...</span>
+                </div>
+            </div>
+        }
+        else if (profesoresFiltrados != null && profesoresFiltrados.Count > 0)
+        {
+            <TablaProfesorConFiltro ListEntity="profesoresFiltrados"
                                     OnEliminar="Eliminar"
                                     OnModificar="Modificar"
                                     OnRestaurar="Restaurar"
                                     MostrarEliminados="MostrarEliminados" />
         }
-        else
-        {
-            @if (MostrarEliminados)
-            {
-                <div class="alert alert-info" role="alert">
-                    No hay profesores eliminados.
-                </div>
-            }
-            else
-            {
-                <div class="alert alert-info" role="alert">
-                    No hay profesores registrados.
-                </div>
-            }
-        }
-    }
+    </div>
+}
 
-    <NuevoEditarProfesor Profesor="@profesorCurrent"
-                         OnGuardar="Guardar" />
-</div>
+<NuevoEditarProfesor Profesor="@profesorCurrent"
+                     OnGuardar="Guardar" />
 
 @code {
-    List<Profesor>? profesores = new();
+    List<Profesor>? profesores = null;
+    List<Profesor> profesoresFiltrados = new();
     Profesor profesorCurrent = new();
+    string filterText = "";
 
     bool isLoading = true;
 
@@ -66,15 +105,20 @@
     private async Task GetProfesores()
     {
         isLoading = true;
+        StateHasChanged();
 
         try
         {
             profesores = MostrarEliminados
-                ? await _profesorService.GetAllDeletedsAsync()
-                : await _profesorService.GetAllAsync();
+                ? await _profesorService.GetAllDeletedsAsync() ?? new List<Profesor>()
+                : await _profesorService.GetAllAsync() ?? new List<Profesor>();
+
+            AplicarFiltro(filterText);
         }
         catch
         {
+            profesores = new List<Profesor>();
+            profesoresFiltrados = new List<Profesor>();
             await _sweetAlert.FireAsync(
                 "Error",
                 "No se pudieron cargar los profesores.",
@@ -83,12 +127,44 @@
         finally
         {
             isLoading = false;
+            StateHasChanged();
         }
+    }
+
+    private void FilterList(ChangeEventArgs e)
+    {
+        filterText = e.Value?.ToString() ?? "";
+        AplicarFiltro(filterText);
+    }
+
+    private void AplicarFiltro(string texto)
+    {
+        filterText = texto;
+
+        if (profesores is null)
+        {
+            profesoresFiltrados = new();
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(filterText))
+        {
+            profesoresFiltrados = profesores
+                .OrderBy(p => p.Nombre != null ? p.Nombre.Trim() : string.Empty, StringComparer.CurrentCultureIgnoreCase)
+                .ToList();
+            return;
+        }
+
+        profesoresFiltrados = profesores
+            .Where(p => p.Nombre != null && p.Nombre.Contains(filterText, StringComparison.OrdinalIgnoreCase))
+            .OrderBy(p => p.Nombre != null ? p.Nombre.Trim() : string.Empty, StringComparer.CurrentCultureIgnoreCase)
+            .ToList();
     }
 
     private void Modificar(Profesor profesor)
     {
         profesorCurrent = profesor;
+        StateHasChanged();
     }
 
     private void Nuevo()
@@ -119,15 +195,15 @@
             await GetProfesores();
 
             await _sweetAlert.FireAsync(
-                "Eliminada",
-                "El profesor fue eliminada exitosamente.",
+                "Eliminado",
+                "El profesor fue eliminado exitosamente.",
                 SweetAlertIcon.Success);
         }
         catch
         {
             await _sweetAlert.FireAsync(
                 "Error",
-                "Hubo un error al eliminar al profesor.",
+                "Hubo un error al eliminar el profesor.",
                 SweetAlertIcon.Error);
         }
         finally
@@ -147,7 +223,7 @@
                 await _profesorService.AddAsync(profesorToSave);
 
                 await _sweetAlert.FireAsync(
-                    "Creada",
+                    "Creado",
                     "El profesor fue creado exitosamente.",
                     SweetAlertIcon.Success);
             }
@@ -156,7 +232,7 @@
                 await _profesorService.UpdateAsync(profesorToSave);
 
                 await _sweetAlert.FireAsync(
-                    "Actualizada",
+                    "Actualizado",
                     "El profesor fue actualizado exitosamente.",
                     SweetAlertIcon.Success);
             }
@@ -168,7 +244,7 @@
         {
             await _sweetAlert.FireAsync(
                 "Error",
-                "Hubo un error al guardar al profesor.",
+                "Hubo un error al guardar el profesor.",
                 SweetAlertIcon.Error);
         }
         finally
@@ -200,7 +276,7 @@
             await GetProfesores();
 
             await _sweetAlert.FireAsync(
-                "Restaurada",
+                "Restaurado",
                 "El profesor fue restaurado exitosamente.",
                 SweetAlertIcon.Success);
         }
@@ -208,7 +284,7 @@
         {
             await _sweetAlert.FireAsync(
                 "Error",
-                "Hubo un error al restaurar al profesor.",
+                "Hubo un error al restaurar el profesor.",
                 SweetAlertIcon.Error);
         }
         finally

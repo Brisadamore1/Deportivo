@@ -1,58 +1,115 @@
 ﻿@page "/admin/clases"
-@using Service.Interfaces
-@using Service.Models
-@using Web.Components.Clases
 @inject IGenericService<Clase> _claseService
+@inject IGenericService<Actividad> _actividadService
 @inject SweetAlertService _sweetAlert
 @rendermode InteractiveServer
 
-<EncabezadoPage Titulo="Administración de Clases"
-                Descripcion="Gestiona horarios y cupos de las actividades deportivas" />
+@if (clases == null)
+{
+    <div class="d-flex align-items-center justify-content-center min-vh-50 py-5">
+        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+            <span class="visually-hidden">Cargando...</span>
+        </div>
+    </div>
+}
+else
+{
+    <div class="container py-4">
+        @* --- 1. Encabezado --- *@
+        <EncabezadoPage Titulo="Administración de Clases" Descripcion="Gestiona las clases y horarios disponibles" />
 
-<div class="container py-4">
-    <SeccionBtnNuevoMostrarEliminados TargetModal="#NuevoEditarClase"
-                                      @bind-MostrarEliminados="MostrarEliminados"
-                                      OnAfterMostrarEliminados="GetClases"
-                                      OnNuevo="Nuevo" />
+        <!-- FILTROS: Más chicos y centrados -->
+        <div class="row justify-content-center g-3 mb-4">
+            <!-- Select de Actividades -->
+            <div class="col-md-2">
+                <select class="form-select" @onchange="OnActividadChange">
+                    <option value="">Todas las actividades</option>
+                    @if (actividades != null)
+                    {
+                        @foreach (var act in actividades)
+                        {
+                            <option value="@act.Id" selected="@(actividadIdFiltro == act.Id)">@act.Nombre</option>
+                        }
+                    }
+                </select>
+            </div>
 
-    @if (isLoading)
-    {
-        <ActivityIndicator Mensaje="Cargando clases..." IsBusy="isLoading" />
-    }
-    else
-    {
-        @if (clases != null && clases.Count > 0)
+            <!-- Select de Días de la Semana -->
+            <div class="col-md-2">
+                <select class="form-select" @onchange="OnDiaChange">
+                    <option value="">Todos los días</option>
+                    <option value="1" selected="@(diaFiltro == DayOfWeek.Monday)">Lunes</option>
+                    <option value="2" selected="@(diaFiltro == DayOfWeek.Tuesday)">Martes</option>
+                    <option value="3" selected="@(diaFiltro == DayOfWeek.Wednesday)">Miércoles</option>
+                    <option value="4" selected="@(diaFiltro == DayOfWeek.Thursday)">Jueves</option>
+                    <option value="5" selected="@(diaFiltro == DayOfWeek.Friday)">Viernes</option>
+                    <option value="6" selected="@(diaFiltro == DayOfWeek.Saturday)">Sábado</option>
+                    <option value="0" selected="@(diaFiltro == DayOfWeek.Sunday)">Domingo</option>
+                </select>
+            </div>
+        </div>
+
+        @* --- 3. Resultados de búsqueda en el medio --- *@
+        <div class="row mb-3">
+            <div class="col-12">
+                <ResultadoBusqueda Cantidad="clasesFiltradas.Count" TextoResultado="@(clasesFiltradas.Count == 1 ? "clase encontrada" : "clases encontradas")" />
+
+                @* Estado sin resultados (Compacto y chico) *@
+                @if (clasesFiltradas.Count == 0 && !isLoading)
+                {
+                    <div class="card shadow-sm border-0 rounded-3 my-2 bg-light">
+                        <div class="card-body text-center py-3 px-3">
+                            <div class="mb-1">
+                                <i class="bi bi-search text-muted" style="font-size: 1.25rem;"></i>
+                            </div>
+                            <p class="text-secondary small mb-0">
+                                @(MostrarEliminados ? "No hay clases eliminadas." : "No hay clases registradas con estos filtros.")
+                            </p>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        @* --- 4. Botón Nuevo y Ver eliminados antes de la tabla --- *@
+        <div class="mb-4">
+            <SeccionBtnNuevoMostrarEliminados TargetModal="#NuevoEditarClase"
+                                              @bind-MostrarEliminados="MostrarEliminados"
+                                              OnAfterMostrarEliminados="GetClases"
+                                              OnNuevo="Nuevo" />
+        </div>
+
+        @* --- 5. Tabla de clases --- *@
+        @if (isLoading)
         {
-            <TablaClaseConFiltro
-                ListEntity="clases"
-                OnEliminar="Eliminar"
-                OnModificar="Modificar"
-                OnRestaurar="Restaurar"
-                MostrarEliminados="MostrarEliminados" />
+            <div class="text-center py-4">
+                <div class="spinner-border spinner-border-sm text-primary" role="status">
+                    <span class="visually-hidden">Actualizando...</span>
+                </div>
+            </div>
         }
-        else
+        else if (clasesFiltradas != null && clasesFiltradas.Count > 0)
         {
-            @if (MostrarEliminados)
-            {
-                <div class="alert alert-info" role="alert">
-                    No hay clases eliminadas.
-                </div>
-            }
-            else
-            {
-                <div class="alert alert-info" role="alert">
-                    No hay clases registradas.
-                </div>
-            }
+            <TablaClaseConFiltro ListEntity="clasesFiltradas"
+                                 OnEliminar="Eliminar"
+                                 OnModificar="Modificar"
+                                 OnRestaurar="Restaurar"
+                                 MostrarEliminados="MostrarEliminados" />
         }
-    }
+    </div>
+}
 
-    <NuevoEditarClase Clase="@claseCurrent" OnGuardar="Guardar" />
-</div>
+<NuevoEditarClase Clase="@claseCurrent"
+                  OnGuardar="Guardar" />
 
 @code {
-    List<Clase>? clases = new();
-    Clase claseCurrent = new() { Activa = true, CupoMaximo = 1 };
+    List<Clase>? clases = null;
+    List<Clase> clasesFiltradas = new();
+    Clase claseCurrent = new();
+
+    private List<Actividad> actividades = new();
+    private int? actividadIdFiltro = null;
+    private DayOfWeek? diaFiltro = null; // Reemplaza al filterText de texto libre
 
     bool isLoading = true;
 
@@ -61,20 +118,26 @@
     protected override async Task OnInitializedAsync()
     {
         await GetClases();
+        actividades = await _actividadService.GetAllAsync() ?? new();
     }
 
     private async Task GetClases()
     {
         isLoading = true;
+        StateHasChanged();
 
         try
         {
             clases = MostrarEliminados
-                ? await _claseService.GetAllDeletedsAsync()
-                : await _claseService.GetAllAsync();
+                ? await _claseService.GetAllDeletedsAsync() ?? new List<Clase>()
+                : await _claseService.GetAllAsync() ?? new List<Clase>();
+
+            AplicarFiltros();
         }
         catch
         {
+            clases = new List<Clase>();
+            clasesFiltradas = new List<Clase>();
             await _sweetAlert.FireAsync(
                 "Error",
                 "No se pudieron cargar las clases.",
@@ -83,21 +146,89 @@
         finally
         {
             isLoading = false;
+            StateHasChanged();
         }
     }
+
+    private void OnActividadChange(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out int id))
+        {
+            actividadIdFiltro = id;
+        }
+        else
+        {
+            actividadIdFiltro = null;
+        }
+        AplicarFiltros();
+    }
+
+    private void OnDiaChange(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out int diaInt))
+        {
+            diaFiltro = (DayOfWeek)diaInt;
+        }
+        else
+        {
+            diaFiltro = null;
+        }
+        AplicarFiltros();
+    }
+
+    private void AplicarFiltros()
+    {
+        if (clases == null)
+        {
+            clasesFiltradas = new();
+            return;
+        }
+
+        var query = clases.AsEnumerable();
+
+        // 1. Filtro por Actividad seleccionada
+        if (actividadIdFiltro.HasValue)
+        {
+            query = query.Where(c => c.ActividadId == actividadIdFiltro.Value);
+        }
+
+        // 2. Filtro por Día de la semana seleccionado
+        if (diaFiltro.HasValue)
+        {
+            query = query.Where(c => c.DiaSemana == diaFiltro.Value);
+        }
+
+        // Ordenamiento alfabético por Actividad, luego por Día y por Hora de inicio
+        clasesFiltradas = query
+            .OrderBy(c => c.Actividad?.Nombre ?? string.Empty)
+            .ThenBy(c => c.DiaSemana)
+            .ThenBy(c => c.HoraInicio)
+            .ToList();
+
+        StateHasChanged();
+    }
+
+    private static string ObtenerNombreDia(DayOfWeek dia) => dia switch
+    {
+        DayOfWeek.Monday => "Lunes",
+        DayOfWeek.Tuesday => "Martes",
+        DayOfWeek.Wednesday => "Miércoles",
+        DayOfWeek.Thursday => "Jueves",
+        DayOfWeek.Friday => "Viernes",
+        DayOfWeek.Saturday => "Sábado",
+        DayOfWeek.Sunday => "Domingo",
+        _ => dia.ToString()
+    };
 
     private void Modificar(Clase clase)
     {
         claseCurrent = clase;
+        StateHasChanged();
     }
 
     private void Nuevo()
     {
-        claseCurrent = new Clase
-        {
-            Activa = true,
-            CupoMaximo = 1
-        };
+        claseCurrent = new Clase();
     }
 
     private async Task Eliminar(Clase clase)
@@ -105,7 +236,7 @@
         var respuesta = await _sweetAlert.FireAsync(new SweetAlertOptions
         {
             Title = "Eliminando clase",
-            Text = "¿Está seguro que desea eliminar esta clase?",
+            Text = $"¿Está seguro que desea eliminar la clase de {(clase.Actividad?.Nombre ?? "esta actividad")}?",
             Icon = SweetAlertIcon.Warning,
             ShowCancelButton = true,
             ConfirmButtonText = "Sí, eliminar",
@@ -142,39 +273,29 @@
 
     private async Task Guardar(Clase claseToSave)
     {
-        if (claseToSave.ActividadId == 0)
-        {
-            await _sweetAlert.FireAsync(
-                "Error",
-                "Debes seleccionar una actividad.",
-                SweetAlertIcon.Error);
-
-            return;
-        }
-
-        if (claseToSave.CupoMaximo < 1 || claseToSave.CupoMaximo > 100)
-        {
-            await _sweetAlert.FireAsync(
-                "Error",
-                "El cupo máximo debe estar entre 1 y 100.",
-                SweetAlertIcon.Error);
-
-            return;
-        }
-
-        if (claseToSave.HoraInicio >= claseToSave.HoraFin)
-        {
-            await _sweetAlert.FireAsync(
-                "Error",
-                "La hora de finalización debe ser posterior a la hora de inicio.",
-                SweetAlertIcon.Error);
-
-            return;
-        }
-
         try
         {
             isLoading = true;
+
+            if (clases != null)
+            {
+                bool claseDuplicada = clases.Any(c =>
+                    c.Id != claseToSave.Id &&
+                    c.ActividadId == claseToSave.ActividadId &&
+                    c.DiaSemana == claseToSave.DiaSemana &&
+                    c.HoraInicio == claseToSave.HoraInicio &&
+                    c.HoraFin == claseToSave.HoraFin
+                );
+
+                if (claseDuplicada)
+                {
+                    await _sweetAlert.FireAsync(
+                        "Clase Duplicada",
+                        "Ya existe una clase registrada para esta actividad en el mismo día y horario.",
+                        SweetAlertIcon.Warning);
+                    return;
+                }
+            }
 
             if (claseToSave.Id == 0)
             {
@@ -196,7 +317,7 @@
             }
 
             await GetClases();
-            Nuevo();
+            claseCurrent = new Clase();
         }
         catch
         {
@@ -216,7 +337,7 @@
         var respuesta = await _sweetAlert.FireAsync(new SweetAlertOptions
         {
             Title = "Restaurando clase",
-            Text = "¿Está seguro que desea restaurar esta clase?",
+            Text = $"¿Está seguro que desea restaurar la clase de {(clase.Actividad?.Nombre ?? "esta actividad")}?",
             Icon = SweetAlertIcon.Question,
             ShowCancelButton = true,
             ConfirmButtonText = "Sí, restaurar",

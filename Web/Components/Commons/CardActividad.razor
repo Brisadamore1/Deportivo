@@ -1,0 +1,66 @@
+﻿@using Service.Models
+
+<div class="row align-items-center bg-white border rounded-3 p-3 mb-3 shadow-sm w-100 mx-0">
+
+    <!-- Nombre y Estado -->
+    <div class="col-12 col-lg-3 mb-2 mb-lg-0">
+        <div class="fw-bold fs-5" style="color: #274472;">
+            @Actividad.Nombre
+        </div>
+
+        <div>
+            @if (!Actividad.IsDeleted)
+            {
+                <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-1 small fw-semibold">
+                    <i class="bi bi-check-circle-fill me-1"></i> Activa
+                </span>
+            }
+            else
+            {
+                <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle rounded-pill px-2 py-1 small fw-semibold">
+                    <i class="bi bi-x-circle-fill me-1"></i> Eliminada
+                </span>
+            }
+        </div>
+    </div>
+
+    <!-- Información de la actividad -->
+    <div class="col-12 col-lg-9">
+        <div class="row g-2 text-secondary small">
+
+            <div class="col-12 col-sm-6 col-md-4">
+                <span class="fw-semibold text-dark">👨‍🏫 Profesor:</span>
+                @(Actividad.Profesor?.Nombre ?? "-")
+            </div>
+
+            <div class="col-12 col-sm-6 col-md-4">
+                <span class="fw-semibold text-dark">🎯 Nivel:</span>
+                @(string.IsNullOrWhiteSpace(Actividad.Nivel) ? "-" : Actividad.Nivel)
+            </div>
+
+            <div class="col-12 col-sm-6 col-md-4">
+                <span class="fw-semibold text-dark">👥 Edad:</span>
+                @(string.IsNullOrWhiteSpace(Actividad.EdadRecomendada) ? "-" : Actividad.EdadRecomendada)
+            </div>
+
+            <div class="col-12">
+                <span class="fw-semibold text-dark">📝 Descripción:</span>
+                @(string.IsNullOrWhiteSpace(Actividad.Descripcion) ? "-" : Actividad.Descripcion)
+            </div>
+
+            <div class="col-12">
+                <span class="fw-semibold text-dark">💪 Beneficios:</span>
+                @(string.IsNullOrWhiteSpace(Actividad.Beneficios) ? "-" : Actividad.Beneficios)
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+@code {
+
+    [Parameter]
+    public Actividad Actividad { get; set; } = new();
+
+}

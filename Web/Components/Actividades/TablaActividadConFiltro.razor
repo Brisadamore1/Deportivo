@@ -1,4 +1,4 @@
-﻿@if (actividadesFiltradas is null)
+﻿@if (ListEntity is null)
 {
     <div class="text-center py-5">
         <div class="spinner-border text-primary" role="status">
@@ -9,21 +9,6 @@
 }
 else
 {
-    <!-- BUSCADOR CON EL MISMO DISEÑO QUE SOCIO -->
-    <div class="search-box-container mb-4">
-        <div class="input-group search-input-group">
-            <span class="input-group-text bg-transparent border-end-0 pe-0">
-                <i class="bi bi-search text-muted"></i>
-            </span>
-            <input id="filterText"
-                   type="text"
-                   class="form-control border-start-0 ps-2"
-                   value="@filterText"
-                   @oninput="FilterList"
-                   placeholder="Filtrar por nombre, nivel o profesor..." />
-        </div>
-    </div>
-
     <!-- TABLA EN TARJETA -->
     <div class="table-card shadow-sm mb-4">
         <div class="table-responsive">
@@ -40,7 +25,7 @@ else
                 </thead>
 
                 <tbody>
-                    @foreach (var actividad in actividadesFiltradas)
+                    @foreach (var actividad in ListEntity)
                     {
                         <tr @key="actividad.Id">
                             <td class="fw-bold text-muted">#@actividad.Id</td>
@@ -49,7 +34,7 @@ else
                             <td>@(actividad.EdadRecomendada ?? "-")</td>
                             <td>@(actividad.Nivel ?? "-")</td>
 
-                            <!-- ACCIONES CON LOS MISMOS BOTONES E ÍCONOS QUE SOCIO -->
+                            <!-- ACCIONES -->
                             <td class="text-center">
                                 @if (MostrarEliminados)
                                 {
@@ -103,14 +88,6 @@ else
     [Parameter]
     public EventCallback<Actividad> OnRestaurar { get; set; }
 
-    private List<Actividad> actividadesFiltradas = new();
-    private string filterText = string.Empty;
-
-    protected override void OnParametersSet()
-    {
-        AplicarFiltro();
-    }
-
     private async Task HandleModificar(Actividad actividad)
     {
         await OnModificar.InvokeAsync(actividad);
@@ -124,29 +101,5 @@ else
     private async Task HandleRestaurar(Actividad actividad)
     {
         await OnRestaurar.InvokeAsync(actividad);
-    }
-
-    private void FilterList(ChangeEventArgs e)
-    {
-        filterText = e.Value?.ToString() ?? string.Empty;
-        AplicarFiltro();
-    }
-
-    private void AplicarFiltro()
-    {
-        if (string.IsNullOrWhiteSpace(filterText))
-        {
-            actividadesFiltradas = ListEntity.ToList();
-            return;
-        }
-
-        actividadesFiltradas = ListEntity
-            .Where(a =>
-                a.Nombre.Contains(filterText, StringComparison.OrdinalIgnoreCase) ||
-                (a.Nivel?.Contains(filterText, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                (a.EdadRecomendada?.Contains(filterText, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                (a.Profesor?.Nombre?.Contains(filterText,
-                    StringComparison.OrdinalIgnoreCase) ?? false))
-            .ToList();
     }
 }

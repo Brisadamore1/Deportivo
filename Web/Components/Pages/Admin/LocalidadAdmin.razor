@@ -3,55 +3,95 @@
 @inject SweetAlertService _sweetAlert
 @rendermode InteractiveServer
 
-<EncabezadoPage Titulo="Administración de Localidades"
-                Descripcion="Gestiona las localidades disponibles para los socios" />
+@if (localidades == null)
+{
+    <div class="d-flex align-items-center justify-content-center min-vh-50 py-5">
+        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+            <span class="visually-hidden">Cargando...</span>
+        </div>
+    </div>
+}
+else
+{
+    <div class="container py-4">
+        @* --- 1. Encabezado --- *@
+        <EncabezadoPage Titulo="Administración de Localidades" Descripcion="Gestiona las localidades disponibles para los socios" />
 
-<div class="container py-4">
-    <SeccionBtnNuevoMostrarEliminados TargetModal="#NuevoEditarLocalidad"
-        @bind-MostrarEliminados="MostrarEliminados"
-        OnAfterMostrarEliminados="GetLocalidades"
-        OnNuevo="Nuevo" />
-
-    @if (isLoading)
-    {
-        <ActivityIndicator Mensaje="Cargando localidades..." IsBusy="isLoading" />
-    }
-    else
-    {
-        @if (localidades != null && localidades.Count > 0)
-        {
-            <TablaLocalidadConFiltro
-                ListEntity="localidades"
-                OnEliminar="Eliminar"
-                OnModificar="Modificar"
-                OnRestaurar="Restaurar"
-                MostrarEliminados="MostrarEliminados" />
-        }
-        else
-        {
-            @if (MostrarEliminados)
-            {
-                <div class="alert alert-info" role="alert">
-                    No hay localidades eliminadas.
+        @* --- 2. Filtro arriba (ÚNICO buscador) --- *@
+        <div class="mx-auto mb-4" style="max-width:500px;">
+            <div class="search-box-container mb-4">
+                <div class="input-group search-input-group">
+                    <span class="input-group-text bg-transparent border-end-0 px-3">
+                        <i class="bi bi-search text-muted"></i>
+                    </span>
+                    <input id="filterText"
+                           type="text"
+                           class="form-control border-start-0 ps-2"
+                           value="@filterText"
+                           @oninput="FilterList"
+                           placeholder="Filtrar por nombre de localidad..." />
                 </div>
-            }
-            else
-            {
-                <div class="alert alert-info" role="alert">
-                    No hay localidades registradas.
-                </div>
-            }
-        }
-    }
+            </div>
+        </div>
 
-    <NuevoEditarLocalidad
-        Localidad="@localidadCurrent"
-        OnGuardar="Guardar" />
-</div>
+        @* --- 3. Resultados de búsqueda en el medio --- *@
+        <div class="row mb-3">
+            <div class="col-12">
+                <ResultadoBusqueda Cantidad="localidadesFiltradas.Count" TextoResultado="@(localidadesFiltradas.Count == 1 ? "localidad encontrada" : "localidades encontradas")" />
+
+                @* Estado sin resultados (Compacto y chico) *@
+                @if (localidadesFiltradas.Count == 0 && !isLoading)
+                {
+                    <div class="card shadow-sm border-0 rounded-3 my-2 bg-light">
+                        <div class="card-body text-center py-3 px-3">
+                            <div class="mb-1">
+                                <i class="bi bi-search text-muted" style="font-size: 1.25rem;"></i>
+                            </div>
+                            <p class="text-secondary small mb-0">
+                                @(MostrarEliminados ? "No hay localidades eliminadas." : "No hay localidades registradas.")
+                            </p>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        @* --- 4. Botón Nuevo y Ver eliminados antes de la tabla --- *@
+        <div class="mb-4">
+            <SeccionBtnNuevoMostrarEliminados TargetModal="#NuevoEditarLocalidad"
+                                              @bind-MostrarEliminados="MostrarEliminados"
+                                              OnAfterMostrarEliminados="GetLocalidades"
+                                              OnNuevo="Nuevo" />
+        </div>
+
+        @* --- 5. Tabla de localidades (Renderiza el spinner pequeño al actualizar o la tabla completa) --- *@
+        @if (isLoading)
+        {
+            <div class="text-center py-4">
+                <div class="spinner-border spinner-border-sm text-primary" role="status">
+                    <span class="visually-hidden">Actualizando...</span>
+                </div>
+            </div>
+        }
+        else if (localidadesFiltradas != null && localidadesFiltradas.Count > 0)
+        {
+            <TablaLocalidadConFiltro ListEntity="localidadesFiltradas"
+                                     OnEliminar="Eliminar"
+                                     OnModificar="Modificar"
+                                     OnRestaurar="Restaurar"
+                                     MostrarEliminados="MostrarEliminados" />
+        }
+    </div>
+}
+
+<NuevoEditarLocalidad Localidad="@localidadCurrent"
+                      OnGuardar="Guardar" />
 
 @code {
-    List<Localidad>? localidades = new();
+    List<Localidad>? localidades = null;
+    List<Localidad> localidadesFiltradas = new();
     Localidad localidadCurrent = new();
+    string filterText = "";
 
     bool isLoading = true;
 
@@ -65,15 +105,20 @@
     private async Task GetLocalidades()
     {
         isLoading = true;
+        StateHasChanged();
 
         try
         {
             localidades = MostrarEliminados
-                ? await _localidadService.GetAllDeletedsAsync()
-                : await _localidadService.GetAllAsync();
+                ? await _localidadService.GetAllDeletedsAsync() ?? new List<Localidad>()
+                : await _localidadService.GetAllAsync() ?? new List<Localidad>();
+
+            AplicarFiltro(filterText);
         }
         catch
         {
+            localidades = new List<Localidad>();
+            localidadesFiltradas = new List<Localidad>();
             await _sweetAlert.FireAsync(
                 "Error",
                 "No se pudieron cargar las localidades.",
@@ -82,12 +127,44 @@
         finally
         {
             isLoading = false;
+            StateHasChanged();
         }
+    }
+
+    private void FilterList(ChangeEventArgs e)
+    {
+        filterText = e.Value?.ToString() ?? "";
+        AplicarFiltro(filterText);
+    }
+
+    private void AplicarFiltro(string texto)
+    {
+        filterText = texto;
+
+        if (localidades is null)
+        {
+            localidadesFiltradas = new();
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(filterText))
+        {
+            // Ordenado alfabéticamente por Nombre al inicio o sin filtro
+            localidadesFiltradas = localidades.OrderBy(l => l.Nombre).ToList();
+            return;
+        }
+
+        // Ordenado alfabéticamente por Nombre también al filtrar
+        localidadesFiltradas = localidades
+            .Where(l => l.Nombre != null && l.Nombre.Contains(filterText, StringComparison.OrdinalIgnoreCase))
+            .OrderBy(l => l.Nombre)
+            .ToList();
     }
 
     private void Modificar(Localidad localidad)
     {
         localidadCurrent = localidad;
+        StateHasChanged();
     }
 
     private void Nuevo()

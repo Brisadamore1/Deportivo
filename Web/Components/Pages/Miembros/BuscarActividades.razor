@@ -1,9 +1,9 @@
-﻿@page "/miembros/buscar-socios"
-@inject ISocioService _socioService
+﻿@page "/miembros/buscar-actividades"
+@inject IActivityService _actividadService
 @inject FirebaseAuthService firebaseAuthService
 @rendermode InteractiveServer
 
-@if (Socios == null)
+@if (Actividades == null)
 {
     <div class="d-flex align-items-center justify-content-center min-vh-50 py-5">
         <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
@@ -14,61 +14,68 @@
 else
 {
     <div class="container py-4">
-        @* --- Encabezado --- *@
-        <EncabezadoPage Titulo="Buscar Socios" Descripcion="Encuentra socios registrados en el sistema" />
 
-        @* --- Sección de búsqueda --- *@
+        <EncabezadoPage Titulo="Buscar Actividades"
+                        Descripcion="Encuentra actividades registradas en el sistema" />
+
         <div class="mx-auto mb-4" style="max-width:500px;">
-            <SeccionBusquedaSocios OnBuscar="Buscar" />
+              <SeccionBusquedaActividades OnBuscar="Buscar" />
         </div>
 
-        @* --- Sección de resultados --- *@
         <div class="row">
             <div class="col-12">
-                <!-- Indicador de cantidad de resultados -->
-                <ResultadoBusqueda Cantidad="Socios.Count" TextoResultado="@(Socios.Count == 1 ? "socio encontrado" : "socios encontrados")" />
 
-                <!-- Estado sin resultados -->
-                @if (Socios.Count == 0 && !IsBusy)
+                <ResultadoBusqueda Cantidad="Actividades.Count"
+                                   TextoResultado="@(Actividades.Count == 1 ? "actividad encontrada" : "actividades encontradas")" />
+
+                @if (Actividades.Count == 0 && !IsBusy)
                 {
                     <div class="card shadow-sm border-0 rounded-4 my-3 bg-light">
                         <div class="card-body text-center py-5 px-4">
                             <div class="mb-3">
-                                <i class="bi bi-search text-muted" style="font-size: 2.5rem;"></i>
+                                <i class="bi bi-search text-muted" style="font-size:2.5rem;"></i>
                             </div>
-                            <h5 class="fw-bold text-dark mb-2">Sin resultados</h5>
+
+                            <h5 class="fw-bold text-dark mb-2">
+                                Sin resultados
+                            </h5>
+
                             <p class="text-secondary mb-2">
                                 Intenta con otros términos de búsqueda o ajusta los filtros seleccionados.
                             </p>
+
                             <small class="text-muted d-block">
                                 <i class="bi bi-lightbulb me-1 text-warning"></i>
-                                <strong>Tip:</strong> Usa palabras clave simples como el DNI o el apellido.
+                                <strong>Tip:</strong> Busca por nombre de la actividad.
                             </small>
                         </div>
                     </div>
                 }
 
-                <!-- Grilla / Lista de Tarjetas de Socios -->
                 <div class="container-fluid px-0">
-                    @foreach (var socio in Socios)
+                    @foreach (var actividad in Actividades)
                     {
                         <div class="row w-100 m-0">
                             <div class="col-12 px-0">
-                                <CardSocio socio="socio" />
+                                <CardActividad Actividad="actividad" />
                             </div>
                         </div>
                     }
                 </div>
+
             </div>
         </div>
+
     </div>
 }
+
 @code {
-    // Resultados
-    List<Socio>? Socios { get; set; } = new();
+
+    List<Actividad>? Actividades { get; set; } = new();
+
     bool IsBusy { get; set; } = false;
 
-    protected async override Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
@@ -83,23 +90,21 @@ else
 
         try
         {
-            FilterSocioDTO filtro = new()
+            FilterActivityDTO filtro = new()
             {
                 SearchText = texto,
                 ForNombre = true,
-                ForDni = true,
-                ForLocalidad = true,
-                ForActividad = true
-
+                ForProfesor = true,
+                ForNivel = true
             };
 
-            Socios = await _socioService.GetWithFilterAsync(filtro)
-                     ?? new List<Socio>();
+            Actividades = await _actividadService.GetWithFilterAsync(filtro)
+                          ?? new List<Actividad>();
         }
         catch (Exception ex)
         {
             Console.WriteLine(ex.Message);
-            Socios = new();
+            Actividades = new();
         }
         finally
         {
@@ -107,4 +112,5 @@ else
             StateHasChanged();
         }
     }
+
 }

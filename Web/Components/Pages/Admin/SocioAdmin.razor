@@ -4,53 +4,96 @@
 @inject SweetAlertService _sweetAlert
 @rendermode InteractiveServer
 
-<EncabezadoPage Titulo="Administración de Socios"
-                Descripcion="Gestiona los socios del club deportivo" />
+@if (socios == null)
+{
+    <div class="d-flex align-items-center justify-content-center min-vh-50 py-5">
+        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+            <span class="visually-hidden">Cargando...</span>
+        </div>
+    </div>
+}
+else
+{
+    <div class="container py-4">
+        @* --- 1. Encabezado --- *@
+        <EncabezadoPage Titulo="Administración de Socios" Descripcion="Gestiona los socios del club deportivo" />
 
-<div class="container py-4">
-    <SeccionBtnNuevoMostrarEliminados @bind-MostrarEliminados="MostrarEliminados"
-                                      OnAfterMostrarEliminados="GetSocios"
-                                      OnNuevo="Nuevo" />
+        @* --- 2. Filtro arriba (ÚNICO buscador) --- *@
+        <div class="mx-auto mb-4" style="max-width:500px;">
+            <div class="search-box-container mb-4">
+                <div class="input-group search-input-group">
+                    <span class="input-group-text bg-transparent border-end-0 px-3">
+                        <i class="bi bi-search text-muted"></i>
+                    </span>
+                    <input id="filterText"
+                           type="text"
+                           class="form-control border-start-0 ps-2"
+                           value="@filterText"
+                           @oninput="FilterList"
+                           placeholder="Filtrar por nombre, DNI, localidad o actividad..." />
+                </div>
+            </div>
+        </div>
 
-    @if (isLoading)
-    {
-        <ActivityIndicator Mensaje="Cargando socios..." IsBusy="isLoading" />
-    }
-    else
-    {
-        @if (socios != null && socios.Count > 0)
+        @* --- 3. Resultados de búsqueda en el medio --- *@
+        <div class="row mb-3">
+            <div class="col-12">
+                <ResultadoBusqueda Cantidad="sociosFiltrados.Count" TextoResultado="@(sociosFiltrados.Count == 1 ? "socio encontrado" : "socios encontrados")" />
+
+                @* Estado sin resultados (Compacto y chico) *@
+                @if (sociosFiltrados.Count == 0 && !isLoading)
+                {
+                    <div class="card shadow-sm border-0 rounded-3 my-2 bg-light">
+                        <div class="card-body text-center py-3 px-3">
+                            <div class="mb-1">
+                                <i class="bi bi-search text-muted" style="font-size: 1.25rem;"></i>
+                            </div>
+                            <p class="text-secondary small mb-0">
+                                @(MostrarEliminados ? "No hay socios eliminados." : "No hay socios registrados.")
+                            </p>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        @* --- 4. Botón Nuevo y Ver eliminados antes de la tabla --- *@
+        <div class="mb-4">
+            <SeccionBtnNuevoMostrarEliminados TargetModal="#NuevoEditarSocio"
+                                              @bind-MostrarEliminados="MostrarEliminados"
+                                              OnAfterMostrarEliminados="GetSocios"
+                                              OnNuevo="Nuevo" />
+        </div>
+
+        @* --- 5. Tabla de socios (Renderiza el spinner pequeño al actualizar o la tabla completa) --- *@
+        @if (isLoading)
         {
-            <TablaSociosConFiltro ListEntity="socios"
+            <div class="text-center py-4">
+                <div class="spinner-border spinner-border-sm text-primary" role="status">
+                    <span class="visually-hidden">Actualizando...</span>
+                </div>
+            </div>
+        }
+        else if (sociosFiltrados != null && sociosFiltrados.Count > 0)
+        {
+            <TablaSociosConFiltro ListEntity="sociosFiltrados"
                                   OnEliminar="Eliminar"
                                   OnModificar="Modificar"
                                   OnGuardar="Guardar"
                                   OnRestaurar="Restaurar"
                                   MostrarEliminados="MostrarEliminados" />
         }
-        else
-        {
-            @if (MostrarEliminados)
-            {
-                <div class="alert alert-info" role="alert">
-                    No hay socios eliminados.
-                </div>
-            }
-            else
-            {
-                <div class="alert alert-info" role="alert">
-                    No hay socios registrados.
-                </div>
-            }
-        }
-    }
+    </div>
+}
 
-    <NuevoEditarSocio Socio="@socioCurrent"
-                      OnGuardar="Guardar" />
-</div>
+<NuevoEditarSocio Socio="@socioCurrent"
+                  OnGuardar="Guardar" />
 
 @code {
-    List<Socio>? socios = new();
+    List<Socio>? socios = null;
+    List<Socio> sociosFiltrados = new();
     Socio socioCurrent = new();
+    string filterText = "";
 
     bool isLoading = true;
 
@@ -64,15 +107,20 @@
     private async Task GetSocios()
     {
         isLoading = true;
+        StateHasChanged();
 
         try
         {
             socios = MostrarEliminados
-                ? await _socioService.GetAllDeletedsAsync()
-                : await _socioService.GetAllAsync();
+                ? await _socioService.GetAllDeletedsAsync() ?? new List<Socio>()
+                : await _socioService.GetAllAsync() ?? new List<Socio>();
+
+            AplicarFiltro(filterText);
         }
         catch
         {
+            socios = new List<Socio>();
+            sociosFiltrados = new List<Socio>();
             await _sweetAlert.FireAsync(
                 "Error",
                 "No se pudieron cargar los socios.",
@@ -81,7 +129,39 @@
         finally
         {
             isLoading = false;
+            StateHasChanged();
         }
+    }
+
+    private void FilterList(ChangeEventArgs e)
+    {
+        filterText = e.Value?.ToString() ?? "";
+        AplicarFiltro(filterText);
+    }
+
+    private void AplicarFiltro(string texto)
+    {
+        filterText = texto;
+
+        if (socios is null)
+        {
+            sociosFiltrados = new();
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(filterText))
+        {
+            sociosFiltrados = socios.ToList();
+            return;
+        }
+
+        sociosFiltrados = socios
+            .Where(a =>
+                (a.Nombre?.Contains(filterText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (a.Dni?.Contains(filterText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (a.Localidad?.Nombre?.Contains(filterText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (a.SocioActividades?.Any(sa => sa.Actividad != null && (sa.Actividad.Nombre?.Contains(filterText, StringComparison.OrdinalIgnoreCase) ?? false)) ?? false))
+            .ToList();
     }
 
     private void Modificar(Socio socio)

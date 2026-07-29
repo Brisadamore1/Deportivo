@@ -4,52 +4,96 @@
 @inject SweetAlertService _sweetAlert
 @rendermode InteractiveServer
 
-<EncabezadoPage Titulo="Administración de Actividades" Descripcion="Gestiona las actividades deportivas del club" />
-<div class="container py-4">
-    <SeccionBtnNuevoMostrarEliminados TargetModal="#NuevoEditarActividad"
-                                       @bind-MostrarEliminados="MostrarEliminados" 
-                                       OnAfterMostrarEliminados="GetActividades" 
-                                       OnNuevo="Nuevo" />
+@if (actividades == null)
+{
+    <div class="d-flex align-items-center justify-content-center min-vh-50 py-5">
+        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+            <span class="visually-hidden">Cargando...</span>
+        </div>
+    </div>
+}
+else
+{
+    <div class="container py-4">
+        @* --- 1. Encabezado --- *@
+        <EncabezadoPage Titulo="Administración de Actividades" Descripcion="Gestiona las actividades deportivas del club" />
 
-    @if (isLoading)
-    {
-        <ActivityIndicator Mensaje="Cargando actividades..." IsBusy="isLoading" />
-    }
-    else
-    {
-        @if (actividades != null && actividades.Count > 0)
+        @* --- 2. Filtro arriba (ÚNICO buscador) --- *@
+        <div class="mx-auto mb-4" style="max-width:500px;">
+            <div class="search-box-container mb-4">
+                <div class="input-group search-input-group">
+                    <span class="input-group-text bg-transparent border-end-0 px-3">
+                        <i class="bi bi-search text-muted"></i>
+                    </span>
+                    <input id="filterText"
+                           type="text"
+                           class="form-control border-start-0 ps-2"
+                           value="@filterText"
+                           @oninput="FilterList"
+                           placeholder="Filtrar por nombre, profesor o nivel..." />
+                </div>
+            </div>
+        </div>
+
+        @* --- 3. Resultados de búsqueda en el medio --- *@
+        <div class="row mb-3">
+            <div class="col-12">
+                <ResultadoBusqueda Cantidad="actividadesFiltradas.Count" TextoResultado="@(actividadesFiltradas.Count == 1 ? "actividad encontrada" : "actividades encontradas")" />
+
+                @* Estado sin resultados *@
+                @if (actividadesFiltradas.Count == 0 && !isLoading)
+                {
+                    <div class="card shadow-sm border-0 rounded-4 my-3 bg-light">
+                        <div class="card-body text-center py-5 px-4">
+                            <div class="mb-3">
+                                <i class="bi bi-search text-muted" style="font-size: 2.5rem;"></i>
+                            </div>
+                            <h5 class="fw-bold text-dark mb-2">Sin resultados</h5>
+                            <p class="text-secondary mb-2">
+                                @(MostrarEliminados ? "No hay actividades eliminadas." : "No hay actividades registradas.")
+                            </p>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        @* --- 4. Botón Nuevo y Ver eliminados antes de la tabla --- *@
+        <div class="mb-4">
+            <SeccionBtnNuevoMostrarEliminados TargetModal="#NuevoEditarActividad"
+                                              @bind-MostrarEliminados="MostrarEliminados"
+                                              OnAfterMostrarEliminados="GetActividades"
+                                              OnNuevo="Nuevo" />
+        </div>
+
+        @* --- 5. Tabla de actividades (Renderiza solo las filtradas, sin buscador interno duplicado) --- *@
+        @if (isLoading)
         {
-            <TablaActividadConFiltro ListEntity="actividades"
+            <div class="text-center py-4">
+                <div class="spinner-border spinner-border-sm text-primary" role="status">
+                    <span class="visually-hidden">Actualizando...</span>
+                </div>
+            </div>
+        }
+        else if (actividadesFiltradas != null && actividadesFiltradas.Count > 0)
+        {
+            <TablaActividadConFiltro ListEntity="actividadesFiltradas"
                                      OnEliminar="Eliminar"
                                      OnModificar="Modificar"
                                      OnRestaurar="Restaurar"
-            MostrarEliminados="MostrarEliminados" />
+                                     MostrarEliminados="MostrarEliminados" />
         }
-        else 
-        {
-            @if (MostrarEliminados)
-            {
-                <div class="alert alert-info" role="alert">
-                    No hay actividades eliminadas.
-                </div>
-            }
-            else
-            {
-                <div class="alert alert-info" role="alert">
-                    No hay actividades registradas.
-                </div>
-            }
-        }
-        
-    }
+    </div>
+}
 
-    <NuevoEditarActividad Actividad="@actividadCurrent"
-        OnGuardar="Guardar" />
-</div>
+<NuevoEditarActividad Actividad="@actividadCurrent"
+                      OnGuardar="Guardar" />
 
 @code {
-    List<Actividad>? actividades = new();
+    List<Actividad>? actividades = null;
+    List<Actividad> actividadesFiltradas = new();
     Actividad actividadCurrent = new();
+    string filterText = "";
 
     bool isLoading = true;
 
@@ -63,15 +107,20 @@
     private async Task GetActividades()
     {
         isLoading = true;
+        StateHasChanged();
 
         try
         {
             actividades = MostrarEliminados
-                ? await _actividadService.GetAllDeletedsAsync()
-                : await _actividadService.GetAllAsync();
+                ? await _actividadService.GetAllDeletedsAsync() ?? new List<Actividad>()
+                : await _actividadService.GetAllAsync() ?? new List<Actividad>();
+
+            AplicarFiltro(filterText);
         }
         catch
         {
+            actividades = new List<Actividad>();
+            actividadesFiltradas = new List<Actividad>();
             await _sweetAlert.FireAsync(
                 "Error",
                 "No se pudieron cargar las actividades.",
@@ -80,7 +129,38 @@
         finally
         {
             isLoading = false;
+            StateHasChanged();
         }
+    }
+
+    private void FilterList(ChangeEventArgs e)
+    {
+        filterText = e.Value?.ToString() ?? "";
+        AplicarFiltro(filterText);
+    }
+
+    private void AplicarFiltro(string texto)
+    {
+        filterText = texto;
+
+        if (actividades is null)
+        {
+            actividadesFiltradas = new();
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(filterText))
+        {
+            actividadesFiltradas = actividades.ToList();
+            return;
+        }
+
+        actividadesFiltradas = actividades
+            .Where(a =>
+                (a.Nombre?.Contains(filterText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (a.Profesor?.Nombre?.Contains(filterText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (a.Nivel?.Contains(filterText, StringComparison.OrdinalIgnoreCase) ?? false))
+            .ToList();
     }
 
     private void Modificar(Actividad actividad)

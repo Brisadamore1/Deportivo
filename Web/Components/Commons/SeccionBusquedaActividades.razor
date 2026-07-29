@@ -1,0 +1,27 @@
+﻿<div class="search-box-container mb-4">
+    <div class="input-group search-input-group">
+        <span class="input-group-text bg-transparent border-end-0 px-3">
+            <i class="bi bi-search text-muted"></i>
+        </span>
+
+        <input id="filterText"
+               type="text"
+               class="form-control border-start-0 ps-2"
+               value="@filterText"
+               @oninput="FilterList"
+               placeholder="Filtrar por nombre, profesor o nivel..." />
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public EventCallback<string> OnBuscar { get; set; }
+
+    private string filterText = "";
+
+    private async Task FilterList(ChangeEventArgs e)
+    {
+        filterText = e.Value?.ToString() ?? "";
+        await OnBuscar.InvokeAsync(filterText);
+    }
+}

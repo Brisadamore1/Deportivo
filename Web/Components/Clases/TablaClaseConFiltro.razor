@@ -1,75 +1,23 @@
-﻿@if (clasesFiltradas is null)
-{
-    <div class="text-center py-5">
-        <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Cargando...</span>
-        </div>
-        <p class="text-muted mt-2">Cargando datos...</p>
-    </div>
-}
-else
-{
-    <!-- CONTENEDOR DE FILTROS (SELECT + BUSCADOR) -->
-    <div class="search-box-container mb-4">
-        <div class="row g-2 align-items-center">
-            <!-- FILTRO POR ACTIVIDAD (TAMAÑO FLEXIBLE) -->
-            <div class="col-md-5 col-12">
-                <div class="input-group search-input-group">
-                    <span class="input-group-text bg-transparent border-end-0 pe-0">
-                        <i class="bi bi-funnel text-muted"></i>
-                    </span>
-                    <select id="actividadFiltro"
-                            class="form-select border-start-0 ps-2"
-                            value="@actividadSeleccionada"
-                            @onchange="FiltrarPorActividad">
+﻿@using Service.Models
 
-                        <option value="0">Todas las actividades</option>
-
-                        @foreach (var actividad in actividadesDisponibles)
-                        {
-                            <option value="@actividad.Id">
-                                @actividad.Nombre
-                            </option>
-                        }
-                    </select>
-                </div>
-            </div>
-
-            <!-- FILTRO POR TEXTO (TAMAÑO COMPLETO/HABITUAL) -->
-            <div class="col-md-7 col-12">
-                <div class="input-group search-input-group">
-                    <span class="input-group-text bg-transparent border-end-0 pe-0">
-                        <i class="bi bi-search text-muted"></i>
-                    </span>
-                    <input id="filterText"
-                           type="text"
-                           class="form-control border-start-0 ps-2"
-                           value="@filterText"
-                           @oninput="FilterList"
-                           placeholder="Filtrar por actividad o día..." />
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- TABLA EN TARJETA -->
-    <div class="table-card shadow-sm mb-4">
-        <div class="table-responsive">
-            <table class="table custom-table align-middle mb-0">
-                <thead>
-                    <tr>
-                        <th style="width: 70px;">Id</th>
-                        <th>Actividad</th>
-                        <th>Día</th>
-                        <th>Horario</th>
-                        <th>Cupo máximo</th>
-                        <th>Estado</th>
-                        <th class="text-center" style="width: 180px;">Acciones</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    @foreach (var clase in clasesFiltradas)
+<div class="table-card shadow-sm mb-4">
+    <div class="table-responsive">
+        <table class="table custom-table align-middle mb-0">
+            <thead>
+                <tr>
+                    <th style="width: 70px;">Id</th>
+                    <th>Actividad</th>
+                    <th>Día</th>
+                    <th>Horario</th>
+                    <th>Cupo máximo</th>
+                    <th class="text-center">Estado</th>
+                    <th class="text-center" style="width: 180px;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (ListEntity != null && ListEntity.Any())
+                {
+                    @foreach (var clase in ListEntity)
                     {
                         <tr @key="clase.Id">
                             <td class="fw-bold text-muted">#@clase.Id</td>
@@ -80,162 +28,63 @@ else
                                 @clase.HoraInicio.ToString(@"hh\:mm") - @clase.HoraFin.ToString(@"hh\:mm")
                             </td>
                             <td>@clase.CupoMaximo</td>
-
-                            <!-- ESTADO CON BADGES MEJORADOS -->
-                            <td>
+                            <td class="text-center">
                                 @if (clase.Activa)
                                 {
-                                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-1">
-                                        <i class="bi bi-check-circle-fill me-1"></i>Activa
-                                    </span>
+                                    <span class="badge badge-pastel-success">Activa</span>
                                 }
                                 else
                                 {
-                                    <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle rounded-pill px-2 py-1">
-                                        <i class="bi bi-x-circle-fill me-1"></i>Inactiva
-                                    </span>
+                                    <span class="badge badge-pastel-secondary">Inactiva</span>
                                 }
                             </td>
-
-                            <!-- ACCIONES -->
                             <td class="text-center">
                                 @if (MostrarEliminados)
                                 {
-                                    <button type="button"
-                                            title="Restaurar clase"
-                                            class="btn btn-custom-success btn-sm me-1"
-                                            @onclick="() => HandleRestaurar(clase)">
+                                    <button type="button" class="btn btn-custom-success btn-sm me-1" @onclick="() => OnRestaurar.InvokeAsync(clase)">
                                         <i class="bi bi-arrow-counterclockwise me-1"></i> Restaurar
                                     </button>
                                 }
                                 else
                                 {
-                                    <button type="button"
-                                            title="Modificar clase"
-                                            class="btn btn-custom-edit btn-sm me-1"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#NuevoEditarClase"
-                                            @onclick="() => HandleModificar(clase)">
+                                    <button type="button" class="btn btn-custom-edit btn-sm me-1" data-bs-toggle="modal" data-bs-target="#NuevoEditarClase" @onclick="() => OnModificar.InvokeAsync(clase)">
                                         <i class="bi bi-pencil-fill"></i>
                                     </button>
-
-                                    <button type="button"
-                                            title="Eliminar clase"
-                                            class="btn btn-custom-danger btn-sm"
-                                            @onclick="() => HandleEliminar(clase)">
+                                    <button type="button" class="btn btn-custom-danger btn-sm" @onclick="() => OnEliminar.InvokeAsync(clase)">
                                         <i class="bi bi-trash-fill"></i>
                                     </button>
                                 }
                             </td>
                         </tr>
                     }
-                </tbody>
-            </table>
-        </div>
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="7" class="text-center py-4 text-muted">No se encontraron clases registradas.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
     </div>
-}
+</div>
 
 @code {
-    [Parameter]
-    public List<Clase> ListEntity { get; set; } = new();
+    [Parameter] public List<Clase> ListEntity { get; set; } = new();
+    [Parameter] public bool MostrarEliminados { get; set; }
+    [Parameter] public EventCallback<Clase> OnModificar { get; set; }
+    [Parameter] public EventCallback<Clase> OnEliminar { get; set; }
+    [Parameter] public EventCallback<Clase> OnRestaurar { get; set; }
 
-    [Parameter]
-    public bool MostrarEliminados { get; set; }
-
-    [Parameter]
-    public EventCallback<Clase> OnModificar { get; set; }
-
-    [Parameter]
-    public EventCallback<Clase> OnEliminar { get; set; }
-
-    [Parameter]
-    public EventCallback<Clase> OnRestaurar { get; set; }
-
-    private List<Clase> clasesFiltradas = new();
-    private string filterText = string.Empty;
-
-    protected override void OnParametersSet()
+    private static string NombreDia(DayOfWeek dia) => dia switch
     {
-        AplicarFiltro();
-    }
-
-    private async Task HandleModificar(Clase clase)
-    {
-        await OnModificar.InvokeAsync(clase);
-    }
-
-    private async Task HandleEliminar(Clase clase)
-    {
-        await OnEliminar.InvokeAsync(clase);
-    }
-
-    private async Task HandleRestaurar(Clase clase)
-    {
-        await OnRestaurar.InvokeAsync(clase);
-    }
-
-    private void FilterList(ChangeEventArgs e)
-    {
-        filterText = e.Value?.ToString() ?? string.Empty;
-        AplicarFiltro();
-    }
-    private int actividadSeleccionada = 0;
-
-    private List<Actividad> actividadesDisponibles => ListEntity
-        .Where(c => c.Actividad != null)
-        .Select(c => c.Actividad!)
-        .GroupBy(a => a.Id)
-        .Select(g => g.First())
-        .OrderBy(a => a.Nombre)
-        .ToList();
-
-    private void FiltrarPorActividad(ChangeEventArgs e)
-    {
-        actividadSeleccionada = int.TryParse(
-            e.Value?.ToString(),
-            out var actividadId)
-            ? actividadId
-            : 0;
-
-        AplicarFiltro();
-    }
-
-    private void AplicarFiltro()
-    {
-        IEnumerable<Clase> resultado = ListEntity;
-
-        if (actividadSeleccionada != 0)
-        {
-            resultado = resultado.Where(c =>
-                c.ActividadId == actividadSeleccionada);
-        }
-
-        if (!string.IsNullOrWhiteSpace(filterText))
-        {
-            resultado = resultado.Where(c =>
-                (c.Actividad?.Nombre?.Contains(
-                    filterText,
-                    StringComparison.OrdinalIgnoreCase) ?? false) ||
-                NombreDia(c.DiaSemana).Contains(
-                    filterText,
-                    StringComparison.OrdinalIgnoreCase));
-        }
-
-        clasesFiltradas = resultado.ToList();
-    }
-
-    private static string NombreDia(DayOfWeek dia)
-    {
-        return dia switch
-        {
-            DayOfWeek.Monday => "Lunes",
-            DayOfWeek.Tuesday => "Martes",
-            DayOfWeek.Wednesday => "Miércoles",
-            DayOfWeek.Thursday => "Jueves",
-            DayOfWeek.Friday => "Viernes",
-            DayOfWeek.Saturday => "Sábado",
-            DayOfWeek.Sunday => "Domingo",
-            _ => dia.ToString()
-        };
-    }
+        DayOfWeek.Monday => "Lunes",
+        DayOfWeek.Tuesday => "Martes",
+        DayOfWeek.Wednesday => "Miércoles",
+        DayOfWeek.Thursday => "Jueves",
+        DayOfWeek.Friday => "Viernes",
+        DayOfWeek.Saturday => "Sábado",
+        DayOfWeek.Sunday => "Domingo",
+        _ => dia.ToString()
+    };
 }

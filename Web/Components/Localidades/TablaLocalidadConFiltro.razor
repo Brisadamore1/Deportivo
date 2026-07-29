@@ -1,87 +1,60 @@
 ﻿@using Service.Models
 
-@if (localidadesFiltradas is null)
-{
-    <div class="text-center py-5">
-        <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Cargando...</span>
-        </div>
-        <p class="text-muted mt-2">Cargando datos...</p>
-    </div>
-}
-else
-{
-    <!-- BUSCADOR ESTILIZADO -->
-    <div class="search-box-container mb-4">
-        <div class="input-group search-input-group">
-            <span class="input-group-text bg-transparent border-end-0 pe-0">
-                <i class="bi bi-search text-muted"></i>
-            </span>
-            <input id="filterText"
-                   type="text"
-                   class="form-control border-start-0 ps-2"
-                   value="@filterText"
-                   @oninput="FilterList"
-                   placeholder="Filtrar por nombre de localidad..." />
-        </div>
-    </div>
+<!-- TABLA EN TARJETA -->
+<div class="table-card shadow-sm mb-4">
+    <div class="table-responsive">
+        <table class="table custom-table align-middle mb-0">
+            <thead>
+                <tr>
+                    <th style="width: 80px;">Id</th>
+                    <th>Nombre</th>
+                    <th class="text-center" style="width: 180px;">Acciones</th>
+                </tr>
+            </thead>
 
-    <!-- TABLA EN TARJETA -->
-    <div class="table-card shadow-sm mb-4">
-        <div class="table-responsive">
-            <table class="table custom-table align-middle mb-0">
-                <thead>
-                    <tr>
-                        <th style="width: 80px;">Id</th>
-                        <th>Nombre</th>
-                        <th class="text-center" style="width: 180px;">Acciones</th>
+            <tbody>
+                @foreach (var localidad in ListEntity)
+                {
+                    <tr @key="localidad.Id">
+                        <td class="fw-bold text-muted">#@localidad.Id</td>
+                        <td class="fw-semibold text-dark">@localidad.Nombre</td>
+
+                        <!-- ACCIONES DE TABLA -->
+                        <td class="text-center">
+                            @if (MostrarEliminados)
+                            {
+                                <button type="button"
+                                        title="Restaurar localidad"
+                                        class="btn btn-custom-success btn-sm me-1"
+                                        @onclick="() => HandleRestaurar(localidad)">
+                                    <i class="bi bi-arrow-counterclockwise me-1"></i> Restaurar
+                                </button>
+                            }
+                            else
+                            {
+                                <button type="button"
+                                        title="Modificar localidad"
+                                        class="btn btn-custom-edit btn-sm me-1"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#NuevoEditarLocalidad"
+                                        @onclick="() => HandleModificar(localidad)">
+                                    <i class="bi bi-pencil-fill"></i>
+                                </button>
+
+                                <button type="button"
+                                        title="Eliminar localidad"
+                                        class="btn btn-custom-danger btn-sm"
+                                        @onclick="() => HandleEliminar(localidad)">
+                                    <i class="bi bi-trash-fill"></i>
+                                </button>
+                            }
+                        </td>
                     </tr>
-                </thead>
-
-                <tbody>
-                    @foreach (var localidad in localidadesFiltradas)
-                    {
-                        <tr @key="localidad.Id">
-                            <td class="fw-bold text-muted">#@localidad.Id</td>
-                            <td class="fw-semibold text-dark">@localidad.Nombre</td>
-
-                            <!-- ACCIONES DE TABLA -->
-                            <td class="text-center">
-                                @if (MostrarEliminados)
-                                {
-                                    <button type="button"
-                                            title="Restaurar localidad"
-                                            class="btn btn-custom-success btn-sm me-1"
-                                            @onclick="() => HandleRestaurar(localidad)">
-                                        <i class="bi bi-arrow-counterclockwise me-1"></i> Restaurar
-                                    </button>
-                                }
-                                else
-                                {
-                                    <button type="button"
-                                            title="Modificar localidad"
-                                            class="btn btn-custom-edit btn-sm me-1"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#NuevoEditarLocalidad"
-                                            @onclick="() => HandleModificar(localidad)">
-                                        <i class="bi bi-pencil-fill"></i>
-                                    </button>
-
-                                    <button type="button"
-                                            title="Eliminar localidad"
-                                            class="btn btn-custom-danger btn-sm"
-                                            @onclick="() => HandleEliminar(localidad)">
-                                        <i class="bi bi-trash-fill"></i>
-                                    </button>
-                                }
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
+                }
+            </tbody>
+        </table>
     </div>
-}
+</div>
 
 @code {
     [Parameter]
@@ -99,14 +72,6 @@ else
     [Parameter]
     public EventCallback<Localidad> OnRestaurar { get; set; }
 
-    private List<Localidad> localidadesFiltradas = new();
-    private string filterText = string.Empty;
-
-    protected override void OnParametersSet()
-    {
-        AplicarFiltro();
-    }
-
     private async Task HandleModificar(Localidad localidad)
     {
         await OnModificar.InvokeAsync(localidad);
@@ -120,26 +85,5 @@ else
     private async Task HandleRestaurar(Localidad localidad)
     {
         await OnRestaurar.InvokeAsync(localidad);
-    }
-
-    private void FilterList(ChangeEventArgs e)
-    {
-        filterText = e.Value?.ToString() ?? string.Empty;
-        AplicarFiltro();
-    }
-
-    private void AplicarFiltro()
-    {
-        if (string.IsNullOrWhiteSpace(filterText))
-        {
-            localidadesFiltradas = ListEntity.ToList();
-            return;
-        }
-
-        localidadesFiltradas = ListEntity
-            .Where(l => l.Nombre.Contains(
-                filterText,
-                StringComparison.OrdinalIgnoreCase))
-            .ToList();
     }
 }

@@ -91,7 +91,7 @@
                         </span>
                         <InputText id="password" class="form-control border-end-0" style="border-color: #cbd5e1; font-size: 0.9rem;" @bind-Value="usuario.Password" placeholder="••••••••" type="@(_showPassword ? "text" : "password")" autocomplete="new-password" />
                         <button type="button" class="btn btn-outline-secondary bg-white text-muted" style="border-color: #cbd5e1; border-top-right-radius: 10px; border-bottom-right-radius: 10px;" @onclick="() => _showPassword = !_showPassword">
-                            <i class="bi @( _showPassword ? "bi-eye-slash" : "bi-eye")"></i>
+                            <i class="bi @(_showPassword ? "bi-eye" : "bi-eye-slash")"></i>                        
                         </button>
                     </div>
                 </div>
@@ -104,7 +104,7 @@
                         </span>
                         <InputText id="passwordverify" class="form-control border-end-0" style="border-color: #cbd5e1; font-size: 0.9rem;" @bind-Value="passwordverify" placeholder="Repite tu contraseña" type="@(_showPasswordVerify ? "text" : "password")" autocomplete="new-password" />
                         <button type="button" class="btn btn-outline-secondary bg-white text-muted" style="border-color: #cbd5e1; border-top-right-radius: 10px; border-bottom-right-radius: 10px;" @onclick="() => _showPasswordVerify = !_showPasswordVerify">
-                            <i class="bi @( _showPasswordVerify ? "bi-eye-slash" : "bi-eye")"></i>
+                            <i class="bi @(_showPasswordVerify ? "bi-eye" : "bi-eye-slash")"></i>
                         </button>
                     </div>
                 </div>
